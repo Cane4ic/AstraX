@@ -2111,7 +2111,7 @@ body.cabinet-mode main#cabinet-content{
 /* чтобы сайдбар был закреплен */
 .cabinet-sidebar{
   position: sticky;
-  top: 0;          /* т.к. .cabinet-layout уже ниже topbar (margin-top:64px) */
+         /* т.к. .cabinet-layout уже ниже topbar (margin-top:64px) */
   overflow: hidden; /* или просто убери overflow совсем */
   height: fit-content;
 }
@@ -2192,6 +2192,69 @@ body.cabinet-mode #cabinet-content{
   overflow-y: auto;
   min-height: 0;
 }
+
+:root { --topbar-h: 64px; }
+
+/* Кабинет под topbar */
+body.cabinet-mode .cabinet-page{
+  padding-top: var(--topbar-h);
+}
+
+/* Общий скролл отключаем */
+body.cabinet-mode{
+  overflow: hidden;
+}
+
+/* Grid высотой экрана, без margin-top */
+body.cabinet-mode .cabinet-layout{
+  margin-top: 0 !important;
+  height: calc(100vh - var(--topbar-h));
+  overflow: hidden;
+  align-items: stretch;
+}
+
+/* Сайдбар закреплён и НЕ скроллит страницу */
+body.cabinet-mode .cabinet-sidebar{
+  position: sticky;
+  top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow: auto;
+}
+
+/* Скролл только в правой части */
+body.cabinet-mode #cabinet-content{
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* FIX: делаем текст в карточках светлее */
+.fund-card,
+.assets-card-simple{
+  color: rgba(255,255,255,0.92);
+}
+
+.fund-label{
+  color: rgba(255,255,255,0.70);
+  opacity: 1; /* перебиваем старую opacity */
+}
+
+.fund-sub,
+.fund-pnl{
+  color: rgba(255,255,255,0.62);
+  opacity: 1;
+}
+
+.assets-card-title{
+  color: rgba(255,255,255,0.92);
+}
+
+.assets-card-sub,
+.assets-empty{
+  color: rgba(255,255,255,0.62);
+  opacity: 1;
+}
+
 
   </style>
 </head>

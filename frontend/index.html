@@ -2111,9 +2111,26 @@ body.cabinet-mode main#cabinet-content{
 /* чтобы сайдбар был закреплен */
 .cabinet-sidebar{
   position: sticky;
-  top: 90px;            /* подстрой под высоту topbar */
-  height: calc(100vh - 90px);
-  overflow: auto;
+  top: 0;          /* т.к. .cabinet-layout уже ниже topbar (margin-top:64px) */
+  overflow: hidden; /* или просто убери overflow совсем */
+  height: fit-content;
+}
+
+body.cabinet-mode{
+  overflow: hidden; /* отключаем общий скролл страницы */
+}
+
+/* ВАЖНО: делаем контейнер кабинета высотой экрана */
+body.cabinet-mode .cabinet-layout{
+  height: calc(100vh - 64px); /* вместо min-height */
+  margin-top: 64px;           /* как у тебя и было :contentReference[oaicite:2]{index=2} */
+  overflow: hidden;           /* чтобы скролл не уходил в body */
+}
+
+/* Скролл только у правого блока (content area) */
+#cabinet-content{
+  overflow-y: auto;
+  min-height: 0;  /* критично для grid, иначе overflow может не заработать */
 }
 
 

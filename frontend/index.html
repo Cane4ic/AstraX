@@ -1949,6 +1949,35 @@ body.cabinet-mode .cabinet-layout{
   margin-top: 64px;               /* ← САЙДБАР ПРИЖАТ К ТОПБАРУ */
 }
 
+.cabinet-ic{
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  flex: 0 0 22px;
+}
+
+.cabinet-ic svg{
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: rgba(255,255,255,.75);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cabinet-nav a:hover .cabinet-ic svg{
+  stroke: #fff;
+}
+
+.cabinet-nav a.active .cabinet-ic svg{
+  stroke: #2b7aff; /* твой синий */
+}
+
+
   </style>
 </head>
 <body>
@@ -3344,34 +3373,61 @@ body.cabinet-mode .cabinet-layout{
 <section id="cabinet-page" class="cabinet-page">
   <div class="cabinet-inner">
     <aside class="cabinet-sidebar">
-      <nav class="cabinet-nav" id="cabinet-nav">
-        <a href="#" class="active" data-tab="overview" onclick="openCabinetTab('overview'); return false;">
-          <span class="cabinet-ic">🕒</span> Overview
-        </a>
+  <nav class="cabinet-nav" id="cabinet-nav">
 
-        <a href="#" data-tab="spot" onclick="openCabinetTab('spot'); return false;">
-          <span class="cabinet-ic">🎯</span> Spot Account
-        </a>
+    <a href="#" class="active" data-tab="overview" onclick="openCabinetTab('overview'); return false;">
+      <span class="cabinet-ic" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 8v5l3 2M12 2a10 10 0 1 0 0 20a10 10 0 0 0 0-20Z"/></svg>
+      </span>
+      Overview
+    </a>
 
-        <a href="#" data-tab="futures" onclick="openCabinetTab('futures'); return false;">
-          <span class="cabinet-ic">📈</span> Futures Account
-        </a>
+    <a href="#" data-tab="spot" onclick="openCabinetTab('spot'); return false;">
+      <span class="cabinet-ic" aria-hidden="true">
+        <!-- target -->
+        <svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 4 4M12 2a10 10 0 1 0 10 10M12 12h.01"/></svg>
+      </span>
+      Spot Account
+    </a>
 
-        <a href="#" data-tab="copy" onclick="openCabinetTab('copy'); return false;">
-          <span class="cabinet-ic">🧾</span> Forex Account
-        </a>
+    <a href="#" data-tab="futures" onclick="openCabinetTab('futures'); return false;">
+      <span class="cabinet-ic" aria-hidden="true">
+        <!-- chart -->
+        <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-4 3 3 5-6"/></svg>
+      </span>
+      Futures Account
+    </a>
 
-        <a href="#" data-tab="bots" onclick="openCabinetTab('bots'); return false;">
-          <span class="cabinet-ic">🤖</span> Stocks Account
-        </a>
+    <a href="#" data-tab="copy" onclick="openCabinetTab('copy'); return false;">
+      <span class="cabinet-ic" aria-hidden="true">
+        <!-- document -->
+        <svg viewBox="0 0 24 24"><path d="M8 3h7l3 3v15H8zM11 10h6M11 14h6M11 18h6"/></svg>
+      </span>
+      Forex Account
+    </a>
 
-        <div class="divider"></div>
+    <a href="#" data-tab="bots" onclick="openCabinetTab('bots'); return false;">
+      <span class="cabinet-ic" aria-hidden="true">
+        <!-- bot -->
+        <svg viewBox="0 0 24 24"><path d="M12 3v2M7 7h10a4 4 0 0 1 4 4v6a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-6a4 4 0 0 1 4-4ZM8 13h.01M16 13h.01"/></svg>
+      </span>
+      Stocks Account
+    </a>
 
-        <a href="#" data-tab="records" onclick="openCabinetTab('records'); return false;">
-          <span class="cabinet-ic">🗂️</span> Asset Records
-        </a>
-      </nav>
-    </aside>
+    <div class="divider"></div>
+
+    <a href="#" data-tab="records" onclick="openCabinetTab('records'); return false;">
+      <span class="cabinet-ic" aria-hidden="true">
+        <!-- folder -->
+        <svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
+      </span>
+      Asset Records
+    </a>
+
+  </nav>
+</aside>
+
 
     <main id="cabinet-content" style="color:#fff;">
       <!-- сюда потом контент вкладок -->
@@ -4031,30 +4087,7 @@ function hideHomeSections() {
   if (partners) partners.style.display = "none";
 }
 
-function hideAllPages() {
-  const ids = [
-    "crypto-page",
-    "forex-page",
-    "stocks-page",
-    "about-page",
-    "news-page",
-    "blog-page",
-    "cabinet-page",
-    "chat-page",
-    "feedback-page",
-    "fees-page",
 
-    "agreement-page",
-    "privacy-page",
-    "disclaimer-page",
-    "risk-page"
-  ];
-
-  ids.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = "none";
-  });
-}
 
 function openCabinetPage(){
   hideAuth();

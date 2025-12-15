@@ -2079,6 +2079,12 @@ body.cabinet-mode .cabinet-layout{
   .fund-value{ font-size: 34px; }
 }
 
+/* чтобы контент кабинета не уезжал вниз из-за global main { margin:40px ... } */
+body.cabinet-mode main#cabinet-content{
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 24px 32px !important;
+}
 
   </style>
 </head>
@@ -4229,10 +4235,10 @@ function openCabinetTab(tab){
             0.00 <span class="fund-unit">USDT</span>
           </div>
 
-          <div class="fund-sub">≈ €0.00</div>
+          <div class="fund-sub">≈ $0.00</div>
 
           <div class="fund-pnl">
-            Today's PnL <span class="fund-pnl-up">+€0.00 (+0.00%)</span>
+            Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
           </div>
 
           <div class="fund-actions">

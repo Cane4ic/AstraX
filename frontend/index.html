@@ -2086,6 +2086,14 @@ body.cabinet-mode main#cabinet-content{
   padding: 24px 32px !important;
 }
 
+.cabinet-layout{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:24px;
+  align-items:start;
+}
+
+
   </style>
 </head>
 <body>
@@ -3482,7 +3490,12 @@ body.cabinet-mode main#cabinet-content{
 <!-- ===== CABINET / DASHBOARD ===== -->
 <section id="cabinet-page" class="cabinet-page">
   <div class="cabinet-inner">
-    <aside class="cabinet-sidebar">
+    <div class="overview-bar" id="overview-bar" style="display:none;">
+      <div class="overview-inner" id="overview-content"></div>
+    </div>
+
+    <div class="cabinet-layout">
+      <aside class="cabinet-sidebar">
   <nav class="cabinet-nav" id="cabinet-nav">
 
     <a href="#" class="active" data-tab="overview" onclick="openCabinetTab('overview'); return false;">
@@ -3537,13 +3550,14 @@ body.cabinet-mode main#cabinet-content{
 
   </nav>
 </aside>
-
-
-    <main id="cabinet-content" style="color:#fff;">
-      <!-- сюда потом контент вкладок -->
+      <main id="cabinet-content" style="color:#fff;"><!-- сюда потом контент вкладок -->
       <h1 style="margin:0 0 12px; font-size:34px;">Overview</h1>
-      <p style="opacity:.7; margin:0;">Cabinet content will be here.</p>
-    </main>
+      <p style="opacity:.7; margin:0;">Cabinet content will be here.</p></main>
+    </div>
+    
+
+
+    
   </div>
 </section>
 
@@ -4216,52 +4230,58 @@ function openCabinetPage(){
 }
 
 function openCabinetTab(tab){
-  // active в меню
   document.querySelectorAll("#cabinet-nav a").forEach(a => {
     a.classList.toggle("active", a.dataset.tab === tab);
   });
 
+  const overviewBar = document.getElementById("overview-bar");
+  const overviewContent = document.getElementById("overview-content");
   const content = document.getElementById("cabinet-content");
-  if (!content) return;
+  if (!content || !overviewBar || !overviewContent) return;
 
-  // ✅ 1) Если нажали overview — показываем Fund Account (а не демо-заголовок)
+  // по умолчанию прячем верхний блок
+  overviewBar.style.display = "none";
+  overviewContent.innerHTML = "";
+
   if (tab === "overview") {
-    content.innerHTML = `
-      <div class="overview-inner">
-        <h1 class="overview-title">Overview</h1>
+    overviewBar.style.display = "block";
+    overviewContent.innerHTML = `
+      <h1 class="overview-title">Overview</h1>
 
-        <div class="fund-card">
-          <div class="fund-label">Total Assets</div>
+      <div class="fund-card">
+        <div class="fund-label">Total Assets</div>
 
-          <div class="fund-value">
-            0.00 <span class="fund-unit">USDT</span>
-          </div>
+        <div class="fund-value">
+          0.00 <span class="fund-unit">USDT</span>
+        </div>
 
-          <div class="fund-sub">≈ $0.00</div>
+        <div class="fund-sub">≈ $0.00</div>
 
-          <div class="fund-pnl">
-            Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
-          </div>
+        <div class="fund-pnl">
+          Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
+        </div>
 
-          <div class="fund-actions">
-            <button class="fund-btn primary" type="button">Deposit</button>
-            <button class="fund-btn" type="button">Withdraw</button>
-            <button class="fund-btn" type="button">Transfer</button>
-            <button class="fund-btn" type="button">Convert</button>
-          </div>
+        <div class="fund-actions">
+          <button class="fund-btn primary" type="button">Deposit</button>
+          <button class="fund-btn" type="button">Withdraw</button>
+          <button class="fund-btn" type="button">Transfer</button>
+          <button class="fund-btn" type="button">Convert</button>
         </div>
       </div>
     `;
+
+    // main можно оставить пустым или показать что-то другое
+    content.innerHTML = "";
     return;
   }
 
-  // ✅ 2) Все остальные вкладки оставляем как заглушку (пока)
   const title = tab.charAt(0).toUpperCase() + tab.slice(1);
   content.innerHTML = `
     <h1 style="margin:0 0 12px; font-size:34px;">${title}</h1>
     <p style="opacity:.7; margin:0;">Section "${tab}" content will be here.</p>
   `;
 }
+
 
 
 

@@ -2162,6 +2162,37 @@ body.cabinet-mode .cabinet-layout{
   opacity: .5;
 }
 
+/* вкладки */
+.cabinet-tab { display: none; }
+.cabinet-tab.is-active { display: block; }
+
+/* убираем синюю полосу (зазор под topbar) */
+body.cabinet-mode .cabinet-layout{
+  margin-top: 0 !important;              /* <-- УБРАТЬ */
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+/* вместо margin-top делаем отступ у всей страницы кабинета */
+body.cabinet-mode .cabinet-page{
+  padding-top: 64px;                      /* <-- ВОТ ТАК */
+}
+
+/* сайдбар стоит на месте */
+body.cabinet-mode .cabinet-sidebar{
+  position: sticky;
+  top: 64px;                              /* под topbar */
+  height: calc(100vh - 64px);
+  overflow: auto;                         /* если пунктов станет много */
+}
+
+/* скролл только справа */
+body.cabinet-mode #cabinet-content{
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+  min-height: 0;
+}
+
   </style>
 </head>
 <body>
@@ -3619,10 +3650,9 @@ body.cabinet-mode .cabinet-layout{
 
       
 
-      <main id="cabinet-content" style="color:#fff;">
-        <div class="overview-bar" id="overview-bar">
-  <div class="overview-inner" id="overview-content">
-
+      <main id="cabinet-content">
+  <!-- TAB: OVERVIEW -->
+  <section class="cabinet-tab is-active" data-tab-panel="overview">
     <h1 class="overview-title">Overview</h1>
 
     <div class="fund-card">
@@ -3657,10 +3687,39 @@ body.cabinet-mode .cabinet-layout{
         <div class="assets-empty">—</div>
       </div>
     </div>
+  </section>
 
-  </div>
-</div>
-      </main>
+  <!-- TAB: SPOT -->
+  <section class="cabinet-tab" data-tab-panel="spot">
+    <h1 class="overview-title">Spot Account</h1>
+    <p style="opacity:.7;">Spot content...</p>
+  </section>
+
+  <!-- TAB: FUTURES -->
+  <section class="cabinet-tab" data-tab-panel="futures">
+    <h1 class="overview-title">Futures Account</h1>
+    <p style="opacity:.7;">Futures content...</p>
+  </section>
+
+  <!-- TAB: FOREX -->
+  <section class="cabinet-tab" data-tab-panel="copy">
+    <h1 class="overview-title">Forex Account</h1>
+    <p style="opacity:.7;">Forex content...</p>
+  </section>
+
+  <!-- TAB: STOCKS -->
+  <section class="cabinet-tab" data-tab-panel="bots">
+    <h1 class="overview-title">Stocks Account</h1>
+    <p style="opacity:.7;">Stocks content...</p>
+  </section>
+
+  <!-- TAB: RECORDS -->
+  <section class="cabinet-tab" data-tab-panel="records">
+    <h1 class="overview-title">Asset Records</h1>
+    <p style="opacity:.7;">Records content...</p>
+  </section>
+</main>
+
     </div>
 
   </div>
@@ -4335,51 +4394,17 @@ function openCabinetPage(){
 }
 
 function openCabinetTab(tab){
-  document.querySelectorAll("#cabinet-nav a").forEach(a => {
-    a.classList.toggle("active", a.dataset.tab === tab);
+  // активная ссылка в меню
+  document.querySelectorAll('#cabinet-nav a').forEach(a=>{
+    a.classList.toggle('active', a.dataset.tab === tab);
   });
 
-  const overviewBar = document.getElementById("overview-bar");
-  const overviewContent = document.getElementById("overview-content");
-  const content = document.getElementById("cabinet-content");
-  if (!content || !overviewBar || !overviewContent) return;
-
-  // по умолчанию прячем верхний блок
-  overviewBar.style.display = "none";
-  overviewContent.innerHTML = "";
-
-  function openCabinetTab(tab){
-  document.querySelectorAll("#cabinet-nav a").forEach(a => {
-    a.classList.toggle("active", a.dataset.tab === tab);
+  // активная панель
+  document.querySelectorAll('.cabinet-tab').forEach(p=>{
+    p.classList.toggle('is-active', p.dataset.tabPanel === tab);
   });
-
-  const content = document.getElementById("cabinet-content");
-  const bar = document.getElementById("overview-bar");
-
-  if (!content || !bar) return;
-
-  if (tab === "overview") {
-    bar.style.display = "block";      // показываем верхний блок Overview
-    content.innerHTML = "";           // main можно очистить или оставить пустым
-    return;
-  }
-
-  // остальные вкладки
-  bar.style.display = "none";         // скрываем Overview
-  const title = tab.charAt(0).toUpperCase() + tab.slice(1);
-  content.innerHTML = `
-    <h1 style="margin:0 0 12px; font-size:34px;">${title}</h1>
-    <p style="opacity:.7; margin:0;">Section "${tab}" content will be here.</p>
-  `;
 }
 
-
-  const title = tab.charAt(0).toUpperCase() + tab.slice(1);
-  content.innerHTML = `
-    <h1 style="margin:0 0 12px; font-size:34px;">${title}</h1>
-    <p style="opacity:.7; margin:0;">Section "${tab}" content will be here.</p>
-  `;
-}
 
 
 

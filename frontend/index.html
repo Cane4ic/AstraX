@@ -1626,6 +1626,59 @@ margin-bottom: 100px;
   padding:24px;
 }
 
+.actions.actions-auth{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.top-deposit-btn{
+  background:#2b7aff;
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.top-link{
+  color:#fff;
+  opacity:.9;
+  text-decoration:none;
+  font-weight:600;
+}
+
+.top-icon-btn{
+  position:relative;
+  width:36px;
+  height:36px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+.top-badge{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  min-width:18px;
+  height:18px;
+  padding:0 6px;
+  border-radius:999px;
+  background:#ff3b30;
+  color:#fff;
+  font-size:12px;
+  line-height:18px;
+  font-weight:700;
+}
+
+
   </style>
 </head>
 <body>
@@ -1636,17 +1689,40 @@ margin-bottom: 100px;
       <nav class="nav">
         <a href="#">Buy Crypto</a>
         <a href="#">Markets</a>
-        <a href="#">Staking</a>
         <a href="#">Spot</a>
         <a href="#">Futures</a>
         <a href="#">Forex</a>
         <a href="#">Stocks</a>
       </nav>
 
-      <div class="actions">
-        <button class="btn btn-outline" id="btn-top-signin">Sign in</button>
-        <button class="btn btn-primary" id="btn-top-get-started">Get Started</button>
-      </div>
+      <div class="actions actions-guest" id="topbar-guest">
+  <button class="btn btn-outline" id="btn-top-signin">Sign in</button>
+  <button class="btn btn-primary" id="btn-top-get-started">Get Started</button>
+</div>
+
+<div class="actions actions-auth" id="topbar-auth" style="display:none;">
+  <button class="top-deposit-btn" type="button">Deposit</button>
+
+  <a class="top-link" href="#" onclick="return false;">Assets</a>
+
+  <button class="top-icon-btn" type="button" aria-label="Notifications">
+    <span class="top-badge">2</span>
+    <!-- простая иконка колокола -->
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <button class="top-icon-btn" type="button" aria-label="Profile">
+    <!-- иконка пользователя -->
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M20 21a8 8 0 10-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
     </div>
   </header>
 
@@ -2596,7 +2672,7 @@ margin-bottom: 100px;
     
   </section>
 
-  <!-- 2) Empowering Trader -->
+  <!-- 2) Empowering Traders -->
   <section class="about-block about-split">
     <div class="about-left">
       <h2 class="about-h2">Empowering<br/>Traders<span class="dot">.</span></h2>
@@ -4971,9 +5047,9 @@ document.getElementById("modal-confirm-btn")?.addEventListener("click", async ()
       return;
     }
 
-    alert("Email successfully verified! 🎉");
     closeVerificationModal();
-    openCabinetPage();
+setLoggedIn(true);
+openCabinetPage(); // или твоя функция кабинета
   } catch (err) {
     console.error(err);
     alert("Network error during verification");
@@ -5119,8 +5195,8 @@ function openResetConfirmPage() {
       return;
     }
 
-    alert("Успешный вход!");
-    openCabinetPage();
+    setLoggedIn(true);
+openCabinetPage(); // или твоя функция кабинета
 
   } catch (err) {
     console.error(err);
@@ -5217,7 +5293,40 @@ document.getElementById("reset-confirm-btn")?.addEventListener("click", async ()
   openLoginPage();
 });
 
+const AUTH_KEY = "astrax_logged_in";
+
+function isLoggedIn(){
+  return localStorage.getItem(AUTH_KEY) === "1";
+}
+
+function setLoggedIn(v){
+  localStorage.setItem(AUTH_KEY, v ? "1" : "0");
+  applyAuthUI();
+}
+
+function applyAuthUI(){
+  const guest = document.getElementById("topbar-guest");
+  const auth  = document.getElementById("topbar-auth");
+  const heroBtn = document.getElementById("btn-hero-get-started");
+
+  if (isLoggedIn()) {
+    if (guest) guest.style.display = "none";
+    if (auth) auth.style.display = "flex";
+    if (heroBtn) heroBtn.style.display = "none";
+  } else {
+    if (guest) guest.style.display = "flex";
+    if (auth) auth.style.display = "none";
+    if (heroBtn) heroBtn.style.display = "";
+  }
+}
+
+
 window.addEventListener("load", () => {
+applyAuthUI();
+if (isLoggedIn() && (location.hash === "" || location.hash === "#home")) {
+  openCabinetPage();
+  return;
+}
   switch (location.hash) {
     case "#about":
       openAboutPage();
@@ -5276,6 +5385,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => toast.classList.remove("show"), 3000);
 
     form.reset();
+    applyAuthUI();
   });
 });
  // Custom select (Feedback)

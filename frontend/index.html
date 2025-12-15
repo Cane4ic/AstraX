@@ -1977,6 +1977,21 @@ body.cabinet-mode .cabinet-layout{
   stroke: #2b7aff; /* твой синий */
 }
 
+/* ===== OVERVIEW (Fund Account) ===== */
+.overview-bar {
+  position: sticky;
+  top: 64px; /* высота topbar */
+  z-index: 900;
+  background: #000;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.overview-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 24px;
+}
+
 
   </style>
 </head>
@@ -2060,6 +2075,12 @@ body.cabinet-mode .cabinet-layout{
 
     </div>
   </header>
+
+  <section class="overview-bar">
+  <div class="overview-inner">
+    <!-- твой Fund Account блок -->
+  </div>
+</section>
 
   <div id="home-page">
 

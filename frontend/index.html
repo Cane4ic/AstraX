@@ -2133,6 +2133,34 @@ body.cabinet-mode .cabinet-layout{
   min-height: 0;  /* критично для grid, иначе overflow может не заработать */
 }
 
+.assets-card-simple{
+  margin-top: 18px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  padding: 18px 20px;
+}
+
+.assets-card-title{
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.assets-card-sub{
+  opacity: .6;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.assets-card-body{
+  margin-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 14px;
+}
+
+.assets-empty{
+  opacity: .5;
+}
 
   </style>
 </head>
@@ -3589,7 +3617,10 @@ body.cabinet-mode .cabinet-layout{
   </nav>
       </aside>
 
-      <div class="overview-bar" id="overview-bar" style="display:none;">
+      
+
+      <main id="cabinet-content" style="color:#fff;">
+        <div class="overview-bar" id="overview-bar">
   <div class="overview-inner" id="overview-content">
 
     <h1 class="overview-title">Overview</h1>
@@ -3629,10 +3660,6 @@ body.cabinet-mode .cabinet-layout{
 
   </div>
 </div>
-
-      <main id="cabinet-content" style="color:#fff;">
-        <h1 style="margin:0 0 12px; font-size:34px;">Overview</h1>
-      <p style="opacity:.7; margin:0;">Cabinet content will be here.</p>
       </main>
     </div>
 

@@ -1898,15 +1898,49 @@ body.cabinet-mode .footer{
 }
 
 body.cabinet-mode .cabinet-layout{
+  min-height: calc(100vh - 64px); /* 64px = высота топбара */
   display: grid !important;
   grid-template-columns: 320px 1fr !important;
   gap: 24px;
-  align-items: start;
+  align-items: stretch; /* КЛЮЧЕВО */
 }
 body.cabinet-mode .cabinet-sidebar{
   width: 320px;
 }
 
+body.cabinet-mode .cabinet-sidebar{
+   height: 100%;
+  align-self: stretch;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  position: sticky;
+  top: 64px; /* высота топбара */
+}
+
+body.cabinet-mode .cabinet-nav{
+  padding: 16px 0;
+}
+
+body.cabinet-mode .cabinet-nav a{
+  padding: 14px 24px;
+  border-left: 3px solid transparent;
+}
+
+body.cabinet-mode .cabinet-nav a:hover{
+  background: rgba(255,255,255,0.04);
+}
+
+body.cabinet-mode .cabinet-nav a.active{
+  background: rgba(255,255,255,0.06);
+  border-left-color: #2b7aff;
+}
+
+body.cabinet-mode .cabinet-content-wrap{
+  height: auto;
+  min-height: 100%;
+  overflow-y: auto;
+}
 
   </style>
 </head>

@@ -1678,6 +1678,134 @@ margin-bottom: 100px;
   font-weight:700;
 }
 
+.assets-dropdown{
+  position:relative;
+}
+
+.assets-trigger{
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  padding:6px 8px;
+  border-radius:10px;
+}
+
+.assets-menu{
+  position:absolute;
+  top:48px;
+  left:0;
+  width:360px;
+  max-width: calc(100vw - 24px);
+  z-index:10000;
+
+  opacity:0;
+  transform: translateY(8px);
+  pointer-events:none;
+  transition: .18s ease;
+}
+
+.assets-dropdown:hover .assets-menu,
+.assets-dropdown:focus-within .assets-menu{
+  opacity:1;
+  transform: translateY(0);
+  pointer-events:auto;
+}
+
+.assets-card{
+  background: rgba(18,18,18,.92);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  padding:16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+}
+
+.assets-total-title{
+  color: rgba(255,255,255,.8);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.assets-total-value .big{
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.assets-total-value .unit{
+  color: rgba(255,255,255,.65);
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.assets-total-sub{
+  color: rgba(255,255,255,.55);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.assets-note{
+  color: rgba(255,255,255,.45);
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.assets-actions{
+  display:flex;
+  gap:12px;
+  margin-top: 14px;
+}
+
+.assets-btn{
+  flex:1;
+  height: 40px;
+  border-radius: 999px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.assets-btn.ghost{
+  background: rgba(255,255,255,.08);
+  color:#fff;
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+.assets-btn.primary{
+  background: #2b7aff;
+  color:#fff;
+}
+
+.assets-section{
+  margin-top: 14px;
+}
+
+.assets-section-title{
+  color: rgba(255,255,255,.45);
+  font-size: 12px;
+  margin: 10px 0 6px;
+}
+
+.assets-item{
+  display:block;
+  padding:10px 10px;
+  border-radius:12px;
+  color:#fff;
+  text-decoration:none;
+  font-weight: 600;
+  opacity:.9;
+}
+
+.assets-item:hover{
+  background: rgba(255,255,255,.06);
+}
+
+.assets-dropdown.open .assets-menu{
+  opacity:1;
+  transform: translateY(0);
+  pointer-events:auto;
+}
+
 
   </style>
 </head>
@@ -1703,7 +1831,44 @@ margin-bottom: 100px;
 <div class="actions actions-auth" id="topbar-auth" style="display:none;">
   <button class="top-deposit-btn" type="button">Deposit</button>
 
-  <a class="top-link" href="#" onclick="return false;">Assets</a>
+  <div class="assets-dropdown" id="assets-dropdown">
+  <button class="top-link assets-trigger" type="button">
+    Assets
+  </button>
+
+  <div class="assets-menu">
+    <div class="assets-card">
+      <div class="assets-total">
+        <div class="assets-total-title">Total Assets</div>
+        <div class="assets-total-value">
+          <span class="big">0.00</span> <span class="unit">USDT</span>
+        </div>
+        <div class="assets-total-sub">≈ ₴0.00</div>
+        <div class="assets-note">*Data updates may be delayed</div>
+
+        <div class="assets-actions">
+          <button class="assets-btn ghost" type="button">Withdraw</button>
+          <button class="assets-btn primary" type="button">Deposit</button>
+        </div>
+      </div>
+
+      <div class="assets-section">
+        <div class="assets-section-title">Accounts</div>
+
+        <a class="assets-item" href="#" onclick="return false;">Spot Account</a>
+        <a class="assets-item" href="#" onclick="return false;">Futures Account</a>
+        <a class="assets-item" href="#" onclick="return false;">Forex Account</a>
+        <a class="assets-item" href="#" onclick="return false;">Stocks Account</a>
+      </div>
+
+      <div class="assets-section">
+        <div class="assets-section-title">Records</div>
+        <a class="assets-item" href="#" onclick="return false;">Asset Records</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   <button class="top-icon-btn" type="button" aria-label="Notifications">
     <span class="top-badge">2</span>
@@ -5322,38 +5487,36 @@ function applyAuthUI(){
 
 
 window.addEventListener("load", () => {
-applyAuthUI();
-if (isLoggedIn() && (location.hash === "" || location.hash === "#home")) {
-  openCabinetPage();
-  return;
-}
+  applyAuthUI();
+
+  // если залогинен и нет конкретной страницы в hash — сразу в кабинет
+  if (isLoggedIn() && (!location.hash || location.hash === "#home")) {
+    openCabinetPage();
+    return;
+  }
+
   switch (location.hash) {
-    case "#about":
-      openAboutPage();
-      break;
-    case "#crypto":
-      openCryptoPage();
-      break;
-    case "#forex":
-      openForexPage();
-      break;
-    case "#stocks":
-      openStocksPage();
-      break;
+    case "#about":      openAboutPage(); break;
+    case "#crypto":     openCryptoPage(); break;
+    case "#forex":      openForexPage(); break;
+    case "#stocks":     openStocksPage(); break;
+
+    case "#chat":       openChatPage(); break;
+    case "#feedback":   openFeedbackPage(); break;
+    case "#fees":       openFeesPage(); break;
+    case "#agreement":  openAgreementPage(); break;
+    case "#privacy":    openPrivacyPage(); break;
+    case "#disclaimer": openDisclaimerPage(); break;
+    case "#risk":       openRiskPage(); break;
+
+    case "#cabinet":    openCabinetPage(); break;
+
     default:
       openHomePage();
-      case "#chat": openChatPage(); break;
-case "#feedback": openFeedbackPage(); break;
-case "#fees": openFeesPage(); break;
-case "#agreement": openAgreementPage(); break;
-case "#privacy": openPrivacyPage(); break;
-case "#disclaimer": openDisclaimerPage(); break;
-case "#risk": openRiskPage(); break;
-case "#cabinet":
-  openCabinetPage();
-  break;
+      break;
   }
 });
+
 
 function hideAllPages() {
   [
@@ -5426,6 +5589,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  const assetsDD = document.getElementById("assets-dropdown");
+if (assetsDD) {
+  assetsDD.querySelector(".assets-trigger")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    assetsDD.classList.toggle("open");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!assetsDD.contains(e.target)) assetsDD.classList.remove("open");
+  });
+}
 
 
 </script>

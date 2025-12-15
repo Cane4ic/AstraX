@@ -2125,7 +2125,7 @@ body.cabinet-mode{
 /* ВАЖНО: делаем контейнер кабинета высотой экрана */
 body.cabinet-mode .cabinet-layout{
   height: calc(100vh - 64px); /* вместо min-height */
-  margin-top: 64px;           /* как у тебя и было :contentReference[oaicite:2]{index=2} */
+  margin-top: 0;           /* как у тебя и было :contentReference[oaicite:2]{index=2} */
   overflow: hidden;           /* чтобы скролл не уходил в body */
 }
 
@@ -2183,7 +2183,7 @@ body.cabinet-mode .cabinet-page{
 /* сайдбар стоит на месте */
 body.cabinet-mode .cabinet-sidebar{
   position: sticky;
-  top: 64px;                              /* под topbar */
+  top: 0;                              /* под topbar */
   height: calc(100vh - 64px);
   overflow: auto;                         /* если пунктов станет много */
 }

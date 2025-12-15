@@ -1618,7 +1618,7 @@ margin-bottom: 100px;
   display:none;
   min-height: 100vh;
   background:#000;
-  padding-top:120px; /* чтобы контент не залезал под topbar */
+  padding-top:0; /* чтобы контент не залезал под topbar */
 }
 /* чтобы кабинет НЕ центрировался */
 .cabinet-inner{
@@ -1919,12 +1919,14 @@ body.cabinet-mode .cabinet-sidebar{
 }
 
 body.cabinet-mode .cabinet-nav{
-  padding: 16px 0;
+  padding: 12px;
 }
 
 body.cabinet-mode .cabinet-nav a{
-  padding: 14px 24px;
+  padding: 18px 28px;
   border-left: 3px solid transparent;
+  margin-bottom: 6px;
+  font-size: 15px;
 }
 
 body.cabinet-mode .cabinet-nav a:hover{
@@ -1940,6 +1942,11 @@ body.cabinet-mode .cabinet-content-wrap{
   height: auto;
   min-height: 100%;
   overflow-y: auto;
+}
+
+body.cabinet-mode .cabinet-layout{
+  min-height: calc(100vh - 64px); /* высота экрана минус топбар */
+  margin-top: 64px;               /* ← САЙДБАР ПРИЖАТ К ТОПБАРУ */
 }
 
   </style>

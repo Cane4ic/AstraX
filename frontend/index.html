@@ -1832,9 +1832,9 @@ margin-bottom: 100px;
   <button class="top-deposit-btn" type="button">Deposit</button>
 
   <div class="assets-dropdown" id="assets-dropdown">
-  <button class="top-link assets-trigger" type="button">
-    Assets
-  </button>
+  <button class="top-link assets-trigger" type="button" id="assets-trigger">
+  Assets
+</button>
 
   <div class="assets-menu">
     <div class="assets-card">
@@ -1843,7 +1843,7 @@ margin-bottom: 100px;
         <div class="assets-total-value">
           <span class="big">0.00</span> <span class="unit">USDT</span>
         </div>
-        <div class="assets-total-sub">≈ ₴0.00</div>
+        <div class="assets-total-sub">≈ $0.00</div>
         <div class="assets-note">*Data updates may be delayed</div>
 
         <div class="assets-actions">
@@ -5602,6 +5602,21 @@ if (assetsDD) {
   });
 }
 
+const assetsTrigger = document.getElementById("assets-trigger");
+const assetsDropdown = document.getElementById("assets-dropdown");
+
+if (assetsTrigger) {
+  assetsTrigger.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // закрываем dropdown, если открыт
+    assetsDropdown?.classList.remove("open");
+
+    // переход в личный кабинет
+    openCabinetPage();
+  });
+}
 
 </script>
 <footer class="footer">

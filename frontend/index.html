@@ -1620,11 +1620,14 @@ margin-bottom: 100px;
   background:#000;
   padding-top:120px; /* чтобы контент не залезал под topbar */
 }
+/* чтобы кабинет НЕ центрировался */
 .cabinet-inner{
-  max-width:1200px;
-  margin:0 auto;
-  padding:24px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
+
 
 .actions.actions-auth{
   display:flex;
@@ -1808,30 +1811,36 @@ margin-bottom: 100px;
 
 /* ===== CABINET MODE ===== */
 body.cabinet-mode .topbar-wrapper{
-  background: #0b0b0b !important; /* без градиента */
+  background:#000 !important;
   border-bottom: 1px solid rgba(255,255,255,.08);
 }
+  
 
 body.cabinet-mode .footer{
   display: none !important; /* футер скрыть */
 }
 
-/* контейнер кабинета */
-.cabinet-page{
+/* контейнер кабинета */ 
+/* .cabinet-page{
   display:none;
   padding-top: 80px; /* под фиксированный топбар */
-  min-height: 100vh;
+  /* min-height: 100vh;
   background: #000;
-}
+} */
 
 /* layout: sidebar + content */
 .cabinet-layout{
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
+  padding: 24px 32px;
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 24px;
-  padding: 24px 16px;
+}
+
+
+.cabinet-content-wrap{
+  padding: 24px 32px;
 }
 
 /* sidebar */
@@ -3288,10 +3297,6 @@ body.cabinet-mode .footer{
           <span class="cabinet-ic">🕒</span> Overview
         </a>
 
-        <a href="#" data-tab="fund" onclick="openCabinetTab('fund'); return false;">
-          <span class="cabinet-ic">💳</span> Fund Account
-        </a>
-
         <a href="#" data-tab="spot" onclick="openCabinetTab('spot'); return false;">
           <span class="cabinet-ic">🎯</span> Spot Account
         </a>
@@ -3301,15 +3306,11 @@ body.cabinet-mode .footer{
         </a>
 
         <a href="#" data-tab="copy" onclick="openCabinetTab('copy'); return false;">
-          <span class="cabinet-ic">🧾</span> Copy Trading Account
+          <span class="cabinet-ic">🧾</span> Forex Account
         </a>
 
         <a href="#" data-tab="bots" onclick="openCabinetTab('bots'); return false;">
-          <span class="cabinet-ic">🤖</span> Bots Account
-        </a>
-
-        <a href="#" data-tab="wealth" onclick="openCabinetTab('wealth'); return false;">
-          <span class="cabinet-ic">💰</span> Wealth Account
+          <span class="cabinet-ic">🤖</span> Stocks Account
         </a>
 
         <div class="divider"></div>
@@ -4507,6 +4508,7 @@ if (aboutPage) aboutPage.style.display = "none";
 
   window.scrollTo({ top: 0, behavior: "smooth" });
   location.hash = "home";
+  document.body.classList.remove("cabinet-mode");
 }
 
 function hideAuth() {

@@ -1829,14 +1829,7 @@ body.cabinet-mode .footer{
 } */
 
 /* layout: sidebar + content */
-.cabinet-layout{
-  width: 100%;
-  margin: 0;
-  padding: 24px 32px;
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 24px;
-}
+
 
 
 .cabinet-content-wrap{
@@ -1888,11 +1881,30 @@ body.cabinet-mode .footer{
   justify-content:center;
 }
 
+.cabinet-layout{
+  width: 100%;
+  margin: 0;
+  padding: 24px 32px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+}
+
 /* мобилка */
 @media (max-width: 900px){
   .cabinet-layout{
     grid-template-columns: 1fr;
   }
+}
+
+body.cabinet-mode .cabinet-layout{
+  display: grid !important;
+  grid-template-columns: 320px 1fr !important;
+  gap: 24px;
+  align-items: start;
+}
+body.cabinet-mode .cabinet-sidebar{
+  width: 320px;
 }
 
 
@@ -1904,7 +1916,6 @@ body.cabinet-mode .footer{
       <div class="logo" id="logo">AstraX</div>
 
       <nav class="nav">
-        <a href="#">Buy Crypto</a>
         <a href="#">Markets</a>
         <a href="#">Spot</a>
         <a href="#">Futures</a>

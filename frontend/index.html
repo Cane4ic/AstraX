@@ -1838,11 +1838,12 @@ body.cabinet-mode .footer{
 
 /* sidebar */
 .cabinet-sidebar{
-  background: rgba(18,18,18,.9);
-  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(18,18,18,0.90);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible;
 }
+
 
 .cabinet-nav a{
   display:flex;
@@ -2089,12 +2090,7 @@ body.cabinet-mode main#cabinet-content{
 #cabinet-content{ grid-area: content; }
 
 /* чтобы сайдбар был закреплен */
-.cabinet-sidebar{
-  position: sticky;
-         /* т.к. .cabinet-layout уже ниже topbar (margin-top:64px) */
-  overflow: hidden; /* или просто убери overflow совсем */
-  height: fit-content;
-}
+
 
 body.cabinet-mode{
   overflow: hidden; /* отключаем общий скролл страницы */
@@ -2156,7 +2152,7 @@ body.cabinet-mode .cabinet-page{
 /* скролл только справа */
 
 
-:root { --topbar-h: 64px; }
+
 
 /* Кабинет под topbar */
 body.cabinet-mode .cabinet-page{
@@ -2204,26 +2200,26 @@ body.cabinet-mode{
   opacity: 1;
 }
 
+
+
 :root { --topbar-h: 64px; }
 
 body.cabinet-mode .topbar-wrapper{
-  position: fixed;   /* ← ВАЖНО */
-  top: 0;
-  left: 0;
-  right: 0;
+  position: fixed;
+  top: 0; left: 0; right: 0;
   z-index: 1000;
 }
 
 body.cabinet-mode{
-  overflow: hidden;  /* ← скролл не у body */
+  overflow: hidden;
 }
 
 body.cabinet-mode .cabinet-page{
-  padding-top: var(--topbar-h); /* ← чтобы контент поднялся под topbar */
+  padding-top: var(--topbar-h);
 }
 
 body.cabinet-mode .cabinet-layout{
-  margin-top: 0 !important;      /* ← убираем синюю “полосу/зазор” */
+  margin-top: 0 !important;
   height: calc(100vh - var(--topbar-h));
   overflow: hidden;
   align-items: stretch;
@@ -2241,6 +2237,7 @@ body.cabinet-mode #cabinet-content{
   overflow-y: auto;
   min-height: 0;
 }
+
 
 
   </style>

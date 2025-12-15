@@ -3590,8 +3590,45 @@ body.cabinet-mode .cabinet-layout{
       </aside>
 
       <div class="overview-bar" id="overview-bar" style="display:none;">
-        <div class="overview-inner" id="overview-content"></div>
+  <div class="overview-inner" id="overview-content">
+
+    <h1 class="overview-title">Overview</h1>
+
+    <div class="fund-card">
+      <div class="fund-label">Total Assets</div>
+
+      <div class="fund-value">
+        0.00 <span class="fund-unit">USDT</span>
       </div>
+
+      <div class="fund-sub">≈ $0.00</div>
+
+      <div class="fund-pnl">
+        Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
+      </div>
+
+      <div class="fund-actions">
+        <button class="fund-btn primary">Deposit</button>
+        <button class="fund-btn">Withdraw</button>
+        <button class="fund-btn">Transfer</button>
+        <button class="fund-btn">Convert</button>
+      </div>
+    </div>
+
+    <!-- НОВЫЙ БЛОК НИЖЕ -->
+    <div class="assets-card-simple">
+      <div class="assets-card-head">
+        <div class="assets-card-title">My Assets</div>
+        <div class="assets-card-sub">No assets to display</div>
+      </div>
+
+      <div class="assets-card-body">
+        <div class="assets-empty">—</div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
       <main id="cabinet-content" style="color:#fff;">
         <h1 style="margin:0 0 12px; font-size:34px;">Overview</h1>
@@ -4284,37 +4321,31 @@ function openCabinetTab(tab){
   overviewBar.style.display = "none";
   overviewContent.innerHTML = "";
 
+  function openCabinetTab(tab){
+  document.querySelectorAll("#cabinet-nav a").forEach(a => {
+    a.classList.toggle("active", a.dataset.tab === tab);
+  });
+
+  const content = document.getElementById("cabinet-content");
+  const bar = document.getElementById("overview-bar");
+
+  if (!content || !bar) return;
+
   if (tab === "overview") {
-    overviewBar.style.display = "block";
-    overviewContent.innerHTML = `
-      <h1 class="overview-title">Overview</h1>
-
-      <div class="fund-card">
-        <div class="fund-label">Total Assets</div>
-
-        <div class="fund-value">
-          0.00 <span class="fund-unit">USDT</span>
-        </div>
-
-        <div class="fund-sub">≈ $0.00</div>
-
-        <div class="fund-pnl">
-          Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
-        </div>
-
-        <div class="fund-actions">
-          <button class="fund-btn primary" type="button">Deposit</button>
-          <button class="fund-btn" type="button">Withdraw</button>
-          <button class="fund-btn" type="button">Transfer</button>
-          <button class="fund-btn" type="button">Convert</button>
-        </div>
-      </div>
-    `;
-
-    // main можно оставить пустым или показать что-то другое
-    content.innerHTML = "";
+    bar.style.display = "block";      // показываем верхний блок Overview
+    content.innerHTML = "";           // main можно очистить или оставить пустым
     return;
   }
+
+  // остальные вкладки
+  bar.style.display = "none";         // скрываем Overview
+  const title = tab.charAt(0).toUpperCase() + tab.slice(1);
+  content.innerHTML = `
+    <h1 style="margin:0 0 12px; font-size:34px;">${title}</h1>
+    <p style="opacity:.7; margin:0;">Section "${tab}" content will be here.</p>
+  `;
+}
+
 
   const title = tab.charAt(0).toUpperCase() + tab.slice(1);
   content.innerHTML = `

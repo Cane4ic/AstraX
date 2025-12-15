@@ -1978,18 +1978,105 @@ body.cabinet-mode .cabinet-layout{
 }
 
 /* ===== OVERVIEW (Fund Account) ===== */
+/* ===== OVERVIEW (Fund Account) ===== */
 .overview-bar {
   position: sticky;
-  top: 64px; /* высота topbar */
+  top: 64px;               /* высота topbar */
   z-index: 900;
-  background: #000;
+  background: transparent; /* ВАЖНО: вместо #000 */
   border-bottom: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px); /* можно убрать если не надо */
 }
+
 
 .overview-inner {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px 24px 24px;
+}
+
+/* ===== Overview / Fund Account ===== */
+.overview-inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 0;
+}
+
+.overview-title{
+  margin: 0 0 18px;
+  font-size: 44px;
+  font-weight: 800;
+}
+
+.fund-card{
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  padding: 22px 24px 24px;
+}
+
+.fund-label{
+  opacity: .75;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.fund-value{
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.fund-unit{
+  font-size: 14px;
+  font-weight: 700;
+  opacity: .75;
+  margin-left: 6px;
+}
+
+.fund-sub{
+  opacity: .6;
+  margin-bottom: 10px;
+}
+
+.fund-pnl{
+  font-size: 13px;
+  margin-bottom: 18px;
+  opacity: .75;
+}
+
+.fund-pnl-up{
+  color: #00e3a1;
+  opacity: 1;
+}
+
+.fund-actions{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 560px;
+}
+
+.fund-btn{
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fund-btn.primary{
+  background: #2b7aff;
+  border-color: #2b7aff;
+}
+
+@media (max-width: 700px){
+  .fund-actions{ grid-template-columns: 1fr 1fr; }
+  .overview-title{ font-size: 34px; }
+  .fund-value{ font-size: 34px; }
 }
 
 
@@ -2076,11 +2163,7 @@ body.cabinet-mode .cabinet-layout{
     </div>
   </header>
 
-  <section class="overview-bar">
-  <div class="overview-inner">
-    <!-- твой Fund Account блок -->
-  </div>
-</section>
+
 
   <div id="home-page">
 
@@ -4130,16 +4213,48 @@ function openCabinetTab(tab){
     a.classList.toggle("active", a.dataset.tab === tab);
   });
 
-  // простой демо-контент
   const content = document.getElementById("cabinet-content");
   if (!content) return;
-  const title = tab.charAt(0).toUpperCase() + tab.slice(1);
 
+  // ✅ 1) Если нажали overview — показываем Fund Account (а не демо-заголовок)
+  if (tab === "overview") {
+    content.innerHTML = `
+      <div class="overview-inner">
+        <h1 class="overview-title">Overview</h1>
+
+        <div class="fund-card">
+          <div class="fund-label">Total Assets</div>
+
+          <div class="fund-value">
+            0.00 <span class="fund-unit">USDT</span>
+          </div>
+
+          <div class="fund-sub">≈ €0.00</div>
+
+          <div class="fund-pnl">
+            Today's PnL <span class="fund-pnl-up">+€0.00 (+0.00%)</span>
+          </div>
+
+          <div class="fund-actions">
+            <button class="fund-btn primary" type="button">Deposit</button>
+            <button class="fund-btn" type="button">Withdraw</button>
+            <button class="fund-btn" type="button">Transfer</button>
+            <button class="fund-btn" type="button">Convert</button>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // ✅ 2) Все остальные вкладки оставляем как заглушку (пока)
+  const title = tab.charAt(0).toUpperCase() + tab.slice(1);
   content.innerHTML = `
     <h1 style="margin:0 0 12px; font-size:34px;">${title}</h1>
     <p style="opacity:.7; margin:0;">Section "${tab}" content will be here.</p>
   `;
 }
+
 
 
 function openChatPage(){

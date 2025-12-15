@@ -1946,7 +1946,7 @@ body.cabinet-mode .cabinet-content-wrap{
 
 body.cabinet-mode .cabinet-layout{
   min-height: calc(100vh - 64px); /* высота экрана минус топбар */
-  margin-top: 64px;               /* ← САЙДБАР ПРИЖАТ К ТОПБАРУ */
+  margin-top: 0;               /* ← САЙДБАР ПРИЖАТ К ТОПБАРУ */
 }
 
 .cabinet-ic{
@@ -4208,6 +4208,8 @@ function openCabinetPage(){
 
   const el = document.getElementById("cabinet-page");
   if (el) el.style.display = "block";
+
+  openCabinetTab("overview"); // <-- ДОБАВЬ ЭТО
 
   location.hash = "cabinet";
   window.scrollTo({top:0, behavior:"smooth"});

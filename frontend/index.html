@@ -2347,6 +2347,34 @@ body.cabinet-mode #cabinet-content{
   color: rgba(255,255,255,.5);
 }
 
+.records-filters select{
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-color: rgba(12,16,30,0.95);
+  color: #fff;
+
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 10px 36px 10px 14px;
+  font-size: 14px;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, #fff 50%),
+    linear-gradient(135deg, #fff 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% - 2px),
+    calc(100% - 12px) calc(50% - 2px);
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* выпадающий список */
+.records-filters select option{
+  background-color: #0b1022;
+  color: #fff;
+}
 
   </style>
 </head>
@@ -3989,35 +4017,34 @@ body.cabinet-mode #cabinet-content{
 
   <!-- TAB: RECORDS -->
   <section class="cabinet-tab" data-tab-panel="records">
-    <div class="records-tabs">
-    <button class="records-tab active">Overview</button>
-    <button class="records-tab">Deposit</button>
-    <button class="records-tab">Withdraw</button>
+    <div class="records-tabss">
+    <button class="records-tab active" data-tab="overview">Overview</button>
+    <button class="records-tab" data-tab="deposit">Deposit</button>
+    <button class="records-tab" data-tab="withdraw">Withdraw</button>
   </div>
 
   <!-- Filters -->
   <div class="records-filters">
-    <select>
-      <option>Overall</option>
-      <option>Deposit</option>
-      <option>Withdraw</option>
-      <option>Pay</option>
-    </select>
+    <select id="filter-type">
+    <option value="all">Overall</option>
+    <option value="deposit">Deposit</option>
+    <option value="withdraw">Withdraw</option>
+  </select>
 
-    <select>
-      <option>Past 7 days</option>
-      <option selected>Past 30 days</option>
-      <option>Custom</option>
-    </select>
+    <select id="filter-time">
+    <option value="7">Past 7 days</option>
+    <option value="30" selected>Past 30 days</option>
+    <option value="90">Past 90 days</option>
+  </select>
 
-    <select>
-      <option>All</option>
-      <option>USDT</option>
-      <option>BTC</option>
-      <option>ETH</option>
-    </select>
+    <select id="filter-coin">
+    <option value="all">All</option>
+    <option value="USDT">USDT</option>
+    <option value="BTC">BTC</option>
+    <option value="ETH">ETH</option>
+  </select>
 
-    <button class="filter-reset">Reset</button>
+    <button class="filter-reset" id="filter-reset">Reset</button>
   </div>
 
   <!-- Table -->
@@ -4031,13 +4058,27 @@ body.cabinet-mode #cabinet-content{
     </div>
 
     <!-- empty / demo row -->
-    <div class="records-row">
-      <div>—</div>
-      <div>—</div>
-      <div>—</div>
-      <div class="neutral">—</div>
-      <div class="muted">—</div>
-    </div>
+    <div class="records-row"
+     data-type="deposit"
+     data-coin="USDT"
+     data-time="2025-12-04T18:55:30">
+  <div>2025-12-04 18:55:30</div>
+  <div>Deposit</div>
+  <div>USDT</div>
+  <div class="positive">+14.85</div>
+  <div>Completed</div>
+</div>
+
+<div class="records-row"
+     data-type="withdraw"
+     data-coin="USDT"
+     data-time="2025-12-09T02:09:51">
+  <div>2025-12-09 02:09:51</div>
+  <div>Withdraw</div>
+  <div>USDT</div>
+  <div class="negative">-19.390622</div>
+  <div>Completed</div>
+</div>
   </div>
   </section>
 </main>
@@ -6456,7 +6497,74 @@ if (assetsTrigger) {
   });
 }
 
+(function initAssetRecords() {
+  const recordsTabBtns = document.querySelectorAll('.records-tabs .records-tab'); // только табы Records
+  const recordRows = document.querySelectorAll('.records-row');
+
+  const typeSelect = document.getElementById('filter-type');
+  const timeSelect = document.getElementById('filter-time');
+  const coinSelect = document.getElementById('filter-coin');
+  const resetBtn = document.getElementById('filter-reset');
+
+  if (!recordsTabBtns.length || !typeSelect || !timeSelect || !coinSelect || !resetBtn) return;
+
+  let activeTab = 'overview';
+
+  recordsTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      recordsTabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTab = btn.dataset.tab || 'overview';
+      applyFilters();
+    });
+  });
+
+  [typeSelect, timeSelect, coinSelect].forEach(el => {
+    el.addEventListener('change', applyFilters);
+  });
+
+  resetBtn.addEventListener('click', () => {
+    typeSelect.value = 'all';
+    timeSelect.value = '30';
+    coinSelect.value = 'all';
+
+    activeTab = 'overview';
+    recordsTabBtns.forEach(b => b.classList.remove('active'));
+    recordsTabBtns[0]?.classList.add('active');
+
+    applyFilters();
+  });
+
+  function applyFilters() {
+    const type = typeSelect.value;
+    const coin = coinSelect.value;
+    const days = Number(timeSelect.value);
+    const now = new Date();
+
+    recordRows.forEach(row => {
+      let show = true;
+
+      const rowType = row.dataset.type;
+      const rowCoin = row.dataset.coin;
+      const rowTime = new Date(row.dataset.time);
+
+      if (activeTab !== 'overview' && rowType !== activeTab) show = false;
+      if (type !== 'all' && rowType !== type) show = false;
+      if (coin !== 'all' && rowCoin !== coin) show = false;
+
+      const diffDays = (now - rowTime) / (1000 * 60 * 60 * 24);
+      if (diffDays > days) show = false;
+
+      row.style.display = show ? 'grid' : 'none';
+    });
+  }
+
+  applyFilters(); // сразу применить при загрузке
+})();
+
 </script>
+
+
 <footer class="footer">
   <div class="footer-inner">
 

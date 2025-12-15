@@ -1806,6 +1806,86 @@ margin-bottom: 100px;
   pointer-events:auto;
 }
 
+/* ===== CABINET MODE ===== */
+body.cabinet-mode .topbar-wrapper{
+  background: #0b0b0b !important; /* без градиента */
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+body.cabinet-mode .footer{
+  display: none !important; /* футер скрыть */
+}
+
+/* контейнер кабинета */
+.cabinet-page{
+  display:none;
+  padding-top: 80px; /* под фиксированный топбар */
+  min-height: 100vh;
+  background: #000;
+}
+
+/* layout: sidebar + content */
+.cabinet-layout{
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  padding: 24px 16px;
+}
+
+/* sidebar */
+.cabinet-sidebar{
+  background: rgba(18,18,18,.9);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.cabinet-nav a{
+  display:flex;
+  align-items:center;
+  gap: 14px;
+  padding: 18px 18px;
+  color:#fff;
+  text-decoration:none;
+  font-weight: 700;
+  opacity: .92;
+  border-left: 3px solid transparent;
+}
+
+.cabinet-nav a:hover{
+  background: rgba(255,255,255,.05);
+}
+
+.cabinet-nav a.active{
+  background: rgba(255,255,255,.06);
+  border-left-color: #2b7aff;
+}
+
+.cabinet-nav .divider{
+  height: 1px;
+  background: rgba(255,255,255,.08);
+  margin: 8px 0;
+}
+
+/* простые иконки-кружочки (если без svg) */
+.cabinet-ic{
+  width: 20px;
+  height: 20px;
+  opacity: .8;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* мобилка */
+@media (max-width: 900px){
+  .cabinet-layout{
+    grid-template-columns: 1fr;
+  }
+}
+
 
   </style>
 </head>
@@ -3202,7 +3282,49 @@ margin-bottom: 100px;
 <!-- ===== CABINET / DASHBOARD ===== -->
 <section id="cabinet-page" class="cabinet-page">
   <div class="cabinet-inner">
-    <!-- пока пусто, только фон + topbar сверху -->
+    <aside class="cabinet-sidebar">
+      <nav class="cabinet-nav" id="cabinet-nav">
+        <a href="#" class="active" data-tab="overview" onclick="openCabinetTab('overview'); return false;">
+          <span class="cabinet-ic">🕒</span> Overview
+        </a>
+
+        <a href="#" data-tab="fund" onclick="openCabinetTab('fund'); return false;">
+          <span class="cabinet-ic">💳</span> Fund Account
+        </a>
+
+        <a href="#" data-tab="spot" onclick="openCabinetTab('spot'); return false;">
+          <span class="cabinet-ic">🎯</span> Spot Account
+        </a>
+
+        <a href="#" data-tab="futures" onclick="openCabinetTab('futures'); return false;">
+          <span class="cabinet-ic">📈</span> Futures Account
+        </a>
+
+        <a href="#" data-tab="copy" onclick="openCabinetTab('copy'); return false;">
+          <span class="cabinet-ic">🧾</span> Copy Trading Account
+        </a>
+
+        <a href="#" data-tab="bots" onclick="openCabinetTab('bots'); return false;">
+          <span class="cabinet-ic">🤖</span> Bots Account
+        </a>
+
+        <a href="#" data-tab="wealth" onclick="openCabinetTab('wealth'); return false;">
+          <span class="cabinet-ic">💰</span> Wealth Account
+        </a>
+
+        <div class="divider"></div>
+
+        <a href="#" data-tab="records" onclick="openCabinetTab('records'); return false;">
+          <span class="cabinet-ic">🗂️</span> Asset Records
+        </a>
+      </nav>
+    </aside>
+
+    <main id="cabinet-content" style="color:#fff;">
+      <!-- сюда потом контент вкладок -->
+      <h1 style="margin:0 0 12px; font-size:34px;">Overview</h1>
+      <p style="opacity:.7; margin:0;">Cabinet content will be here.</p>
+    </main>
   </div>
 </section>
 
@@ -3886,11 +4008,30 @@ function openCabinetPage(){
   hideAllPages();
   hideHomeSections();
 
-  const cabinet = document.getElementById("cabinet-page");
-  if (cabinet) cabinet.style.display = "block";
+  document.body.classList.add("cabinet-mode");
+
+  const el = document.getElementById("cabinet-page");
+  if (el) el.style.display = "block";
 
   location.hash = "cabinet";
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function openCabinetTab(tab){
+  // active в меню
+  document.querySelectorAll("#cabinet-nav a").forEach(a => {
+    a.classList.toggle("active", a.dataset.tab === tab);
+  });
+
+  // простой демо-контент
+  const content = document.getElementById("cabinet-content");
+  if (!content) return;
+  const title = tab.charAt(0).toUpperCase() + tab.slice(1);
+
+  content.innerHTML = `
+    <h1 style="margin:0 0 12px; font-size:34px;">${title}</h1>
+    <p style="opacity:.7; margin:0;">Section "${tab}" content will be here.</p>
+  `;
 }
 
 

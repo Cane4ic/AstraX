@@ -2093,6 +2093,29 @@ body.cabinet-mode main#cabinet-content{
   align-items:start;
 }
 
+.cabinet-layout{
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "sidebar overview"
+    "sidebar content";
+  gap: 24px;
+  align-items: start;
+}
+
+.cabinet-sidebar{ grid-area: sidebar; }
+#overview-bar{ grid-area: overview; }
+#cabinet-content{ grid-area: content; }
+
+/* чтобы сайдбар был закреплен */
+.cabinet-sidebar{
+  position: sticky;
+  top: 90px;            /* подстрой под высоту topbar */
+  height: calc(100vh - 90px);
+  overflow: auto;
+}
+
 
   </style>
 </head>
@@ -3488,15 +3511,13 @@ body.cabinet-mode main#cabinet-content{
 </section>
 
 <!-- ===== CABINET / DASHBOARD ===== -->
+
 <section id="cabinet-page" class="cabinet-page">
   <div class="cabinet-inner">
-    <div class="overview-bar" id="overview-bar" style="display:none;">
-      <div class="overview-inner" id="overview-content"></div>
-    </div>
 
     <div class="cabinet-layout">
       <aside class="cabinet-sidebar">
-  <nav class="cabinet-nav" id="cabinet-nav">
+        <nav class="cabinet-nav" id="cabinet-nav">
 
     <a href="#" class="active" data-tab="overview" onclick="openCabinetTab('overview'); return false;">
       <span class="cabinet-ic" aria-hidden="true">
@@ -3549,15 +3570,18 @@ body.cabinet-mode main#cabinet-content{
     </a>
 
   </nav>
-</aside>
-      <main id="cabinet-content" style="color:#fff;"><!-- сюда потом контент вкладок -->
-      <h1 style="margin:0 0 12px; font-size:34px;">Overview</h1>
-      <p style="opacity:.7; margin:0;">Cabinet content will be here.</p></main>
+      </aside>
+
+      <div class="overview-bar" id="overview-bar" style="display:none;">
+        <div class="overview-inner" id="overview-content"></div>
+      </div>
+
+      <main id="cabinet-content" style="color:#fff;">
+        <h1 style="margin:0 0 12px; font-size:34px;">Overview</h1>
+      <p style="opacity:.7; margin:0;">Cabinet content will be here.</p>
+      </main>
     </div>
-    
 
-
-    
   </div>
 </section>
 

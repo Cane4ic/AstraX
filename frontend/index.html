@@ -2598,33 +2598,27 @@ body.cabinet-mode #cabinet-content{
 .dep-sel-left{ display:flex; align-items:center; gap:10px; }
 .dep-arrow{ opacity:.8; }
 
-.dep-menu {
-  position: absolute;
-  left: 0;
-  right: 0;
+.dep-menu{
+  position:absolute;
+  left:0; right:0;
   top: calc(100% + 8px);
   z-index: 9999;
 
-  /* ТОТ ЖЕ ФОН, ЧТО И У ПОЛЯ */
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.06),
-    rgba(255,255,255,0.02)
-  );
-
+  background: #0b0f18;                 /* НЕ прозрачный */
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
   padding: 8px;
 
-  backdrop-filter: blur(12px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.65);
 
-  display: none;
+  max-height: 280px;                   /* чтобы не разъезжалось */
+  overflow-y: auto;
+
+  display:none;
 }
 
-.dep-select.open .dep-menu {
-  display: block;
-}
+.dep-select.open .dep-menu{ display:block; }
+
 
 
 
@@ -2642,7 +2636,7 @@ body.cabinet-mode #cabinet-content{
   gap:10px;
 }
 
-.dep-opt:hover{ background: rgba(43,122,255,0.18); }
+.dep-opt:hover{ background: rgba(255,255,255,0.08); }
 
 /* pills */
 .dep-pills{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 10px; }
@@ -4986,34 +4980,34 @@ body.cabinet-mode #cabinet-content{
 
 
               <div class="dep-menu">
-    <button class="dep-opt" data-value="USDT" data-icon="https://cryptologos.cc/logos/tether-usdt-logo.svg">
+    <button class="dep-opt" type="button" data-value="USDT" data-icon="https://cryptologos.cc/logos/tether-usdt-logo.svg">
       <img class="coin-ic" src="https://cryptologos.cc/logos/tether-usdt-logo.svg" />
       USDT
     </button>
 
-    <button class="dep-opt" data-value="USDC" data-icon="https://cryptologos.cc/logos/usd-coin-usdc-logo.svg">
+    <button class="dep-opt" type="button" data-value="USDC" data-icon="https://cryptologos.cc/logos/usd-coin-usdc-logo.svg">
       <img class="coin-ic" src="https://cryptologos.cc/logos/usd-coin-usdc-logo.svg" />
       USDC
     </button>
 
-    <button class="dep-opt" data-value="BTC" data-icon="https://cryptologos.cc/logos/bitcoin-btc-logo.svg">
+    <button class="dep-opt" type="button" data-value="BTC" data-icon="https://cryptologos.cc/logos/bitcoin-btc-logo.svg">
       <img class="coin-ic" src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg" />
       BTC
     </button>
 
-    <button class="dep-opt" data-value="ETH" data-icon="https://cryptologos.cc/logos/ethereum-eth-logo.svg">
+    <button class="dep-opt" type="button" data-value="ETH" data-icon="https://cryptologos.cc/logos/ethereum-eth-logo.svg">
       <img class="coin-ic" src="https://cryptologos.cc/logos/ethereum-eth-logo.svg" />
       ETH
     </button>
 
-    <button class="dep-opt" data-value="TRX" data-icon="https://cryptologos.cc/logos/tron-trx-logo.svg">
+    <button class="dep-opt" type="button" data-value="TRX" data-icon="https://cryptologos.cc/logos/tron-trx-logo.svg">
       <img class="coin-ic" src="https://cryptologos.cc/logos/tron-trx-logo.svg" />
       TRX
     </button>
   </div>
           </div>
 
-          <button class="crypto-pill active">
+          <button class="crypto-pill active" type="button">
   <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg" alt="USDT">
   USDT
 </button>

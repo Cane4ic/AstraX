@@ -7164,6 +7164,172 @@ document.addEventListener("click", (e) => {
   });
 })();
 
+document.addEventListener('DOMContentLoaded', () => {
+  initDepositUI();
+});
+
+function initDepositUI(){
+  const page = document.getElementById('deposit-page');
+  if (!page) return;
+
+  const step1 = page.querySelector('.dep-step[data-step="1"]');
+  const step2 = page.querySelector('.dep-step[data-step="2"]');
+  const step3 = page.querySelector('.dep-step[data-step="3"]');
+  if(!step1 || !step2 || !step3) return;
+
+  const coinText = document.getElementById('dep-coin-text');
+  const netText  = document.getElementById('dep-net-text');
+  const netBold  = document.getElementById('dep-net-bold');
+
+  const addrCard = document.getElementById('dep-address-card');
+  const addrEl   = document.getElementById('dep-address');
+
+  // --- helpers ---
+  function setStepDone(stepEl, done){
+    const dot = stepEl.querySelector('.dep-dot');
+    const line = stepEl.querySelector('.dep-line');
+
+    if(done){
+      dot.classList.remove('active');
+      dot.classList.add('done');
+      dot.textContent = '✓';
+      if(line) line.classList.add('on');
+      stepEl.classList.add('is-done');
+    } else {
+      dot.classList.remove('done');
+      dot.textContent = stepEl.dataset.step;
+      if(line) line.classList.remove('on');
+      stepEl.classList.remove('is-done');
+    }
+  }
+
+  function setStepActive(stepEl, active){
+    const dot = stepEl.querySelector('.dep-dot');
+    if(active){
+      dot.classList.add('active');
+      dot.textContent = stepEl.dataset.step;
+      stepEl.classList.add('is-active');
+      stepEl.classList.remove('is-disabled');
+    } else {
+      dot.classList.remove('active');
+      stepEl.classList.remove('is-active');
+    }
+  }
+
+  function setStepDisabled(stepEl, disabled){
+    stepEl.classList.toggle('is-disabled', disabled);
+  }
+
+  // --- старт: ничего не выбрано ---
+  function resetUI(){
+    if(coinText){ coinText.textContent = 'Please select'; coinText.dataset.empty='1'; }
+    if(netText){ netText.textContent = 'Please select'; netText.dataset.empty='1'; }
+    if(netBold) netBold.textContent = '—';
+
+    page.querySelectorAll('.dep-pill').forEach(p => p.classList.remove('active'));
+    page.querySelectorAll('.dep-select').forEach(s => s.classList.remove('open'));
+
+    setStepDone(step1,false);
+    setStepActive(step1,true);
+
+    setStepDone(step2,false);
+    setStepActive(step2,false);
+    setStepDisabled(step2,true);
+
+    setStepActive(step3,false);
+    setStepDisabled(step3,true);
+
+    if(addrCard) addrCard.style.display='none';
+    if(addrEl) addrEl.textContent='';
+  }
+
+  resetUI();
+
+  // --- клики: dropdown + pills ---
+  page.addEventListener('click', (e) => {
+    const opt = e.target.closest('.dep-opt');
+    const pill = e.target.closest('.dep-pill');
+    const selBtn = e.target.closest('.dep-select-btn');
+    const sel = e.target.closest('.dep-select');
+
+    // открыть/закрыть селект
+    if(selBtn && sel){
+      if(sel.closest('.dep-step')?.classList.contains('is-disabled')) return;
+      sel.classList.toggle('open');
+      page.querySelectorAll('.dep-select').forEach(s => { if(s!==sel) s.classList.remove('open'); });
+      return;
+    }
+
+    // выбрать coin/network из dropdown
+    if(opt){
+      const parent = opt.closest('.dep-select');
+      const val = opt.dataset.value;
+
+      if(parent?.dataset.select === 'coin'){
+        if(coinText){ coinText.textContent = val; delete coinText.dataset.empty; }
+        page.querySelectorAll('.dep-pill').forEach(p => p.classList.toggle('active', p.dataset.coin===val));
+
+        setStepDone(step1,true);
+        setStepActive(step1,false);
+
+        setStepDisabled(step2,false);
+        setStepActive(step2,true);
+
+        setStepDisabled(step3,true);
+        setStepActive(step3,false);
+        if(addrCard) addrCard.style.display='none';
+        if(addrEl) addrEl.textContent='';
+      }
+
+      if(parent?.dataset.select === 'network'){
+        if(netText){ netText.textContent = val; delete netText.dataset.empty; }
+        if(netBold) netBold.textContent = val;
+
+        setStepDone(step2,true);
+        setStepActive(step2,false);
+
+        setStepDisabled(step3,false);
+        setStepActive(step3,true);
+
+        if(addrEl) addrEl.textContent = '0x6385b5d5b18ae6ea940d10282062401f99f0ef82';
+        if(addrCard) addrCard.style.display='block';
+      }
+
+      parent?.classList.remove('open');
+      return;
+    }
+
+    // выбрать coin через pills
+    if(pill){
+      const val = pill.dataset.coin;
+      if(coinText){ coinText.textContent = val; delete coinText.dataset.empty; }
+
+      page.querySelectorAll('.dep-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+
+      setStepDone(step1,true);
+      setStepActive(step1,false);
+
+      setStepDisabled(step2,false);
+      setStepActive(step2,true);
+
+      // сброс network/addr
+      if(netText){ netText.textContent='Please select'; netText.dataset.empty='1'; }
+      if(netBold) netBold.textContent='—';
+      setStepDone(step2,false);
+
+      setStepDisabled(step3,true);
+      setStepActive(step3,false);
+      if(addrCard) addrCard.style.display='none';
+      if(addrEl) addrEl.textContent='';
+      return;
+    }
+
+    // клик вне — закрыть меню
+    page.querySelectorAll('.dep-select').forEach(s => s.classList.remove('open'));
+  });
+}
+
 </script>
 
 

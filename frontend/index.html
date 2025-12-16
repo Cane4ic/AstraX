@@ -4088,6 +4088,11 @@ body.cabinet-mode #cabinet-content{
   </div>
 </section>
 
+<div id="deposit-page" style="display:none;">
+  <!-- сюда твоя верстка депозита (Select crypto / network / info) -->
+</div>
+
+
 <script>
 // ===================== ОБЩЕЕ: функция рисования спарка =====================
 function drawSpark(path, data) {
@@ -4769,6 +4774,15 @@ function openCabinetTab(tab){
 }
 
 
+function openDepositPage(){
+  hideAuth();
+  hideAllPages();
+  hideHomeSections();
+  const el = document.getElementById("deposit-page");
+  if (el) el.style.display = "block";
+  location.hash = "deposit";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 
 
@@ -6387,6 +6401,7 @@ window.addEventListener("load", () => {
     case "#privacy":    openPrivacyPage(); break;
     case "#disclaimer": openDisclaimerPage(); break;
     case "#risk":       openRiskPage(); break;
+    case "#deposit":    openDepositPage(); break;
 
     case "#cabinet":    openCabinetPage(); break;
 
@@ -6561,6 +6576,13 @@ if (assetsTrigger) {
 
   applyFilters(); // сразу применить при загрузке
 })();
+
+document.querySelectorAll(".top-deposit-btn, .assets-btn.primary").forEach(btn=>{
+  btn.addEventListener("click", (e)=>{
+    e.preventDefault();
+    openDepositPage();
+  });
+});
 
 </script>
 

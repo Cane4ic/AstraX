@@ -2598,20 +2598,35 @@ body.cabinet-mode #cabinet-content{
 .dep-sel-left{ display:flex; align-items:center; gap:10px; }
 .dep-arrow{ opacity:.8; }
 
-.dep-menu{
-  position:absolute;
-  left:0; right:0;
+.dep-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
   top: calc(100% + 8px);
-  background: rgba(10, 14, 28, 0.98);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 12px;
-  padding: 8px;
-  display:none;
   z-index: 9999;
-  backdrop-filter: blur(10px);
+
+  /* ТОТ ЖЕ ФОН, ЧТО И У ПОЛЯ */
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.06),
+    rgba(255,255,255,0.02)
+  );
+
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 8px;
+
+  backdrop-filter: blur(12px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+
+  display: none;
 }
 
-.dep-select.open .dep-menu{ display:block; }
+.dep-select.open .dep-menu {
+  display: block;
+}
+
+
 
 .dep-opt{
   width:100%;
@@ -2820,6 +2835,36 @@ body.cabinet-mode #cabinet-content{
 /* hover остаётся мягким */
 .dep-opt:hover {
   background: rgba(43,122,255,0.18);
+}
+
+
+.crypto-pill {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* активный */
+.crypto-pill.active {
+  background: #1a2cff;
+}
+
+/* иконки */
+.crypto-pill img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  padding: 2px;
+  object-fit: contain;
 }
 
 
@@ -4968,13 +5013,30 @@ body.cabinet-mode #cabinet-content{
   </div>
           </div>
 
-          <div class="dep-pills" id="dep-coin-pills">
-            <button class="dep-pill" type="button" data-coin="USDT"><span class="dep-coin usdt">T</span> USDT</button>
-            <button class="dep-pill" type="button" data-coin="USDC"><span class="dep-coin usdc">$</span> USDC</button>
-            <button class="dep-pill" type="button" data-coin="BTC"><span class="dep-coin btc">₿</span> BTC</button>
-            <button class="dep-pill" type="button" data-coin="ETH"><span class="dep-coin eth">◇</span> ETH</button>
-            <button class="dep-pill" type="button" data-coin="TRX"><span class="dep-coin trx">⦿</span> TRX</button>
-          </div>
+          <button class="crypto-pill active">
+  <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg" alt="USDT">
+  USDT
+</button>
+
+<button class="crypto-pill">
+  <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.svg" alt="USDC">
+  USDC
+</button>
+
+<button class="crypto-pill">
+  <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg" alt="BTC">
+  BTC
+</button>
+
+<button class="crypto-pill">
+  <img src="https://cryptologos.cc/logos/ethereum-eth-logo.svg" alt="ETH">
+  ETH
+</button>
+
+<button class="crypto-pill">
+  <img src="https://cryptologos.cc/logos/tron-trx-logo.svg" alt="TRX">
+  TRX
+</button>
         </div>
       </div>
 

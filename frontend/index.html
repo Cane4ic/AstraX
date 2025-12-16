@@ -2524,6 +2524,204 @@ body.cabinet-mode #cabinet-content{
   color:#fff;
 }
 
+/* deposit page bg */
+#deposit-page{ background:#000; min-height:100vh; padding:120px 0 90px; }
+
+.dep-steps{ max-width: 740px; }
+
+/* step layout */
+.dep-step{
+  display:grid;
+  grid-template-columns: 34px 1fr;
+  gap: 18px;
+  margin-bottom: 34px;
+}
+
+.dep-rail{ position:relative; display:flex; flex-direction:column; align-items:center; }
+
+.dep-dot{
+  width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:14px;
+  background: transparent;
+  border:1px solid rgba(255,255,255,0.20);
+  color: rgba(255,255,255,0.45);
+}
+
+.dep-dot.done{
+  background:#0b1b3f;
+  border-color:#2b7aff;
+  color:#2b7aff;
+}
+
+.dep-dot.active{
+  background:#2b7aff;
+  border-color:#2b7aff;
+  color:#fff;
+}
+
+.dep-line{
+  width:2px;
+  flex:1;
+  margin-top:10px;
+  background: rgba(255,255,255,0.10);
+  border-radius: 999px;
+  min-height: 48px;
+}
+
+.dep-line.on{ background:#2b7aff; }
+
+.dep-title{
+  font-size: 26px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.95);
+  margin-bottom: 14px;
+}
+
+/* custom select */
+.dep-select{ position:relative; margin-bottom: 12px; }
+
+.dep-select-btn{
+  width:100%;
+  height:48px;
+  border-radius:10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  cursor:pointer;
+}
+
+.dep-sel-left{ display:flex; align-items:center; gap:10px; }
+.dep-arrow{ opacity:.8; }
+
+.dep-menu{
+  position:absolute;
+  left:0; right:0;
+  top: calc(100% + 8px);
+  background: rgba(10, 14, 28, 0.98);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  padding: 8px;
+  display:none;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+
+.dep-select.open .dep-menu{ display:block; }
+
+.dep-opt{
+  width:100%;
+  text-align:left;
+  border:none;
+  background:transparent;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.dep-opt:hover{ background: rgba(43,122,255,0.18); }
+
+/* pills */
+.dep-pills{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 10px; }
+
+.dep-pill{
+  height:36px;
+  padding:0 14px;
+  border-radius:999px;
+  border:none;
+  background: rgba(255,255,255,0.06);
+  color:#fff;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+}
+
+.dep-pill.active{ background: rgba(43,122,255,0.25); outline: 1px solid rgba(43,122,255,0.55); }
+
+/* coin badges */
+.dep-coin{
+  width:18px; height:18px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:900; color:#fff;
+}
+.dep-coin.usdt{ background:#26a17b; }
+.dep-coin.usdc{ background:#2775ca; }
+.dep-coin.btc{ background:#f7931a; }
+.dep-coin.eth{ background:#3c3c3d; }
+.dep-coin.trx{ background:#ff060a; }
+
+/* hint under network */
+.dep-hint{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  margin-top: 10px;
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.dep-i{
+  width:18px; height:18px; border-radius:50%;
+  border:1px solid rgba(255,255,255,0.22);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:900;
+  opacity:.75;
+  flex: 0 0 18px;
+}
+
+/* deposit info card */
+.dep-address-card{
+  margin-top: 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 18px;
+}
+
+.dep-address-label{
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 10px;
+}
+
+.dep-address-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.dep-address-text{
+  flex:1;
+  font-size: 14px;
+  color: rgba(255,255,255,0.92);
+  word-break: break-all;
+}
+
+.dep-copy{
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: none;
+  background: #2b7aff;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dep-copy:active{ transform: translateY(1px); }
+
 
   </style>
 </head>
@@ -4242,61 +4440,109 @@ body.cabinet-mode #cabinet-content{
   <div class="deposit-wrap">
 
     <!-- LEFT -->
-    <div class="deposit-left">
+    <div class="dep-steps" id="dep-steps">
 
       <!-- STEP 1 -->
-      <div class="deposit-step active">
-        <div class="step-head">
-          <div class="step-num">1</div>
-          <div class="step-title">Select crypto</div>
+      <div class="dep-step is-done" data-step="1">
+        <div class="dep-rail">
+          <div class="dep-dot done">✓</div>
+          <div class="dep-line on"></div>
         </div>
 
-        <div class="step-body">
-          <div class="dark-select">
-            <span class="placeholder">Please select</span>
-            <span class="arrow">▾</span>
+        <div class="dep-main">
+          <div class="dep-title">Select crypto</div>
+
+          <!-- custom select -->
+          <div class="dep-select" data-select="coin">
+            <button class="dep-select-btn" type="button">
+              <div class="dep-sel-left">
+                <span class="dep-coin usdt">T</span>
+                <span class="dep-sel-text" id="dep-coin-text">USDT</span>
+              </div>
+              <span class="dep-arrow">▾</span>
+            </button>
+
+            <div class="dep-menu">
+              <button class="dep-opt" type="button" data-value="USDT">
+                <span class="dep-coin usdt">T</span> USDT
+              </button>
+              <button class="dep-opt" type="button" data-value="USDC">
+                <span class="dep-coin usdc">$</span> USDC
+              </button>
+              <button class="dep-opt" type="button" data-value="BTC">
+                <span class="dep-coin btc">₿</span> BTC
+              </button>
+              <button class="dep-opt" type="button" data-value="ETH">
+                <span class="dep-coin eth">◇</span> ETH
+              </button>
+              <button class="dep-opt" type="button" data-value="TRX">
+                <span class="dep-coin trx">⦿</span> TRX
+              </button>
+            </div>
           </div>
 
-          <div class="crypto-list">
-            <button class="crypto-pill active">
-              <span class="coin usdt">T</span> USDT
-            </button>
-            <button class="crypto-pill">
-              <span class="coin usdc">$</span> USDC
-            </button>
-            <button class="crypto-pill">
-              <span class="coin btc">₿</span> BTC
-            </button>
-            <button class="crypto-pill">
-              <span class="coin eth">◇</span> ETH
-            </button>
-            <button class="crypto-pill">
-              <span class="coin trx">⦿</span> TRX
-            </button>
+          <div class="dep-pills" id="dep-coin-pills">
+            <button class="dep-pill active" type="button" data-coin="USDT"><span class="dep-coin usdt">T</span> USDT</button>
+            <button class="dep-pill" type="button" data-coin="USDC"><span class="dep-coin usdc">$</span> USDC</button>
+            <button class="dep-pill" type="button" data-coin="BTC"><span class="dep-coin btc">₿</span> BTC</button>
+            <button class="dep-pill" type="button" data-coin="ETH"><span class="dep-coin eth">◇</span> ETH</button>
+            <button class="dep-pill" type="button" data-coin="TRX"><span class="dep-coin trx">⦿</span> TRX</button>
           </div>
         </div>
       </div>
 
       <!-- STEP 2 -->
-      <div class="deposit-step disabled">
-        <div class="step-head">
-          <div class="step-num ghost">2</div>
-          <div class="step-title muted">Select network</div>
+      <div class="dep-step is-done" data-step="2">
+        <div class="dep-rail">
+          <div class="dep-dot done">✓</div>
+          <div class="dep-line on"></div>
         </div>
 
-        <div class="step-body">
-          <div class="dark-select disabled">
-            <span class="placeholder">Please select</span>
-            <span class="arrow">▾</span>
+        <div class="dep-main">
+          <div class="dep-title">Select network</div>
+
+          <div class="dep-select" data-select="network">
+            <button class="dep-select-btn" type="button">
+              <div class="dep-sel-left">
+                <span class="dep-sel-text" id="dep-net-text">Ethereum (ERC20)</span>
+              </div>
+              <span class="dep-arrow">▾</span>
+            </button>
+
+            <div class="dep-menu">
+              <button class="dep-opt" type="button" data-value="Ethereum (ERC20)">Ethereum (ERC20)</button>
+              <button class="dep-opt" type="button" data-value="Tron (TRC20)">Tron (TRC20)</button>
+              <button class="dep-opt" type="button" data-value="BSC (BEP20)">BSC (BEP20)</button>
+            </div>
+          </div>
+
+          <div class="dep-hint">
+            <span class="dep-i">i</span>
+            You have selected <b id="dep-net-bold">Ethereum (ERC20)</b>, please ensure that you choose the same network on the withdrawal platform.
           </div>
         </div>
       </div>
 
       <!-- STEP 3 -->
-      <div class="deposit-step disabled">
-        <div class="step-head">
-          <div class="step-num ghost">3</div>
-          <div class="step-title muted">Deposit info</div>
+      <div class="dep-step is-active" data-step="3">
+        <div class="dep-rail">
+          <div class="dep-dot active">3</div>
+        </div>
+
+        <div class="dep-main">
+          <div class="dep-title">Deposit info</div>
+
+          <!-- вместо QR: поле как select + адрес + copy -->
+          <div class="dep-address-card">
+            <div class="dep-address-label">Deposit Address</div>
+
+            <div class="dep-address-row">
+              <div class="dep-address-text" id="dep-address">
+                0x6385b5d5b18ae6ea940d10282062401f99f0ef82
+              </div>
+              <button class="dep-copy" type="button" id="dep-copy-btn">Copy</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -4314,6 +4560,7 @@ body.cabinet-mode #cabinet-content{
 
   </div>
 </section>
+
 
 
 
@@ -6828,6 +7075,91 @@ document.addEventListener("click", (e) => {
   }
 });
 
+(function initDepositUI(){
+  const page = document.getElementById('deposit-page');
+  if (!page) return;
+
+  const coinText = document.getElementById('dep-coin-text');
+  const netText  = document.getElementById('dep-net-text');
+  const netBold  = document.getElementById('dep-net-bold');
+  const addrEl   = document.getElementById('dep-address');
+  const copyBtn  = document.getElementById('dep-copy-btn');
+
+  // dropdown open/close
+  page.addEventListener('click', (e) => {
+    const selBtn = e.target.closest('.dep-select-btn');
+    const anySelect = e.target.closest('.dep-select');
+
+    // клик по кнопке селекта
+    if (selBtn && anySelect) {
+      anySelect.classList.toggle('open');
+      // закрыть другие
+      page.querySelectorAll('.dep-select').forEach(s => {
+        if (s !== anySelect) s.classList.remove('open');
+      });
+      return;
+    }
+
+    // выбор опции
+    const opt = e.target.closest('.dep-opt');
+    if (opt) {
+      const select = opt.closest('.dep-select');
+      const val = opt.dataset.value;
+
+      if (select?.dataset.select === 'coin') {
+        coinText.textContent = val;
+        // подсветка pills
+        page.querySelectorAll('.dep-pill').forEach(p => {
+          p.classList.toggle('active', p.dataset.coin === val);
+        });
+        // (тут ты позже можешь подставлять доступные сети/адрес)
+      }
+
+      if (select?.dataset.select === 'network') {
+        netText.textContent = val;
+        netBold.textContent = val;
+        // (тут позже адрес будет приходить от API)
+      }
+
+      select.classList.remove('open');
+      return;
+    }
+
+    // pills click
+    const pill = e.target.closest('.dep-pill');
+    if (pill) {
+      const val = pill.dataset.coin;
+      coinText.textContent = val;
+      page.querySelectorAll('.dep-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      return;
+    }
+
+    // клик вне — закрыть меню
+    page.querySelectorAll('.dep-select').forEach(s => s.classList.remove('open'));
+  });
+
+  // copy
+  copyBtn?.addEventListener('click', async () => {
+    const text = (addrEl?.textContent || '').trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => copyBtn.textContent = 'Copy', 900);
+    } catch {
+      // fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => copyBtn.textContent = 'Copy', 900);
+    }
+  });
+})();
 
 </script>
 

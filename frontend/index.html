@@ -2724,6 +2724,13 @@ body.cabinet-mode #cabinet-content{
 
 .dep-step.is-disabled .dep-main { opacity: .35; pointer-events: none; }
 .dep-step.is-disabled .dep-dot { opacity: .55; }
+.dep-step.is-disabled .dep-select-btn,
+.dep-step.is-disabled .dep-pill,
+.dep-step.is-disabled .dep-opt,
+.dep-step.is-disabled .dep-copy{
+  pointer-events: none;
+  opacity: .35;
+}
 
   </style>
 </head>
@@ -7078,91 +7085,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-(function initDepositUI(){
-  const page = document.getElementById('deposit-page');
-  if (!page) return;
-
-  const coinText = document.getElementById('dep-coin-text');
-  const netText  = document.getElementById('dep-net-text');
-  const netBold  = document.getElementById('dep-net-bold');
-  const addrEl   = document.getElementById('dep-address');
-  const copyBtn  = document.getElementById('dep-copy-btn');
-
-  // dropdown open/close
-  page.addEventListener('click', (e) => {
-    const selBtn = e.target.closest('.dep-select-btn');
-    const anySelect = e.target.closest('.dep-select');
-
-    // клик по кнопке селекта
-    if (selBtn && anySelect) {
-      anySelect.classList.toggle('open');
-      // закрыть другие
-      page.querySelectorAll('.dep-select').forEach(s => {
-        if (s !== anySelect) s.classList.remove('open');
-      });
-      return;
-    }
-
-    // выбор опции
-    const opt = e.target.closest('.dep-opt');
-    if (opt) {
-      const select = opt.closest('.dep-select');
-      const val = opt.dataset.value;
-
-      if (select?.dataset.select === 'coin') {
-        coinText.textContent = val;
-        // подсветка pills
-        page.querySelectorAll('.dep-pill').forEach(p => {
-          p.classList.toggle('active', p.dataset.coin === val);
-        });
-        // (тут ты позже можешь подставлять доступные сети/адрес)
-      }
-
-      if (select?.dataset.select === 'network') {
-        netText.textContent = val;
-        netBold.textContent = val;
-        // (тут позже адрес будет приходить от API)
-      }
-
-      select.classList.remove('open');
-      return;
-    }
-
-    // pills click
-    const pill = e.target.closest('.dep-pill');
-    if (pill) {
-      const val = pill.dataset.coin;
-      coinText.textContent = val;
-      page.querySelectorAll('.dep-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      return;
-    }
-
-    // клик вне — закрыть меню
-    page.querySelectorAll('.dep-select').forEach(s => s.classList.remove('open'));
-  });
-
-  // copy
-  copyBtn?.addEventListener('click', async () => {
-    const text = (addrEl?.textContent || '').trim();
-    if (!text) return;
-    try {
-      await navigator.clipboard.writeText(text);
-      copyBtn.textContent = 'Copied';
-      setTimeout(() => copyBtn.textContent = 'Copy', 900);
-    } catch {
-      // fallback
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-      copyBtn.textContent = 'Copied';
-      setTimeout(() => copyBtn.textContent = 'Copy', 900);
-    }
-  });
-})();
+// 
 
 document.addEventListener('DOMContentLoaded', () => {
   initDepositUI();
@@ -7249,16 +7172,17 @@ function initDepositUI(){
   page.addEventListener('click', (e) => {
     const opt = e.target.closest('.dep-opt');
     const pill = e.target.closest('.dep-pill');
-    const selBtn = e.target.closest('.dep-select-btn');
     const sel = e.target.closest('.dep-select');
+if (sel) {
+  if (sel.closest('.dep-step')?.classList.contains('is-disabled')) return;
 
-    // открыть/закрыть селект
-    if(selBtn && sel){
-      if(sel.closest('.dep-step')?.classList.contains('is-disabled')) return;
-      sel.classList.toggle('open');
-      page.querySelectorAll('.dep-select').forEach(s => { if(s!==sel) s.classList.remove('open'); });
-      return;
-    }
+  sel.classList.toggle('open');
+  page.querySelectorAll('.dep-select').forEach(s => {
+    if (s !== sel) s.classList.remove('open');
+  });
+  return;
+}
+
 
     // выбрать coin/network из dropdown
     if(opt){

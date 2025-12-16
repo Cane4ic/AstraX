@@ -4088,9 +4088,44 @@ body.cabinet-mode #cabinet-content{
   </div>
 </section>
 
-<div id="deposit-page" style="display:none;">
-  <!-- сюда твоя верстка депозита (Select crypto / network / info) -->
-</div>
+<!-- ===== DEPOSIT PAGE ===== -->
+<section id="deposit-page" style="display:none; padding-top:120px;">
+  <div class="about-wrap">
+    <div style="display:flex; gap:40px; align-items:flex-start;">
+      <!-- LEFT -->
+      <div style="flex:1;">
+        <h2 style="font-size:26px; font-weight:700; margin:0 0 18px;">Deposit</h2>
+
+        <div style="opacity:.7; margin-bottom:10px;">1) Select crypto</div>
+        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:14px;">
+          <!-- тут потом сделаешь свой UI выбора монеты -->
+          <div style="opacity:.7;">Please select</div>
+        </div>
+
+        <div style="opacity:.7; margin:22px 0 10px;">2) Select network</div>
+        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:14px;">
+          <div style="opacity:.7;">Please select</div>
+        </div>
+
+        <div style="opacity:.7; margin:22px 0 10px;">3) Deposit info</div>
+        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:18px;">
+          <div style="opacity:.7;">—</div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div style="width:420px; max-width:40%;">
+        <h3 style="margin:0 0 14px; font-size:22px; font-weight:700;">Frequently Asked Questions</h3>
+        <div style="opacity:.75; display:grid; gap:10px;">
+          <div>BingX Tutorial | How to Withdraw Crypto</div>
+          <div>How to Retrieve Failed Deposits/Withdrawals/Transfers</div>
+          <div>What to Do When I Deposit the Wrong Crypto or Deposit to the Wrong Address</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 
 <script>
@@ -4775,14 +4810,19 @@ function openCabinetTab(tab){
 
 
 function openDepositPage(){
-  hideAuth();
+  // депозит — для залогиненных, поэтому просто обновляем UI
+  applyAuthUI();
+
   hideAllPages();
-  hideHomeSections();
+  hideHomeSections?.(); // если у тебя есть эта функция (у других страниц она вызывается)
+
   const el = document.getElementById("deposit-page");
   if (el) el.style.display = "block";
+
   location.hash = "deposit";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
 
 
 
@@ -6419,7 +6459,7 @@ function hideAllPages() {
     "agreement-page","privacy-page","disclaimer-page","risk-page",
     "crypto-page","forex-page","stocks-page",
     "signup-page","login-page","reset-email-page","reset-confirm-page",
-    "chat-page","feedback-page","cabinet-page","fees-page",
+    "chat-page","feedback-page","cabinet-page","fees-page", "deposit-page"
   ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = "none";
@@ -6577,12 +6617,27 @@ if (assetsTrigger) {
   applyFilters(); // сразу применить при загрузке
 })();
 
-document.querySelectorAll(".top-deposit-btn, .assets-btn.primary").forEach(btn=>{
-  btn.addEventListener("click", (e)=>{
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("button, a");
+  if (!el) return;
+
+  // НЕ трогаем табы внутри Asset Records
+  if (el.classList.contains("records-tab")) return;
+
+  const text = (el.textContent || "").trim().toLowerCase();
+  if (text !== "deposit") return;
+
+  // реагируем на Deposit только если он в нужных местах (topbar/dropdown/кабинет)
+  const inTopbarAuth = el.closest("#topbar-auth");
+  const inAssetsMenu = el.closest(".assets-menu");
+  const inCabinet    = el.closest("#cabinet-page") || el.closest(".cabinet-page");
+
+  if (inTopbarAuth || inAssetsMenu || inCabinet) {
     e.preventDefault();
     openDepositPage();
-  });
+  }
 });
+
 
 </script>
 

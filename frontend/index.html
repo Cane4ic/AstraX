@@ -2722,6 +2722,8 @@ body.cabinet-mode #cabinet-content{
 
 .dep-copy:active{ transform: translateY(1px); }
 
+.dep-step.is-disabled .dep-main { opacity: .35; pointer-events: none; }
+.dep-step.is-disabled .dep-dot { opacity: .55; }
 
   </style>
 </head>
@@ -4443,24 +4445,24 @@ body.cabinet-mode #cabinet-content{
     <div class="dep-steps" id="dep-steps">
 
       <!-- STEP 1 -->
-      <div class="dep-step is-done" data-step="1">
-        <div class="dep-rail">
-          <div class="dep-dot done">✓</div>
-          <div class="dep-line on"></div>
+      <div class="dep-step is-active" data-step="1">
+  <div class="dep-rail">
+    <div class="dep-dot active">1</div>
+    <div class="dep-line"></div>
+  </div>
+
+  <div class="dep-main">
+    <div class="dep-title">Select crypto</div>
+
+    <div class="dep-select" data-select="coin">
+      <button class="dep-select-btn" type="button">
+        <div class="dep-sel-left">
+          <!-- можно оставить кружок, но лучше убрать, пока не выбрано -->
+          <span class="dep-sel-text" id="dep-coin-text" data-empty="1">Please select</span>
         </div>
+        <span class="dep-arrow">▾</span>
+      </button>
 
-        <div class="dep-main">
-          <div class="dep-title">Select crypto</div>
-
-          <!-- custom select -->
-          <div class="dep-select" data-select="coin">
-            <button class="dep-select-btn" type="button">
-              <div class="dep-sel-left">
-                <span class="dep-coin usdt">T</span>
-                <span class="dep-sel-text" id="dep-coin-text">USDT</span>
-              </div>
-              <span class="dep-arrow">▾</span>
-            </button>
 
             <div class="dep-menu">
               <button class="dep-opt" type="button" data-value="USDT">
@@ -4482,7 +4484,7 @@ body.cabinet-mode #cabinet-content{
           </div>
 
           <div class="dep-pills" id="dep-coin-pills">
-            <button class="dep-pill active" type="button" data-coin="USDT"><span class="dep-coin usdt">T</span> USDT</button>
+            <button class="dep-pill" type="button" data-coin="USDT"><span class="dep-coin usdt">T</span> USDT</button>
             <button class="dep-pill" type="button" data-coin="USDC"><span class="dep-coin usdc">$</span> USDC</button>
             <button class="dep-pill" type="button" data-coin="BTC"><span class="dep-coin btc">₿</span> BTC</button>
             <button class="dep-pill" type="button" data-coin="ETH"><span class="dep-coin eth">◇</span> ETH</button>
@@ -4492,22 +4494,23 @@ body.cabinet-mode #cabinet-content{
       </div>
 
       <!-- STEP 2 -->
-      <div class="dep-step is-done" data-step="2">
-        <div class="dep-rail">
-          <div class="dep-dot done">✓</div>
-          <div class="dep-line on"></div>
+      <div class="dep-step is-disabled" data-step="2">
+  <div class="dep-rail">
+    <div class="dep-dot">2</div>
+    <div class="dep-line"></div>
+  </div>
+
+  <div class="dep-main">
+    <div class="dep-title muted">Select network</div>
+
+    <div class="dep-select" data-select="network">
+      <button class="dep-select-btn" type="button">
+        <div class="dep-sel-left">
+          <span class="dep-sel-text" id="dep-net-text" data-empty="1">Please select</span>
         </div>
+        <span class="dep-arrow">▾</span>
+      </button>
 
-        <div class="dep-main">
-          <div class="dep-title">Select network</div>
-
-          <div class="dep-select" data-select="network">
-            <button class="dep-select-btn" type="button">
-              <div class="dep-sel-left">
-                <span class="dep-sel-text" id="dep-net-text">Ethereum (ERC20)</span>
-              </div>
-              <span class="dep-arrow">▾</span>
-            </button>
 
             <div class="dep-menu">
               <button class="dep-opt" type="button" data-value="Ethereum (ERC20)">Ethereum (ERC20)</button>
@@ -4518,22 +4521,22 @@ body.cabinet-mode #cabinet-content{
 
           <div class="dep-hint">
             <span class="dep-i">i</span>
-            You have selected <b id="dep-net-bold">Ethereum (ERC20)</b>, please ensure that you choose the same network on the withdrawal platform.
+            You have selected <b id="dep-net-bold">—</b>, please ensure that you choose the same network on the withdrawal platform.
           </div>
         </div>
       </div>
 
       <!-- STEP 3 -->
-      <div class="dep-step is-active" data-step="3">
-        <div class="dep-rail">
-          <div class="dep-dot active">3</div>
-        </div>
+      <div class="dep-step is-disabled" data-step="3">
+  <div class="dep-rail">
+    <div class="dep-dot">3</div>
+  </div>
 
         <div class="dep-main">
-          <div class="dep-title">Deposit info</div>
+    <div class="dep-title muted">Deposit info</div>
 
           <!-- вместо QR: поле как select + адрес + copy -->
-          <div class="dep-address-card">
+          <div class="dep-address-card" id="dep-address-card" style="display:none;">
             <div class="dep-address-label">Deposit Address</div>
 
             <div class="dep-address-row">

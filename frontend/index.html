@@ -2722,7 +2722,7 @@ body.cabinet-mode #cabinet-content{
 
 .dep-copy:active{ transform: translateY(1px); }
 
-.dep-step.is-disabled .dep-main { opacity: .35; pointer-events: none; }
+.dep-step.is-disabled .dep-main { opacity: .35; }
 .dep-step.is-disabled .dep-dot { opacity: .55; }
 .dep-step.is-disabled .dep-select-btn,
 .dep-step.is-disabled .dep-pill,
@@ -7203,6 +7203,7 @@ if (sel) {
         setStepActive(step3,false);
         if(addrCard) addrCard.style.display='none';
         if(addrEl) addrEl.textContent='';
+        step2.classList.remove('is-disabled');
       }
 
       if(parent?.dataset.select === 'network'){
@@ -7217,6 +7218,7 @@ if (sel) {
 
         if(addrEl) addrEl.textContent = '0x6385b5d5b18ae6ea940d10282062401f99f0ef82';
         if(addrCard) addrCard.style.display='block';
+        step3.classList.remove('is-disabled');
       }
 
       parent?.classList.remove('open');

@@ -2785,20 +2785,43 @@ body.cabinet-mode #cabinet-content{
   margin-bottom: 14px;
 }
 
+/* иконки в select и меню */
 .coin-ic {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  object-fit: contain;
-  background: #fff;          /* важно для SVG */
+  width: 24px;        /* было 18 */
+  height: 24px;
   padding: 2px;
+  border-radius: 50%;
+  background: #fff;
+  object-fit: contain;
 }
 
+/* кнопка выбранного значения */
+.dep-select-btn {
+  height: 56px;       /* было ~48 */
+  font-size: 16px;    /* ↑ текст */
+}
+
+/* текст выбранной валюты */
+.dep-sel-left span {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* пункты выпадающего меню */
 .dep-opt {
+  padding: 14px 14px; /* больше воздуха */
+  font-size: 16px;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;          /* больше расстояние от иконки */
 }
+
+/* hover остаётся мягким */
+.dep-opt:hover {
+  background: rgba(43,122,255,0.18);
+}
+
 
 
   </style>

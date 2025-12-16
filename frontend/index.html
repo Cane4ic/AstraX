@@ -7172,8 +7172,9 @@ function initDepositUI(){
   page.addEventListener('click', (e) => {
     const opt = e.target.closest('.dep-opt');
     const pill = e.target.closest('.dep-pill');
-    const sel = e.target.closest('.dep-select');
-if (sel) {
+    const selBtn = e.target.closest('.dep-select-btn');
+if (selBtn) {
+  const sel = selBtn.closest('.dep-select');
   if (sel.closest('.dep-step')?.classList.contains('is-disabled')) return;
 
   sel.classList.toggle('open');

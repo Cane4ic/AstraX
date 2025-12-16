@@ -2376,6 +2376,155 @@ body.cabinet-mode #cabinet-content{
   color: #fff;
 }
 
+/* ===== DEPOSIT PAGE ===== */
+#deposit-page{
+  min-height: 100vh;
+  background: #000;            /* ← ЧИСТО ЧЁРНЫЙ ФОН */
+  padding: 120px 0 80px;       /* отступ под topbar */
+}
+
+.deposit-wrap{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 64px;
+}
+
+@media (max-width: 900px){
+  .deposit-wrap{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* steps */
+.deposit-step{ margin-bottom: 34px; }
+
+.step-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.step-num{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#2b7aff;
+  color:#fff;
+  font-weight:800;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+}
+
+.step-num.ghost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.25);
+  color:rgba(255,255,255,0.45);
+}
+
+.step-title{
+  font-size:20px;
+  font-weight:700;
+}
+
+.step-title.muted{
+  color:rgba(255,255,255,0.45);
+}
+
+/* select */
+.dark-select{
+  height:48px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  color:rgba(255,255,255,0.6);
+}
+
+.dark-select.disabled{
+  opacity:.4;
+}
+
+/* crypto pills */
+.crypto-list{
+  display:flex;
+  gap:10px;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+
+.crypto-pill{
+  height:36px;
+  padding:0 14px;
+  border-radius:999px;
+  border:none;
+  background:rgba(255,255,255,0.06);
+  color:#fff;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+}
+
+.crypto-pill.active{
+  background:#1a2cff;
+}
+
+.coin{
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:900;
+  color:#fff;
+}
+
+.coin.usdt{ background:#26a17b; }
+.coin.usdc{ background:#2775ca; }
+.coin.btc{ background:#f7931a; }
+.coin.eth{ background:#3c3c3d; }
+.coin.trx{ background:#ff060a; }
+
+/* FAQ */
+.deposit-right{
+  padding-top:6px;
+}
+
+.faq-title{
+  font-size:26px;
+  font-weight:700;
+  margin-bottom:18px;
+}
+
+.faq-links{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.faq-links a{
+  color:rgba(255,255,255,0.7);
+  text-decoration:none;
+  font-size:14px;
+}
+
+.faq-links a:hover{
+  color:#fff;
+}
+
+
   </style>
 </head>
 <body>
@@ -4089,42 +4238,83 @@ body.cabinet-mode #cabinet-content{
 </section>
 
 <!-- ===== DEPOSIT PAGE ===== -->
-<section id="deposit-page" style="display:none; padding-top:120px;">
-  <div class="about-wrap">
-    <div style="display:flex; gap:40px; align-items:flex-start;">
-      <!-- LEFT -->
-      <div style="flex:1;">
-        <h2 style="font-size:26px; font-weight:700; margin:0 0 18px;">Deposit</h2>
+<section id="deposit-page" style="display:none;">
+  <div class="deposit-wrap">
 
-        <div style="opacity:.7; margin-bottom:10px;">1) Select crypto</div>
-        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:14px;">
-          <!-- тут потом сделаешь свой UI выбора монеты -->
-          <div style="opacity:.7;">Please select</div>
+    <!-- LEFT -->
+    <div class="deposit-left">
+
+      <!-- STEP 1 -->
+      <div class="deposit-step active">
+        <div class="step-head">
+          <div class="step-num">1</div>
+          <div class="step-title">Select crypto</div>
         </div>
 
-        <div style="opacity:.7; margin:22px 0 10px;">2) Select network</div>
-        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:14px;">
-          <div style="opacity:.7;">Please select</div>
-        </div>
+        <div class="step-body">
+          <div class="dark-select">
+            <span class="placeholder">Please select</span>
+            <span class="arrow">▾</span>
+          </div>
 
-        <div style="opacity:.7; margin:22px 0 10px;">3) Deposit info</div>
-        <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:18px;">
-          <div style="opacity:.7;">—</div>
+          <div class="crypto-list">
+            <button class="crypto-pill active">
+              <span class="coin usdt">T</span> USDT
+            </button>
+            <button class="crypto-pill">
+              <span class="coin usdc">$</span> USDC
+            </button>
+            <button class="crypto-pill">
+              <span class="coin btc">₿</span> BTC
+            </button>
+            <button class="crypto-pill">
+              <span class="coin eth">◇</span> ETH
+            </button>
+            <button class="crypto-pill">
+              <span class="coin trx">⦿</span> TRX
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- RIGHT -->
-      <div style="width:420px; max-width:40%;">
-        <h3 style="margin:0 0 14px; font-size:22px; font-weight:700;">Frequently Asked Questions</h3>
-        <div style="opacity:.75; display:grid; gap:10px;">
-          <div>BingX Tutorial | How to Withdraw Crypto</div>
-          <div>How to Retrieve Failed Deposits/Withdrawals/Transfers</div>
-          <div>What to Do When I Deposit the Wrong Crypto or Deposit to the Wrong Address</div>
+      <!-- STEP 2 -->
+      <div class="deposit-step disabled">
+        <div class="step-head">
+          <div class="step-num ghost">2</div>
+          <div class="step-title muted">Select network</div>
         </div>
+
+        <div class="step-body">
+          <div class="dark-select disabled">
+            <span class="placeholder">Please select</span>
+            <span class="arrow">▾</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="deposit-step disabled">
+        <div class="step-head">
+          <div class="step-num ghost">3</div>
+          <div class="step-title muted">Deposit info</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="deposit-right">
+      <h3 class="faq-title">Frequently Asked Questions</h3>
+      <div class="faq-links">
+        <a href="#">BingX Tutorial | How to Withdraw Crypto</a>
+        <a href="#">How to Retrieve Failed Deposits/Withdrawals/Transfers</a>
+        <a href="#">What to Do When I Deposit the Wrong Crypto or Deposit to the Wrong Address</a>
       </div>
     </div>
+
   </div>
 </section>
+
 
 
 

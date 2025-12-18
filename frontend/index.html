@@ -11846,5 +11846,45 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 
+
+<script>
+/* v26: restore Assets button navigation to Cabinet */
+(function(){
+  function hook(){
+    const btn = document.getElementById('assets-trigger') || document.querySelector('.assets-trigger');
+    if(!btn) return;
+    // avoid double-binding
+    if(btn.__cabinetHooked) return;
+    btn.__cabinetHooked = true;
+
+    btn.addEventListener('click', function(e){
+      try{ e.preventDefault(); }catch(_){}
+      try{ e.stopPropagation(); }catch(_){}
+      // close dropdown menu if it's open
+      try{
+        const dd = btn.closest('.assets-dropdown');
+        if(dd) dd.classList.remove('open');
+      }catch(_){}
+
+      if(typeof openCabinetPage === "function"){
+        openCabinetPage();
+        // default tab
+        if(typeof openCabinetTab === "function") openCabinetTab('overview');
+        return;
+      }
+      // fallback: jump to cabinet section
+      const cab = document.getElementById('cabinet-page');
+      if(cab){
+        document.querySelectorAll('section.page').forEach(p=>p.style.display='none');
+        cab.style.display='block';
+        window.scrollTo(0,0);
+      }
+    }, {passive:false});
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", hook);
+  else hook();
+})();
+</script>
+
 </body>
 </html>

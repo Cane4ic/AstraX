@@ -4842,6 +4842,27 @@ body.spot-mode .spot-layout{
   color: rgba(255,255,255,0.45);
 }
 
+
+.th-row{
+  display:grid;
+  grid-template-columns:
+    1.2fr
+    1.5fr
+    0.9fr
+    1.3fr
+    1fr
+    1fr
+    0.9fr
+    0.9fr;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+}
+.th-row .right{ text-align:right; }
+.th-row .buy{ color: rgba(0,227,161,0.95); font-weight: 700; }
+.th-row .sell{ color: rgba(255,77,109,0.95); font-weight: 700; }
+
 /* Table */
 .th-table{
   padding-top: 10px;
@@ -5162,6 +5183,43 @@ input[type="number"] {
 </style>
 </head>
 <body>
+<script>
+/* ===== SPOT storage helpers (localStorage + in-memory fallback) ===== */
+(function(){
+  const mem = window.__SPOT_MEM__ = window.__SPOT_MEM__ || {};
+  function safeParse(v){ try{ return JSON.parse(v); }catch(e){ return null; } }
+
+  window.spotStorageGet = function(key, defVal){
+    try{
+      const raw = localStorage.getItem(key);
+      if(raw === null || raw === undefined) return (mem[key] ?? defVal);
+      const parsed = safeParse(raw);
+      return (parsed === null) ? (mem[key] ?? defVal) : parsed;
+    }catch(e){
+      return (mem[key] ?? defVal);
+    }
+  };
+
+  window.spotStorageSet = function(key, val){
+    mem[key] = val;
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  };
+
+  window.__spotReadOrderHistory = function(){
+    return window.spotStorageGet("spot_order_history", []);
+  };
+  window.__spotWriteOrderHistory = function(hist){
+    window.spotStorageSet("spot_order_history", hist);
+  };
+  window.__spotPushOrderHistory = function(entry){
+    const hist = window.__spotReadOrderHistory() || [];
+    hist.unshift(entry);
+    window.__spotWriteOrderHistory(hist);
+    return hist;
+  };
+})();
+</script>
+
   <header class="topbar-wrapper">
     <div class="topbar">
       <div id="logo" class="logo">
@@ -7642,6 +7700,7 @@ input[type="number"] {
   <div class="orders-header">
     <div class="orders-tabs">
   <button class="orders-tab active" data-tab="open">Open Orders (0)</button>
+  <button class="orders-tab" data-tab="ordersHistory">Order History</button>
   <button class="orders-tab" data-tab="tradeHistory">Trade History</button>
 </div>
   </div>
@@ -7706,18 +7765,18 @@ input[type="number"] {
     <div class="th-filters">
       <div class="th-left">
         <div class="th-range">
-          <button class="th-pill" type="button">1 day</button>
-          <button class="th-pill" type="button">3 days</button>
-          <button class="th-pill" type="button">1 week</button>
-          <button class="th-pill active" type="button">1 month</button>
+          <button class="th-pill" type="button" data-range="1d">1 day</button>
+          <button class="th-pill" type="button" data-range="3d">3 days</button>
+          <button class="th-pill" type="button" data-range="7d">1 week</button>
+          <button class="th-pill active" type="button" data-range="30d">1 month</button>
         </div>
 
         <div class="th-field">
           <span class="th-label">Date</span>
-          <input class="th-input" type="text" placeholder="Start date">
+          <input class="th-input" id="thStart" type="date" placeholder="Start date">
           <span class="th-sep">→</span>
-          <input class="th-input" type="text" placeholder="End date">
-          <button class="th-reset" type="button">Reset</button>
+          <input class="th-input" id="thEnd" type="date" placeholder="End date">
+          <button class="th-reset" id="thReset" type="button">Reset</button>
         </div>
       </div>
 
@@ -13615,13 +13674,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const btn = e.target.closest(".order-cancel");
     if(!btn) return;
     const id = String(btn.dataset.id);
-    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]").filter(o => String(o.id) !== id);
-    localStorage.setItem("spot_orders", JSON.stringify(orders));
-    window.renderOrders();
+    const all = JSON.parse(localStorage.getItem("spot_orders") || "[]");
+const idx = all.findIndex(o => String(o.id) === id);
+if(idx === -1) return;
+const [ord] = all.splice(idx, 1);
+
+// push to order history as cancelled
+window.__spotPushOrderHistory({
+  id: ord.id,
+  pair: ord.pair || "BTC/USDT",
+  side: String(ord.side||"buy").toLowerCase(),
+  type: String(ord.type||"limit").toLowerCase(),
+  price: Number(ord.price)||0,
+  amount: Number(ord.amount)||0,
+  filled: Number(ord.filled||0),
+  status: "cancelled",
+  fee: 0,
+  ts: Date.now()
+});
+
+localStorage.setItem("spot_orders", JSON.stringify(all));
+window.renderOrders();
+if(typeof window.renderOrderHistory === "function") window.renderOrderHistory();
+document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
   });
 
   // Re-render on our custom event
-  document.addEventListener("spot:ordersChanged", () => window.renderOrders());
+  document.addEventListener("spot:ordersChanged", () => {
+  if(typeof window.renderOrders === "function") window.renderOrders();
+  if(typeof window.renderOrderHistory === "function") window.renderOrderHistory();
+  if(typeof window.renderTradeHistory === "function") window.renderTradeHistory();
+});
 
   // Initial render on load
   window.addEventListener("DOMContentLoaded", () => window.renderOrders());
@@ -13869,8 +13952,24 @@ document.addEventListener("DOMContentLoaded", () => {
       role: "taker",
       fee: 0
     });
-    writeTrades(trades);
-  }
+  writeTrades(trades);
+
+  // Also push to Order History (filled)
+  try{
+    window.__spotPushOrderHistory({
+      id: order.id || (Date.now() + Math.floor(Math.random()*1000)),
+      pair: order.pair || "BTC/USDT",
+      side,
+      type: String(order.type||"limit").toLowerCase(),
+      price: Number(fillPrice),
+      amount: amt,
+      filled: amt,
+      status: "filled",
+      fee: 0,
+      ts: Date.now()
+    });
+  }catch(e){}
+}
 
   // Simple matching rule:
   // BUY limit fills when lastPrice <= order.price
@@ -13885,7 +13984,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const orders = readOrders();
     if(!orders.length) return;
 
-    let changed = False = false;
+    let changed = false;
     const remaining = [];
 
     for(const o of orders){
@@ -13912,6 +14011,8 @@ document.addEventListener("DOMContentLoaded", () => {
       writeOrders(remaining);
       // Update UI if render functions exist
       if(typeof window.renderOrders === "function") window.renderOrders();
+      if(typeof window.renderOrderHistory === "function") window.renderOrderHistory();
+      if(typeof window.renderTradeHistory === "function") window.renderTradeHistory();
       if(typeof window.updateAvailableUI === "function") window.updateAvailableUI();
       document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
     }
@@ -14359,13 +14460,235 @@ document.addEventListener("DOMContentLoaded", () => {
       role: "taker",
       fee: 0
     });
-    writeTrades(trades);
+writeTrades(trades);
 
-    // Refresh UI
+// Order History record for market fill
+try{
+  window.__spotPushOrderHistory({
+    id: Date.now() + Math.floor(Math.random()*1000),
+    pair: "BTC/USDT",
+    side,
+    type: "market",
+    price: Number(execPrice),
+    amount: Number(amount),
+    filled: Number(amount),
+    status: "filled",
+    fee: 0,
+    ts: Date.now()
+  });
+}catch(e){}
+
+// Refresh UI
     if(typeof window.updateAvailableUI === 'function') window.updateAvailableUI();
+    if(typeof window.renderOrderHistory === 'function') window.renderOrderHistory();
+    if(typeof window.renderTradeHistory === 'function') window.renderTradeHistory();
     document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
   });
 })();
+<script>
+/* ===== PATCH v15: Trade History filters (date picker + quick ranges) + Order History rendering ===== */
+(function(){
+  function num(v){
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+  function fmtTime(ts){
+    try{
+      return new Date(ts).toLocaleString([], { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    }catch(e){ return ""; }
+  }
+  function readTrades(){
+    try{ return JSON.parse(localStorage.getItem("spot_trades") || "[]"); }catch(e){ return []; }
+  }
+  function readOrderHistory(){
+    try{ return window.__spotReadOrderHistory(); }catch(e){ return []; }
+  }
+  function ymd(ts){
+    const d = new Date(ts);
+    if(Number.isNaN(+d)) return "";
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  function startOfDay(ts){ const d = new Date(ts); d.setHours(0,0,0,0); return +d; }
+  function endOfDay(ts){ const d = new Date(ts); d.setHours(23,59,59,999); return +d; }
+
+  // ---------- Trade History ----------
+  const thPanel = document.querySelector('.orders-panel[data-panel="tradeHistory"]');
+  const thStart = document.getElementById('thStart');
+  const thEnd   = document.getElementById('thEnd');
+  const thReset = document.getElementById('thReset');
+
+  function setActivePill(rangeKey){
+    if(!thPanel) return;
+    thPanel.querySelectorAll('.th-pill').forEach(b=>{
+      b.classList.toggle('active', b.dataset.range === rangeKey);
+    });
+  }
+
+  function applyQuickRange(rangeKey){
+    const now = new Date();
+    const end = endOfDay(now);
+    let days = 30;
+    if(rangeKey === '1d') days = 1;
+    if(rangeKey === '3d') days = 3;
+    if(rangeKey === '7d') days = 7;
+    if(rangeKey === '30d') days = 30;
+
+    const start = startOfDay(+now - (days-1)*24*60*60*1000);
+    if(thStart) thStart.value = ymd(start);
+    if(thEnd) thEnd.value = ymd(end);
+    setActivePill(rangeKey);
+    window.renderTradeHistory?.();
+  }
+
+  function getFilterRange(){
+    const now = new Date();
+    const defEnd = endOfDay(now);
+    const defStart = startOfDay(+now - (30-1)*24*60*60*1000);
+
+    const s = thStart?.value ? Date.parse(thStart.value) : NaN;
+    const e = thEnd?.value ? Date.parse(thEnd.value) : NaN;
+
+    const start = Number.isFinite(s) ? startOfDay(s) : defStart;
+    const end   = Number.isFinite(e) ? endOfDay(e) : defEnd;
+
+    return { start, end };
+  }
+
+  window.renderTradeHistory = function(){
+    if(!thPanel) return;
+    const table = thPanel.querySelector('.th-table');
+    if(!table) return;
+
+    table.querySelectorAll('.th-row').forEach(r => r.remove());
+    const empty = table.querySelector('.th-empty');
+
+    const { start, end } = getFilterRange();
+    const trades = readTrades().filter(t=>{
+      const ts = Number(t.ts)||0;
+      return ts >= start && ts <= end;
+    });
+
+    if(!trades.length){
+      if(empty) empty.style.display = "grid";
+    }else{
+      if(empty) empty.style.display = "none";
+    }
+
+    let sumTotal = 0, buyTotal = 0, sellTotal = 0;
+
+    const head = table.querySelector('.th-head');
+    trades.forEach(t=>{
+      const side = String(t.side||'buy').toLowerCase();
+      const total = num(t.total);
+      sumTotal += total;
+      if(side === 'buy') buyTotal += total; else sellTotal += total;
+
+      const row = document.createElement('div');
+      row.className = 'th-row';
+      row.innerHTML = `
+        <div>${t.pair || "BTC/USDT"}</div>
+        <div>${fmtTime(t.ts)}</div>
+        <div class="${side}">${side.toUpperCase()}</div>
+        <div>${Number(t.price||0).toFixed(2)}</div>
+        <div>${Number(t.amount||0).toFixed(6)}</div>
+        <div>${Number(total||0).toFixed(2)}</div>
+        <div>${t.role || "taker"}</div>
+        <div class="right">${Number(t.fee||0).toFixed(4)}</div>
+      `;
+      if(head && head.parentNode){
+        head.parentNode.insertBefore(row, head.nextSibling);
+      }else{
+        table.appendChild(row);
+      }
+    });
+
+    const sumVal = thPanel.querySelector('.th-sum-val');
+    const buyEl  = thPanel.querySelector('.th-buy');
+    const sellEl = thPanel.querySelector('.th-sell');
+    if(sumVal) sumVal.textContent = `${sumTotal.toFixed(2)} USDT`;
+    if(buyEl) buyEl.textContent = buyTotal.toFixed(2);
+    if(sellEl) sellEl.textContent = sellTotal.toFixed(2);
+  };
+
+  if(thPanel){
+    thPanel.addEventListener('click', (e)=>{
+      const pill = e.target.closest('.th-pill');
+      if(!pill) return;
+      applyQuickRange(pill.dataset.range || '30d');
+    });
+  }
+  function deactivatePills(){
+    if(!thPanel) return;
+    thPanel.querySelectorAll('.th-pill').forEach(b=>b.classList.remove('active'));
+  }
+  thStart?.addEventListener('change', ()=>{ deactivatePills(); window.renderTradeHistory?.(); });
+  thEnd?.addEventListener('change', ()=>{ deactivatePills(); window.renderTradeHistory?.(); });
+  thReset?.addEventListener('click', ()=> applyQuickRange('30d'));
+
+  // ---------- Order History ----------
+  const ohPanel = document.querySelector('.orders-panel[data-panel="ordersHistory"]');
+  window.renderOrderHistory = function(){
+    if(!ohPanel) return;
+
+    const hist = readOrderHistory();
+    ohPanel.querySelectorAll('.order-row').forEach(r => r.remove());
+
+    const empty = ohPanel.querySelector('.orders-empty');
+    if(!hist.length){
+      if(empty) empty.style.display = "grid";
+      return;
+    }
+    if(empty) empty.style.display = "none";
+
+    const head = ohPanel.querySelector('.orders-head');
+
+    hist.forEach(o=>{
+      const side = String(o.side||'buy').toLowerCase();
+      const row = document.createElement('div');
+      row.className = 'order-row';
+      row.innerHTML = `
+        <div>${o.pair || "BTC/USDT"}</div>
+        <div>${fmtTime(o.ts)}</div>
+        <div>${String(o.type||"limit").toUpperCase()}</div>
+        <div class="${side}">${side.toUpperCase()}</div>
+        <div>${Number(o.price||0).toFixed(2)}</div>
+        <div>${Number(o.amount||0).toFixed(6)}</div>
+        <div>${Number(o.filled||0).toFixed(6)}</div>
+        <div>${String(o.status||"filled")}</div>
+        <div class="right">${Number(o.fee||0).toFixed(4)}</div>
+      `;
+      if(head && head.parentNode){
+        head.parentNode.insertBefore(row, head.nextSibling);
+      }else{
+        ohPanel.appendChild(row);
+      }
+    });
+  };
+
+  document.addEventListener('spot:ordersChanged', ()=>{
+    window.renderTradeHistory?.();
+    window.renderOrderHistory?.();
+  });
+
+  window.addEventListener('DOMContentLoaded', ()=>{
+    // default quick range 30d
+    if(thStart && !thStart.value && thEnd && !thEnd.value) applyQuickRange('30d');
+    else window.renderTradeHistory?.();
+    window.renderOrderHistory?.();
+  });
+
+  // immediate render (if scripts loaded late)
+  try{
+    if(thStart && !thStart.value && thEnd && !thEnd.value) applyQuickRange('30d');
+    else window.renderTradeHistory?.();
+  }catch(e){}
+  try{ window.renderOrderHistory?.(); }catch(e){}
+})();
+</script>
+
 </script>
 
 

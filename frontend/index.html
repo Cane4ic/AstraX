@@ -2877,19 +2877,47 @@ body.spot-mode .topbar{
 .spot-layout{
   display: grid;
   grid-template-columns: 1fr 320px 320px;
-  grid-template-rows: auto 1fr 220px;
+  grid-template-rows: auto auto auto;
 
+  /* Pair row on top, main terminal row in middle, orders at bottom */
   grid-template-areas:
-    "pair orderbook trade"
+    "pair pair pair"
     "chart orderbook trade"
     "orders orders orders";
 
   gap: 12px;
   padding: 12px;
   background: #000;
-  height: calc(100vh - var(--topbar-h));
+  height: auto;
+  align-content: start;
+}
+
+/* Keep main terminal panels the same height, while the page can scroll down to Orders */
+.spot-chart,
+.spot-orderbook,
+.spot-trade{
+  height: 640px;
+  min-height: 640px;
+}
+
+/* Order book + trade panels: allow internal scrolling where needed */
+.spot-orderbook,
+.spot-trade{
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
+
+.spot-orderbook .ob-body{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.spot-trade{
+  overflow-y: auto;
+}
+
 
 /* areas */
 .spot-pair      { grid-area: pair; }
@@ -4197,6 +4225,939 @@ body.spot-mode .spot-layout{
   .spot-layout{ grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; }
   .spot-trade{ max-height: 70vh; }
 }
+
+/* Лэйаут верхней строки: слева title+TF, справа tools */
+.chart-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.chart-head-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width: 0;
+}
+
+.chart-head-right{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+}
+
+/* === ПЕРЕОПРЕДЕЛЕНИЕ: когда tools уже в шапке, делаем их "как на 2-м скрине" === */
+.chart-head .chart-draw-tools{
+  position: static;         /* вместо absolute слева */
+  left: auto;
+  top: auto;
+  transform: none;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+
+  padding: 4px;
+  border-radius: 999px;
+
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  max-width: none;          /* у тебя был max-width:44px для левой колонки */
+}
+
+/* разделители в верхней строке лучше спрятать (или сделай тонкую вертикаль) */
+.chart-head .chart-draw-tools .tool-sep{
+  display: none;
+}
+
+/* Кнопки tools — “пилюли”, как таймфреймы */
+.chart-head .chart-draw-tools .tool-btn{
+  width: auto;
+  height: 26px;
+  min-width: 26px;
+  padding: 0 10px;
+
+  border-radius: 999px;
+
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.88);
+
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* active — как выделенный 1m на скрине */
+.chart-head .chart-draw-tools .tool-btn.active{
+  background: #1a2cff;
+  border-color: #1a2cff;
+  color: #fff;
+}
+
+/* hover */
+.chart-head .chart-draw-tools .tool-btn:hover{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.22);
+  transform: none; /* в топ-баре лучше без подпрыгивания */
+}
+
+/* Кнопка ×SIM (она у тебя отдельная draw-btn + inline margin-top) — выравниваем в ряд */
+.chart-head #clear-sim-btn{
+  margin-top: 0 !important;
+  height: 26px;
+  border-radius: 999px;
+  padding: 0 10px;
+}
+
+.chart-draw-tools{
+  background: rgba(0,0,0,0.55);
+  border: 0 !important;
+  box-shadow: none;
+  border-radius: 10px;
+  padding: 6px;
+}
+
+/* разделители убрать */
+.chart-draw-tools .tool-sep{ display:none; }
+
+/* кнопки-иконки */
+.chart-draw-tools .tool-btn{
+  width: 34px;
+  height: 34px;
+  border: 0 !important;
+  outline: none;
+  background: transparent;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* hover — легкая подсветка */
+.chart-draw-tools .tool-btn:hover{
+  background: rgba(255,255,255,0.08);
+}
+
+/* active — синяя подложка */
+.chart-draw-tools .tool-btn.active{
+  background: #1a2cff;
+  color:#fff;
+}
+
+/* Контейнер таймфреймов */
+.chart-tools{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  background: transparent;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Кнопки таймфреймов */
+.chart-btn{
+  appearance: none;
+  border: 0 !important;
+  outline: none;
+  background: transparent;
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* hover — просто немного ярче */
+.chart-btn:hover{
+  color: rgba(255,255,255,0.9);
+  background: transparent;
+}
+
+/* active — синяя капсула, без обводки */
+.chart-btn.is-active{
+  background: #1a2cff;
+  color: #fff;
+  padding: 0 10px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+/* Тулбар в шапке — просто ряд кнопок, без фоновой плашки */
+.chart-head .chart-draw-tools{
+  position: static;
+  left: auto;
+  top: auto;
+  transform: none;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;              /* как у TM */
+  padding: 0;
+  background: transparent;
+  border: 0 !important;
+  box-shadow: none;
+  max-width: none;
+}
+
+/* разделители скрыть */
+.chart-head .chart-draw-tools .tool-sep{
+  display: none;
+}
+
+/* Кнопки тулов — “как TM”: без обводок, просто иконка */
+.chart-head .chart-draw-tools .tool-btn{
+  appearance: none;
+  border: 0 !important;
+  outline: none;
+
+  background: transparent;
+  color: rgba(255,255,255,0.65);
+
+  height: 24px;           /* как TM */
+  padding: 0;             /* как TM (без капсулы по умолчанию) */
+  border-radius: 999px;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* если внутри svg/иконка — не сжимать */
+  min-width: 24px;
+}
+
+/* hover — просто ярче, без плашки */
+.chart-head .chart-draw-tools .tool-btn:hover{
+  color: rgba(255,255,255,0.9);
+  background: transparent;
+}
+
+/* active — синяя капсула, как у выбранного таймфрейма */
+.chart-head .chart-draw-tools .tool-btn.active{
+  background: #1a2cff;
+  color: #fff;
+  padding: 0 10px;        /* как TM */
+  height: 24px;
+  border-radius: 999px;
+}
+
+/* если у активной кнопки класс не .active, а например .is-active — добавь дубль */
+.chart-head .chart-draw-tools .tool-btn.is-active{
+  background: #1a2cff;
+  color: #fff;
+  padding: 0 10px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+/* ×SIM тоже под TM-стиль */
+.chart-head #clear-sim-btn{
+  appearance: none;
+  border: 0 !important;
+  outline: none;
+  background: transparent;
+  color: rgba(255,80,80,0.9);
+
+  height: 24px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+/* если ×SIM должен быть капсулой при наведении */
+.chart-head #clear-sim-btn:hover{
+  color: rgba(255,255,255,0.95);
+  background: rgba(255,80,80,0.35);
+  padding: 0 10px;
+}
+
+/* Контейнер ордер-кнопок */
+.order-type,
+.order-tabs,
+.trade-tabs,
+.order-switch {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: transparent;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Общий стиль кнопок */
+.order-type button,
+.order-tabs button,
+.trade-tabs button,
+.order-switch button {
+  appearance: none;
+  border: 0 !important;
+  outline: none;
+  background: transparent;
+
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+  line-height: 1;
+  height: 24px;
+  padding: 0;
+
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .15s ease, background .15s ease;
+}
+
+/* hover — как у TM */
+.order-type button:hover,
+.order-tabs button:hover,
+.trade-tabs button:hover,
+.order-switch button:hover {
+  color: rgba(255,255,255,0.9);
+  background: transparent;
+}
+
+/* active — синяя капсула */
+.order-type button.active,
+.order-tabs button.active,
+.trade-tabs button.active,
+.order-switch button.active,
+.order-type button.is-active,
+.order-tabs button.is-active,
+.trade-tabs button.is-active,
+.order-switch button.is-active {
+  background: #1a2cff;
+  color: #fff;
+  padding: 0 12px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+/* кнопка с caret (TP/SL) */
+.order-type button svg,
+.order-type button .caret,
+.order-tabs button svg {
+  margin-left: 6px;
+  opacity: 0.7;
+}
+
+/* Контейнер */
+.trade-types{
+  display: flex;
+  align-items: center;
+  gap: 14px;              /* как TM */
+  background: transparent;
+  padding: 0;
+  border: 0;
+}
+
+/* Кнопки */
+.trade-types .type-btn{
+  appearance: none;
+  border: 0 !important;
+  outline: none;
+  background: transparent;
+
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+  line-height: 1;
+  height: 24px;
+  padding: 0;
+
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color .15s ease, background .15s ease;
+}
+
+/* hover */
+.trade-types .type-btn:hover{
+  color: rgba(255,255,255,0.9);
+  background: transparent;
+}
+
+/* active — синяя капсула */
+.trade-types .type-btn.active{
+  background: #1a2cff;
+  color: #fff;
+  padding: 0 12px;        /* капсула как у TM */
+  height: 24px;
+  border-radius: 999px;
+}
+
+/* ===== Spot Orders ===== */
+.spot-orders{
+  margin-top: 0px;
+  padding: 18px 22px 26px;
+  border-radius: 16px;
+
+  background: rgba(255,255,255,0.02);
+}
+
+/* Header */
+.orders-header{
+  margin-bottom: 16px;
+}
+
+/* Tabs */
+.orders-tabs{
+  display: flex;
+  gap: 22px;
+}
+
+.orders-tab{
+  background: none;
+  border: none;
+  padding: 0;
+  height: 24px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  position: relative;
+}
+
+.orders-tab:hover{
+  color: rgba(255,255,255,0.85);
+}
+
+.orders-tab.active{
+  color: #fff;
+}
+
+.orders-tab.active::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-8px;
+  width:100%;
+  height:2px;
+  background:#1a2cff;
+  border-radius:2px;
+}
+
+/* Table wrapper */
+.orders-table{
+  margin-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Header row */
+.orders-head{
+  display: grid;
+  grid-template-columns:
+    1.2fr
+    1.3fr
+    0.9fr
+    0.9fr
+    1fr
+    1fr
+    1fr
+    1fr
+    0.8fr;
+
+  padding: 14px 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+}
+
+.orders-head .right{
+  text-align: right;
+}
+
+/* Empty state */
+.orders-empty{
+  padding: 80px 0 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.orders-empty-icon{
+  font-size: 36px;
+  opacity: 0.25;
+  margin-bottom: 10px;
+}
+
+.orders-empty-title{
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 60px;
+}
+
+.orders-empty-text{
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+}
+
+/* Таблица должна иметь высоту (или min-height) */
+.orders-table{
+  display: grid;
+  grid-template-rows: auto 1fr;     /* head + body */
+  min-height: 220px;               /* подбери под свой дизайн */
+}
+
+/* Empty занимает "body" и реально центрируется */
+.orders-empty{
+  grid-row: 2;
+  display: grid;
+  place-items: center;             /* идеально по центру */
+  padding: 0;                      /* убираем твои 80px */
+  text-align: center;
+  
+}
+
+/* ===== Trade History panel ===== */
+.orders-panel.trade-history{
+  padding-top: 10px;
+}
+
+/* Filters row */
+.th-filters{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding: 10px 0 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.th-left{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap: wrap;
+}
+
+.th-range{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* pills like your TM style: no borders */
+.th-pill{
+  appearance:none;
+  border:0 !important;
+  background:transparent;
+  color: rgba(255,255,255,0.55);
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  cursor:pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.th-pill:hover{
+  color: rgba(255,255,255,0.85);
+}
+
+.th-pill.active{
+  background:#1a2cff;
+  color:#fff;
+}
+
+.th-field{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.th-label{
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 600;
+}
+
+.th-input{
+  width: 130px;
+  height: 28px;
+  border-radius: 8px;
+  border: 0 !important;
+  outline: none;
+  background: rgba(255,255,255,0.06);
+  color:#fff;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.th-input::placeholder{
+  color: rgba(255,255,255,0.35);
+}
+
+.th-sep{
+  color: rgba(255,255,255,0.35);
+  font-size: 12px;
+}
+
+/* reset button: clean like your style */
+.th-reset{
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0 !important;
+  background: rgba(255,255,255,0.08);
+  color:#fff;
+  cursor:pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.th-reset:hover{
+  background: rgba(255,255,255,0.12);
+}
+
+.th-right{
+  margin-left:auto;
+}
+
+.th-summary{
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.th-sum-val{
+  color: rgba(255,255,255,0.92);
+  font-weight: 800;
+}
+
+.th-buy{ color: rgba(0,227,161,0.95); }
+.th-sell{ color: rgba(255,77,109,0.95); }
+
+.th-sum-split{
+  margin-left: 8px;
+  color: rgba(255,255,255,0.45);
+}
+
+/* Table */
+.th-table{
+  padding-top: 10px;
+}
+
+.th-head{
+  display:grid;
+  grid-template-columns:
+    1.2fr
+    1.5fr
+    0.9fr
+    1.3fr
+    1fr
+    1fr
+    0.9fr
+    0.9fr;
+
+  padding: 12px 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+}
+
+.th-head .right{
+  text-align:right;
+}
+
+/* Empty state (centered, compact gap like we tuned before) */
+.th-empty{
+  min-height: 200px;
+  display:grid;
+  place-items:center;
+  gap: 6px;
+  text-align:center;
+  padding: 26px 0 34px;
+}
+
+.th-empty-icon{
+  font-size: 34px;
+  opacity: 0.22;
+  line-height: 1;
+}
+
+.th-empty-title{
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.2;
+}
+
+.th-empty-text{
+  max-width: 520px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.55;
+}
+
+.spot-orders{
+  height: 360px;
+  overflow: hidden;
+}
+
+.orders-table{
+  height: 100%;
+}
+
+/* Разрешаем странице расти по высоте (чтобы появился scroll страницы) */
+body.spot-mode .spot-layout{
+  height: auto !important;                 /* убираем 100vh */
+  min-height: calc(100vh - var(--topbar-h)); /* чтоб минимум был экран */
+}
+
+
+/* === FINAL FIX: page scroll + no gaps + fixed trading row === */
+body.spot-mode .spot-layout{
+  height: auto !important;
+  min-height: calc(100vh - var(--topbar-h));
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "pair pair pair"
+    "chart orderbook trade"
+    "orders orders orders";
+}
+
+html, body{
+  overflow-y: auto !important;
+}
+
+body.spot-mode,
+body.spot-mode #spot-page,
+body.spot-mode main{
+  overflow: visible !important;
+}
+
+/* fixed trading row height */
+body.spot-mode .spot-chart,
+body.spot-mode .spot-orderbook,
+body.spot-mode .spot-trade{
+  height: 640px;
+  max-height: 75vh;
+  min-height: 520px;
+  overflow: hidden;
+}
+
+/* internal layout to avoid bottom gaps */
+body.spot-mode .spot-orderbook,
+body.spot-mode .spot-trade{
+  display: flex;
+  flex-direction: column;
+}
+
+body.spot-mode .spot-orderbook *,
+body.spot-mode .spot-trade *{
+  min-height: 0;
+}
+
+body.spot-mode .spot-orderbook .ob-rows{
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+
+/* === Spot trading logic: open orders rows === */
+.order-row{
+  display: grid;
+  grid-template-columns: 1.2fr 1.0fr 0.8fr 0.8fr 1.0fr 1.0fr 1.0fr 1.0fr 0.6fr;
+  gap: 0;
+  padding: 10px 0;
+  font-size: 12px;
+  color: rgba(255,255,255,0.75);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.order-row .right{ text-align: right; }
+.order-row .buy{ color: rgba(0,227,161,0.95); font-weight: 700; }
+.order-row .sell{ color: rgba(255,77,109,0.95); font-weight: 700; }
+.order-cancel{
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.9);
+  cursor: pointer;
+}
+.order-cancel:hover{ background: rgba(255,255,255,0.12); }
+
+
+/* ===== Last price button (trade panel) ===== */
+.trade-field{ position: relative; }
+#tradePrice{ padding-right: 92px; }
+.last-price-btn{
+  position:absolute;
+  right: 10px;
+  top: 38px; /* aligns with input in our trade-field */
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 0 !important;
+  background: rgba(26,44,255,0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.last-price-btn:hover{ opacity: 0.92; }
+
+
+/* ===== Orders rows styling ===== */
+.order-row{
+  display:grid;
+  grid-template-columns: 1.2fr 1fr 0.8fr 0.8fr 1fr 1fr 1fr 1fr 0.6fr;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+}
+.order-row .right{ text-align:right; }
+.order-row .buy{ color: #2bd9a8; font-weight: 700; }
+.order-row .sell{ color: #ff5b6e; font-weight: 700; }
+.order-cancel{
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 0;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.9);
+  cursor: pointer;
+}
+.order-cancel:hover{ background: rgba(255,255,255,0.10); }
+
+
+/* ===== PATCH v8: slider track fill via CSS variables (webkit+moz) ===== */
+#tradePct{
+  --pct: 0%;
+  --fill: rgba(11,191,118,0.95);
+  --rest: rgba(255,255,255,0.14);
+  background: transparent !important;
+}
+#tradePct::-webkit-slider-runnable-track{
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--fill) 0 var(--pct), var(--rest) var(--pct) 100%);
+}
+#tradePct::-moz-range-track{
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--fill) 0 var(--pct), var(--rest) var(--pct) 100%);
+}
+#tradePct::-ms-track{
+  height: 4px;
+  border-radius: 999px;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+#tradePct::-ms-fill-lower{ background: var(--fill); border-radius: 999px; }
+#tradePct::-ms-fill-upper{ background: var(--rest); border-radius: 999px; }
+
+
+/* ===== PATCH UI v11: Last price button + slider alignment ===== */
+.trade-input-wrap{ position: relative; width: 100%; }
+.trade-input-wrap .trade-input{ width: 100%; padding-right: 108px; }
+.trade-input-wrap .last-price-btn{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0 !important;
+  background: rgba(26,44,255,0.9);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.trade-input-wrap .last-price-btn:hover{ filter: brightness(1.05); }
+
+/* remove old absolute positioning that depended on magic top */
+.trade-field > .last-price-btn{ position: static !important; }
+#tradePrice{ padding-right: 0 !important; }
+
+/* slider: ensure custom track is visible + thumb centered */
+#tradePct{
+  -webkit-appearance: none;
+  appearance: none;
+  height: 18px;              /* gives room for thumb */
+  padding: 0;
+}
+#tradePct:focus{ outline: none; }
+#tradePct::-webkit-slider-runnable-track{ height: 4px; }
+#tradePct::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #cfd6e4;
+  border: 2px solid rgba(0,0,0,.35);
+  margin-top: -6px;          /* centers on 4px track */
+  cursor: pointer;
+}
+#tradePct::-moz-range-track{ height: 4px; }
+#tradePct::-moz-range-thumb{
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #cfd6e4;
+  border: 2px solid rgba(0,0,0,.35);
+  cursor: pointer;
+}
+
+
+/* ===== PATCH v12: Market mode UI ===== */
+.trade-panel.is-market .trade-field.price-field .trade-input{ opacity: 0.55; }
+.trade-panel.is-market .trade-field.price-field .last-price-btn{ opacity: 0.35; pointer-events: none; }
+.trade-panel.is-market .trade-field.price-field .trade-input{ cursor: not-allowed; }
+
+
+/* ===== PATCH v13: Market tab minimal inputs ===== */
+/* Hide price always in market */
+.trade-panel.is-market .trade-field.price-field{ display:none !important; }
+/* In market BUY: hide Amount (BTC), show Total */
+.trade-panel.is-market.is-buy .trade-field.amount-field{ display:none !important; }
+.trade-panel.is-market.is-buy .trade-field.total-field{ display:block !important; }
+/* In market SELL: hide Total (USDT), show Amount */
+.trade-panel.is-market.is-sell .trade-field.total-field{ display:none !important; }
+.trade-panel.is-market.is-sell .trade-field.amount-field{ display:block !important; }
+/* Tighten spacing a bit */
+.trade-panel.is-market .trade-field{ margin-top: 10px; }
+
+
+/* ===== PATCH v14: Market tab minimal (scoped to #tradeCard) ===== */
+#tradeCard.is-market .trade-field.price-field{ display:none !important; }
+#tradeCard.is-market.is-buy .trade-field.amount-field{ display:none !important; }
+#tradeCard.is-market.is-buy .trade-field.total-field{ display:block !important; }
+#tradeCard.is-market.is-sell .trade-field.total-field{ display:none !important; }
+#tradeCard.is-market.is-sell .trade-field.amount-field{ display:block !important; }
+#tradeCard.is-market #lastPriceBtn{ display:none !important; }
+
+/* ===== Hide number input spinners ===== */
+
+/* Chrome, Safari, Edge */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 
 </style>
 </head>
@@ -6499,22 +7460,23 @@ body.spot-mode .spot-layout{
     <div class="spot-chart">
   <div class="chart-card">
     <div class="chart-head">
-      <div class="chart-title">Chart</div>
+  <div class="chart-head-left">
+    <div class="chart-title">Chart</div>
 
-      <div class="chart-tools">
-        <button class="chart-btn is-active" data-tf="1m">1m</button>
-        <button class="chart-btn" data-tf="5m">5m</button>
-        <button class="chart-btn" data-tf="15m">15m</button>
-        <button class="chart-btn" data-tf="1h">1h</button>
-        <button class="chart-btn" data-tf="4h">4h</button>
-        <button class="chart-btn" data-tf="1d">1d</button>
-      </div>
+    <!-- 1-й прямоугольник: таймфреймы -->
+    <div class="chart-tools">
+      <button class="chart-btn is-active" data-tf="1m">1m</button>
+      <button class="chart-btn" data-tf="5m">5m</button>
+      <button class="chart-btn" data-tf="15m">15m</button>
+      <button class="chart-btn" data-tf="1h">1h</button>
+      <button class="chart-btn" data-tf="4h">4h</button>
+      <button class="chart-btn" data-tf="1d">1d</button>
     </div>
+  </div>
 
-    <div class="chart-stage" id="chart-root">
-  <canvas id="ax-chart"></canvas>
-  
-      <div id="chart-draw-tools" class="chart-draw-tools">
+  <!-- 2-й прямоугольник: сюда переедут tools -->
+  <div class="chart-head-right" id="chart-top-tools">
+    <div id="chart-draw-tools" class="chart-draw-tools">
   <button class="tool-btn active" data-tool="cursor" title="Cursor">✛</button>
   <button class="tool-btn" data-tool="line" title="Line">／</button>
   <button class="tool-btn" data-tool="hline" title="Horizontal">—</button>
@@ -6540,6 +7502,13 @@ body.spot-mode .spot-layout{
   <button class="tool-btn" data-tool="sim-up" title="Simulate Up">▲</button>
   <button class="tool-btn" data-tool="sim-down" title="Simulate Down">▼</button>
 </div>
+  </div>
+</div>
+
+    <div class="chart-stage" id="chart-root">
+  <canvas id="ax-chart"></canvas>
+  
+      
 
   <div class="chart-hud" id="chart-hud">
     <div class="hud-line"><span>O</span><b id="hud-o">—</b></div>
@@ -6598,7 +7567,6 @@ body.spot-mode .spot-layout{
         <div class="trade-types">
           <button class="type-btn active" data-otype="limit" type="button">Limit</button>
           <button class="type-btn" data-otype="market" type="button">Market</button>
-          <button class="type-btn" data-otype="tpsl" type="button">TP/SL <span class="caret">▾</span></button>
         </div>
 
         <div class="trade-available">
@@ -6610,12 +7578,15 @@ body.spot-mode .spot-layout{
           </div>
         </div>
 
-        <div class="trade-field">
+        <div class="trade-field price-field">
           <div class="trade-field-label">Price <span class="muted">(USDT)</span></div>
-          <input class="trade-input" id="tradePrice" type="number" step="0.01" placeholder="0.00" />
+          <div class="trade-input-wrap">
+            <input class="trade-input" id="tradePrice" type="number" step="0.01" placeholder="0.00" />
+            <button type="button" class="last-price-btn" id="lastPriceBtn">Last price</button>
+          </div>
         </div>
 
-        <div class="trade-field">
+        <div class="trade-field amount-field">
           <div class="trade-field-label">Amount <span class="muted">(BTC)</span></div>
           <input class="trade-input" id="tradeAmount" type="number" step="0.000001" placeholder="0.000000" />
         </div>
@@ -6633,7 +7604,7 @@ body.spot-mode .spot-layout{
           </div>
         </div>
 
-        <div class="trade-field">
+        <div class="trade-field total-field">
           <div class="trade-field-label">Total <span class="muted">(USDT)</span></div>
           <input class="trade-input" id="tradeTotal" type="number" step="0.01" placeholder="0.00" />
         </div>
@@ -6666,8 +7637,154 @@ body.spot-mode .spot-layout{
 
     <!-- BLOCK 5: Open Orders -->
     <div class="spot-orders">
-      <div class="placeholder">5 · Open Orders</div>
+
+  <!-- Header -->
+  <div class="orders-header">
+    <div class="orders-tabs">
+  <button class="orders-tab active" data-tab="open">Open Orders (0)</button>
+  <button class="orders-tab" data-tab="tradeHistory">Trade History</button>
+</div>
+  </div>
+
+  <!-- Table -->
+<div class="orders-table">
+
+  <!-- ================= OPEN ORDERS ================= -->
+  <div class="orders-panel is-active" data-panel="open">
+
+    <div class="orders-head">
+      <div>Pair</div>
+      <div>Date</div>
+      <div>Type</div>
+      <div>Side</div>
+      <div>Price</div>
+      <div>Amount</div>
+      <div>Filled</div>
+      <div>Trigger</div>
+      <div class="right">Cancel</div>
     </div>
+
+    <div class="orders-empty">
+      <div class="orders-empty-icon">📄</div>
+      <div class="orders-empty-title">No open orders</div>
+      <div class="orders-empty-text">
+        Your active spot orders will appear here.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= ORDER HISTORY ================= -->
+  <div class="orders-panel" data-panel="ordersHistory">
+
+    <div class="orders-head">
+      <div>Pair</div>
+      <div>Date</div>
+      <div>Type</div>
+      <div>Side</div>
+      <div>Price</div>
+      <div>Amount</div>
+      <div>Filled</div>
+      <div>Status</div>
+      <div class="right">Fee</div>
+    </div>
+
+    <div class="orders-empty">
+      <div class="orders-empty-icon">📄</div>
+      <div class="orders-empty-title">No order history</div>
+      <div class="orders-empty-text">
+        Your completed and cancelled orders will appear here.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= TRADE HISTORY ================= -->
+  <div class="orders-panel trade-history" data-panel="tradeHistory">
+
+    <!-- Filters -->
+    <div class="th-filters">
+      <div class="th-left">
+        <div class="th-range">
+          <button class="th-pill" type="button">1 day</button>
+          <button class="th-pill" type="button">3 days</button>
+          <button class="th-pill" type="button">1 week</button>
+          <button class="th-pill active" type="button">1 month</button>
+        </div>
+
+        <div class="th-field">
+          <span class="th-label">Date</span>
+          <input class="th-input" type="text" placeholder="Start date">
+          <span class="th-sep">→</span>
+          <input class="th-input" type="text" placeholder="End date">
+          <button class="th-reset" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div class="th-right">
+        <div class="th-summary">
+          Total filled:
+          <span class="th-sum-val">0 USDT</span>
+          <span class="th-sum-split">
+            ( Buy: <span class="th-buy">0</span> /
+            Sell: <span class="th-sell">0</span> )
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="th-table">
+      <div class="th-head">
+        <div>Pair</div>
+        <div>Date</div>
+        <div>Side</div>
+        <div>Avg. fill price</div>
+        <div>Filled</div>
+        <div>Total</div>
+        <div>Role</div>
+        <div class="right">Fee</div>
+      </div>
+
+      <div class="th-empty">
+        <div class="th-empty-icon">📄</div>
+        <div class="th-empty-title">No trades yet</div>
+        <div class="th-empty-text">
+          Only the last 180 days are shown here.  
+          For older history, use the full Orders page.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= OPEN POSITIONS ================= -->
+  <div class="orders-panel" data-panel="positions">
+
+    <div class="orders-head">
+      <div>Pair</div>
+      <div>Side</div>
+      <div>Size</div>
+      <div>Entry Price</div>
+      <div>Mark Price</div>
+      <div>PnL</div>
+      <div class="right">Close</div>
+    </div>
+
+    <div class="orders-empty">
+      <div class="orders-empty-icon">📄</div>
+      <div class="orders-empty-title">No open positions</div>
+      <div class="orders-empty-text">
+        Your active positions will appear here.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+</div>
 
   </div>
 </section>
@@ -11602,6 +12719,63 @@ document.addEventListener("DOMContentLoaded", () => {
   }catch(e){}
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const tools = document.getElementById("chart-draw-tools");
+  const host  = document.getElementById("chart-top-tools"); // тот div справа в шапке
+  if (tools && host) host.appendChild(tools);
+});
+
+(function initOrdersTabs(){
+  const root = document.querySelector(".spot-orders");
+  if (!root) return;
+
+  const tabs = Array.from(root.querySelectorAll(".orders-tab"));
+  if (!tabs.length) return;
+
+  // Если ты позже добавишь панели:
+  // <div class="orders-panel" data-panel="open">...</div>
+  // то это начнет работать автоматически.
+  const panels = Array.from(root.querySelectorAll(".orders-panel"));
+
+  function setActive(tabKey){
+    tabs.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabKey));
+
+    // если есть панели — показываем нужную
+    if (panels.length){
+      panels.forEach(p => {
+        p.style.display = (p.dataset.panel === tabKey) ? "" : "none";
+      });
+    } else {
+      // пока панелей нет — просто меняем empty текст (чтобы было ощущение переключения)
+      const title = root.querySelector(".orders-empty-title");
+      const text  = root.querySelector(".orders-empty-text");
+
+      if (!title || !text) return;
+
+      const map = {
+        open: ["No open orders", "Your active spot orders will appear here."],
+        ordersHistory: ["No order history", "Your completed and cancelled orders will appear here."],
+        tradeHistory: ["No trades yet", "Your trade executions will appear here."],
+        positions: ["No open positions", "Your current positions will appear here."]
+      };
+
+      const msg = map[tabKey] || map.open;
+      title.textContent = msg[0];
+      text.textContent  = msg[1];
+    }
+  }
+
+  // клики
+  root.addEventListener("click", (e) => {
+    const btn = e.target.closest(".orders-tab");
+    if (!btn || !root.contains(btn)) return;
+    setActive(btn.dataset.tab);
+  });
+
+  // стартовое состояние
+  const initial = root.querySelector(".orders-tab.active")?.dataset.tab || tabs[0].dataset.tab;
+  setActive(initial);
+})();
 
 
 </script>
@@ -11883,6 +13057,1455 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", hook);
   else hook();
+})();
+</script>
+
+
+<script>
+/* ================= SPOT TRADING LOGIC (UI) =================
+   - Limit: Price/Amount/Total sync
+   - Percent buttons use Available balance
+   - Place order -> Open Orders
+   - Cancel order
+   - Persists orders + balances in localStorage
+*/
+(function(){
+  if (window.__spotTradingLogicV1) return;
+  window.__spotTradingLogicV1 = true;
+
+  const LS_ORDERS = "spot_orders_v1";
+  const LS_BAL = "spot_balances_v1";
+
+  const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
+  const state = {
+    pair: "BTC/USDT",
+    base: "BTC",
+    quote: "USDT",
+    orders: [],
+    balances: { ...DEFAULT_BAL }
+  };
+
+  try{
+    const savedBal = JSON.parse(localStorage.getItem(LS_BAL) || "null");
+    if(savedBal && typeof savedBal === "object") state.balances = { ...state.balances, ...savedBal };
+  }catch(_){}
+  try{
+    const savedOrders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
+    if(Array.isArray(savedOrders)) state.orders = savedOrders;
+  }catch(_){}
+
+  function $(sel, root=document){ return root.querySelector(sel); }
+  function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
+
+  function onReady(fn){
+    if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn, {once:true});
+    else fn();
+  }
+
+  onReady(() => {
+    const priceInput  = $("#tradePrice");
+    const amountInput = $("#tradeAmount");
+    const totalInput  = $("#tradeTotal");
+    const submitBtn   = $("#tradeSubmit");
+
+    const availAmtEl  = $("#tradeAvailAmt");
+    const availCcyEl  = $("#tradeAvailCcy");
+
+    const sideBtns = $all(".bs-btn");
+    const typeBtns = $all(".type-btn");
+    const pctBtns  = $all('[data-p]'); // your 0/25/50/75/100 buttons
+
+    if(!priceInput || !amountInput || !totalInput || !submitBtn){
+      console.warn("[spot] trade inputs not found; logic not attached");
+      return;
+    }
+
+    // Guess current market price from the UI (price label in pair header) if available
+    function readMarketPrice(){
+      const el = document.querySelector(".pair-price") || document.querySelector("#pairPrice") || null;
+      if(el){
+        const v = parseFloat(String(el.textContent).replace(/[^0-9.]/g,""));
+        if(!Number.isNaN(v) && v>0) return v;
+      }
+      // fallback: keep last / or use price input
+      const pv = parseFloat(priceInput.value);
+      return (!Number.isNaN(pv) && pv>0) ? pv : 88000;
+    }
+
+    function currentSide(){
+      return $(".bs-btn.active")?.dataset.side || "buy";
+    }
+    function currentType(){
+      return $(".type-btn.active")?.dataset.otype || "limit";
+    }
+
+    function save(){
+      try{ localStorage.setItem(LS_ORDERS, JSON.stringify(state.orders)); }catch(_){}
+      try{ localStorage.setItem(LS_BAL, JSON.stringify(state.balances)); }catch(_){}
+    }
+
+    function setAvailableUI(){
+      const side = currentSide();
+      if(side === "buy"){
+        if(availAmtEl) availAmtEl.textContent = (state.balances.USDT ?? 0).toFixed(2);
+        if(availCcyEl) availCcyEl.textContent = "USDT";
+      }else{
+        if(availAmtEl) availAmtEl.textContent = (state.balances.BTC ?? 0).toFixed(6);
+        if(availCcyEl) availCcyEl.textContent = "BTC";
+      }
+    }
+
+    // Prevent infinite loops when syncing fields
+    let lock = false;
+    function setVal(el, v){
+      if(!el) return;
+      el.value = v;
+    }
+
+    function syncFromAmount(){
+      if(lock) return;
+      const p = parseFloat(priceInput.value);
+      const a = parseFloat(amountInput.value);
+      if(!(p>0) || !(a>=0)) return;
+      lock = true;
+      setVal(totalInput, (p * a).toFixed(2));
+      lock = false;
+    }
+    function syncFromTotal(){
+      if(lock) return;
+      const p = parseFloat(priceInput.value);
+      const t = parseFloat(totalInput.value);
+      if(!(p>0) || !(t>=0)) return;
+      lock = true;
+      setVal(amountInput, (t / p).toFixed(6));
+      lock = false;
+    }
+
+    priceInput.addEventListener("input", () => {
+      // If user edits price, recompute whichever is filled (amount -> total)
+      syncFromAmount();
+    });
+    amountInput.addEventListener("input", syncFromAmount);
+    totalInput.addEventListener("input", syncFromTotal);
+
+    // Percent buttons (0/25/50/75/100)
+    pctBtns.forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const pct = parseFloat(btn.getAttribute("data-p") || "0") / 100;
+        const side = currentSide();
+        const price = parseFloat(priceInput.value) || readMarketPrice();
+
+        lock = true;
+        if(side === "buy"){
+          const usdt = (state.balances.USDT || 0) * pct;
+          setVal(totalInput, usdt.toFixed(2));
+          setVal(amountInput, (usdt / price).toFixed(6));
+        }else{
+          const btc = (state.balances.BTC || 0) * pct;
+          setVal(amountInput, btc.toFixed(6));
+          setVal(totalInput, (btc * price).toFixed(2));
+        }
+        lock = false;
+      });
+    });
+
+    // Side buttons: update available + submit label
+    sideBtns.forEach(b=>{
+      b.addEventListener("click", ()=>{
+        sideBtns.forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+        setAvailableUI();
+
+        // Update submit button text
+        const side = currentSide();
+        submitBtn.textContent = (side === "buy" ? "Buy " : "Sell ") + state.base;
+      });
+    });
+
+    // Type buttons: just toggle active
+    typeBtns.forEach(b=>{
+      b.addEventListener("click", ()=>{
+        typeBtns.forEach(x=>x.classList.remove("active"));
+        b.classList.add("active");
+      });
+    });
+
+    // Ensure limit price prefilled once
+    if(currentType() === "limit" && !priceInput.value){
+      priceInput.value = readMarketPrice().toFixed(2);
+    }
+
+    // Open Orders rendering
+    function ensureRowsHost(panel){
+      let host = panel.querySelector(".orders-rows");
+      if(!host){
+        host = document.createElement("div");
+        host.className = "orders-rows";
+        const head = panel.querySelector(".orders-head");
+        if(head) head.insertAdjacentElement("afterend", host);
+        else panel.appendChild(host);
+      }
+      return host;
+    }
+
+    function renderOpenOrders(){
+      const panel = document.querySelector('[data-panel="open"]');
+      if(!panel) return;
+      const host = ensureRowsHost(panel);
+      const empty = panel.querySelector(".orders-empty");
+
+      host.innerHTML = "";
+
+      const open = state.orders.filter(o => o.status === "open");
+      // update tab counter if present
+      const tabOpen = document.querySelector('.orders-tab[data-tab="open"]');
+      if(tabOpen) tabOpen.textContent = `Open Orders (${open.length})`;
+
+      if(!open.length){
+        if(empty) empty.style.display = "grid";
+        return;
+      }
+      if(empty) empty.style.display = "none";
+
+      open.forEach(o=>{
+        const row = document.createElement("div");
+        row.className = "order-row";
+        row.innerHTML = `
+          <div>${o.pair}</div>
+          <div>${new Date(o.ts).toLocaleTimeString()}</div>
+          <div>${o.type}</div>
+          <div class="${o.side}">${o.side.toUpperCase()}</div>
+          <div>${Number(o.price).toFixed(2)}</div>
+          <div>${Number(o.amount).toFixed(6)}</div>
+          <div>${Number(o.filled||0).toFixed(6)}</div>
+          <div>—</div>
+          <div class="right"><button class="order-cancel" type="button" data-id="${o.id}">✕</button></div>
+        `;
+        host.appendChild(row);
+      });
+    }
+
+    // Cancel button (event delegation)
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".order-cancel");
+      if(!btn) return;
+      const id = btn.getAttribute("data-id");
+      const ord = state.orders.find(o => String(o.id) === String(id));
+      if(!ord) return;
+      ord.status = "cancelled";
+      save();
+      renderOpenOrders();
+    });
+
+    // Place order
+    submitBtn.addEventListener("click", ()=>{
+      const side = currentSide();
+      const type = currentType();
+      const price = parseFloat(priceInput.value);
+      const amount = parseFloat(amountInput.value);
+
+      if(type === "limit" && !(price>0)) return alert("Enter price");
+      if(!(amount>0)) return alert("Enter amount");
+
+      const px = (type === "market") ? readMarketPrice() : price;
+      const cost = px * amount;
+
+      if(side === "buy"){
+        if(cost > (state.balances.USDT || 0)) return alert("Not enough USDT");
+        // Reserve funds like exchanges do (simple)
+        state.balances.USDT = (state.balances.USDT || 0) - cost;
+      }else{
+        if(amount > (state.balances.BTC || 0)) return alert("Not enough BTC");
+        state.balances.BTC = (state.balances.BTC || 0) - amount;
+      }
+
+      const order = {
+        id: (Date.now() + Math.random()).toString(16).replace(".",""),
+        pair: state.pair,
+        side,
+        type,
+        price: px,
+        amount,
+        filled: 0,
+        status: "open",
+        ts: Date.now()
+      };
+      state.orders.unshift(order);
+      save();
+      setAvailableUI();
+      renderOpenOrders();
+
+      // Clear amount/total like many exchanges (keep price)
+      amountInput.value = "";
+      totalInput.value = "";
+    });
+
+    // Initial UI sync
+    setAvailableUI();
+    renderOpenOrders();
+  });
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v1: balance reset + slider fills + last price button ===== */
+(function(){
+  // Always reset balance for testing
+  const BAL = { USDT: 1000, BTC: 0 };
+  // store on window for other scripts if needed
+  window.__TEST_BALANCES__ = BAL;
+
+  const elAvail = document.querySelector('.trade-available-val');
+  const elAvailSym = document.querySelector('.trade-available-sym');
+  if(elAvail) elAvail.textContent = BAL.USDT.toFixed(2);
+  if(elAvailSym) elAvailSym.textContent = 'USDT';
+
+  const priceInput  = document.getElementById('tradePrice');
+  const amountInput = document.getElementById('tradeAmount');
+  const totalInput  = document.getElementById('tradeTotal');
+  const slider      = document.getElementById('tradePct');
+  const lastBtn     = document.getElementById('lastPriceBtn');
+
+  // Helpers
+  function getSide(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+
+  function getLastPrice(){
+    // Prefer your existing last-price badge if present, else fallback to tradePrice value, else a sane default.
+    const badge = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price');
+    if(badge){
+      const v = parseFloat((badge.textContent||'').replace(/[^0-9.]/g,''));
+      if(Number.isFinite(v) && v>0) return v;
+    }
+    const fromInput = parseFloat(priceInput?.value);
+    if(Number.isFinite(fromInput) && fromInput>0) return fromInput;
+    return 88127.97;
+  }
+
+  function syncFromAmount(){
+    const p = parseFloat(priceInput.value);
+    const a = parseFloat(amountInput.value);
+    if(Number.isFinite(p) && p>0 && Number.isFinite(a) && a>=0){
+      totalInput.value = (p*a).toFixed(2);
+    }
+  }
+
+  function syncFromTotal(){
+    const p = parseFloat(priceInput.value);
+    const t = parseFloat(totalInput.value);
+    if(Number.isFinite(p) && p>0 && Number.isFinite(t) && t>=0){
+      amountInput.value = (t/p).toFixed(6);
+    }
+  }
+
+  if(priceInput){
+    priceInput.addEventListener('input', syncFromAmount);
+  }
+  if(amountInput){
+    amountInput.addEventListener('input', syncFromAmount);
+  }
+  if(totalInput){
+    totalInput.addEventListener('input', syncFromTotal);
+  }
+
+  // Last price button
+  if(lastBtn){
+    lastBtn.addEventListener('click', () => {
+      const p = getLastPrice();
+      priceInput.value = p.toFixed(2);
+      // if user already typed one of the fields, recalc the other
+      const a = parseFloat(amountInput.value);
+      const t = parseFloat(totalInput.value);
+      if(Number.isFinite(a) && a>0) syncFromAmount();
+      else if(Number.isFinite(t) && t>0) syncFromTotal();
+    });
+  }
+
+  // Slider: 0..100% of available balance, sets Total/Amount (and fills price if empty using last price)
+  if(slider){
+    slider.min = '0';
+    slider.max = '100';
+    slider.step = '1';
+    slider.addEventListener('input', () => {
+      const pct = (parseFloat(slider.value)||0)/100;
+      const p = parseFloat(priceInput.value) || getLastPrice();
+      if(!priceInput.value) priceInput.value = p.toFixed(2);
+
+      if(getSide()==='buy'){
+        const usdt = BAL.USDT * pct;
+        totalInput.value = usdt.toFixed(2);
+        amountInput.value = (usdt / p).toFixed(6);
+      } else {
+        const btc = BAL.BTC * pct;
+        amountInput.value = btc.toFixed(6);
+        totalInput.value = (btc * p).toFixed(2);
+      }
+    });
+  }
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v2: correct balance check + locale commas + override submit ===== */
+(function(){
+  const BAL = { USDT: 1000, BTC: 0 };
+  // Try to sync any existing global states used elsewhere
+  if(window.SPOT && window.SPOT.balances){
+    window.SPOT.balances.USDT = BAL.USDT;
+    window.SPOT.balances.BTC = BAL.BTC;
+  }
+  if(window.STATE && window.STATE.balances){
+    window.STATE.balances.USDT = BAL.USDT;
+    window.STATE.balances.BTC = BAL.BTC;
+  }
+
+  function num(v){
+    if(v === null || v === undefined) return NaN;
+    return parseFloat(String(v).replace(',', '.').replace(/[^0-9.\-]/g,''));
+  }
+
+  const priceInput  = document.getElementById('tradePrice');
+  const amountInput = document.getElementById('tradeAmount');
+  const totalInput  = document.getElementById('tradeTotal');
+  const submitBtn   = document.getElementById('tradeSubmit');
+
+  if(!submitBtn || !priceInput || !amountInput || !totalInput) return;
+
+  function getSide(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+  function getType(){
+    const active = document.querySelector('.type-btn.active');
+    const t = (active?.textContent||'limit').toLowerCase();
+    return t.includes('market') ? 'market' : 'limit';
+  }
+
+  // Override any previous click handlers by capturing and stopping propagation
+  submitBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const side = getSide();
+    const type = getType();
+    const price = num(priceInput.value);
+    const amount = num(amountInput.value);
+    const total = num(totalInput.value);
+
+    if(!Number.isFinite(price) || price<=0) return alert("Fill price");
+    if(!Number.isFinite(amount) || amount<=0){
+      // allow placing by total only
+      if(Number.isFinite(total) && total>0){
+        const a = total / price;
+        amountInput.value = a.toFixed(6);
+      }else{
+        return alert("Fill amount or total");
+      }
+    }
+
+    const finalAmount = num(amountInput.value);
+    const cost = price * finalAmount;
+
+    if(side === 'buy' && cost > BAL.USDT + 1e-9){
+      return alert("Not enough USDT");
+    }
+    if(side === 'sell' && finalAmount > BAL.BTC + 1e-12){
+      return alert("Not enough BTC");
+    }
+
+    // Insert into Open Orders list used by existing UI (localStorage key spot_orders)
+    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]");
+    const id = Date.now() + Math.floor(Math.random()*1000);
+    orders.push({
+      id,
+      pair: "BTC/USDT",
+      side,
+      type,
+      price,
+      amount: finalAmount,
+      filled: 0,
+      ts: Date.now()
+    });
+    localStorage.setItem("spot_orders", JSON.stringify(orders));
+
+    // Re-render if a renderer exists
+    if(typeof window.renderOrders === "function"){
+      window.renderOrders();
+    }else{
+      // try to trigger any existing render by dispatching custom event
+      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+    }
+  }, true);
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v3: render Open Orders from localStorage ===== */
+(function(){
+  function fmtTime(ts){
+    try { return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
+    catch(e){ return ""; }
+  }
+  function numFixed(v, d){
+    const n = Number(v);
+    return Number.isFinite(n) ? n.toFixed(d) : "—";
+  }
+
+  function getOpenPanel(){
+    return document.querySelector('.orders-panel[data-panel="open"]');
+  }
+
+  window.renderOrders = function(){
+    const panel = getOpenPanel();
+    if(!panel) return;
+
+    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]");
+
+    // Remove previous rows
+    panel.querySelectorAll(".order-row").forEach(r => r.remove());
+
+    const empty = panel.querySelector(".orders-empty");
+    if(!orders.length){
+      if(empty) empty.style.display = "grid";
+      return;
+    }
+    if(empty) empty.style.display = "none";
+
+    // Insert rows after header
+    const head = panel.querySelector(".orders-head");
+    const insertAfter = head || null;
+
+    orders.forEach(o => {
+      const row = document.createElement("div");
+      row.className = "order-row";
+      row.innerHTML = `
+        <div>${o.pair || "BTC/USDT"}</div>
+        <div>${fmtTime(o.ts)}</div>
+        <div>${(o.type || "limit").toUpperCase()}</div>
+        <div class="${(o.side||"buy").toLowerCase()}">${(o.side||"buy").toUpperCase()}</div>
+        <div>${numFixed(o.price, 2)}</div>
+        <div>${numFixed(o.amount, 6)}</div>
+        <div>${numFixed(o.filled || 0, 6)}</div>
+        <div>—</div>
+        <div class="right"><button class="order-cancel" type="button" data-id="${o.id}">✕</button></div>
+      `;
+      if(insertAfter && insertAfter.parentNode){
+        insertAfter.parentNode.insertBefore(row, insertAfter.nextSibling);
+      }else{
+        panel.appendChild(row);
+      }
+    });
+
+    // Update tab count "Open Orders (N)" if exists
+    const tabBtn = [...document.querySelectorAll(".orders-tab, .orders-tabs button, .orders-header button")].find(b => (b.textContent||"").toLowerCase().includes("open orders"));
+    if(tabBtn){
+      tabBtn.textContent = `Open Orders (${orders.length})`;
+    }
+  };
+
+  // Cancel order handler (delegated)
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".order-cancel");
+    if(!btn) return;
+    const id = String(btn.dataset.id);
+    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]").filter(o => String(o.id) !== id);
+    localStorage.setItem("spot_orders", JSON.stringify(orders));
+    window.renderOrders();
+  });
+
+  // Re-render on our custom event
+  document.addEventListener("spot:ordersChanged", () => window.renderOrders());
+
+  // Initial render on load
+  window.addEventListener("DOMContentLoaded", () => window.renderOrders());
+  // Also render immediately in case script loads late
+  window.renderOrders();
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v4: reserved balance (decrease on open, return on cancel) ===== */
+(function(){
+  const BASE = { USDT: 1000, BTC: 0 }; // resets on refresh
+
+  function readOrders(){
+    return JSON.parse(localStorage.getItem("spot_orders") || "[]");
+  }
+  function writeOrders(orders){
+    localStorage.setItem("spot_orders", JSON.stringify(orders));
+  }
+
+  function getSide(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+
+  function reservedQuoteUSDT(orders){
+    return orders
+      .filter(o => String(o.side).toLowerCase() === 'buy')
+      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
+  }
+  function reservedBaseBTC(orders){
+    return orders
+      .filter(o => String(o.side).toLowerCase() === 'sell')
+      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
+  }
+
+  function availableFor(side, orders){
+    if(side === 'sell'){
+      const resB = reservedBaseBTC(orders);
+      return Math.max(0, BASE.BTC - resB);
+    }
+    const resQ = reservedQuoteUSDT(orders);
+    return Math.max(0, BASE.USDT - resQ);
+  }
+
+  function updateAvailableUI(){
+    const orders = readOrders();
+    const side = getSide();
+    const avail = availableFor(side, orders);
+
+    const valEl = document.querySelector('.trade-available-val');
+    const symEl = document.querySelector('.trade-available-sym');
+    if(valEl) valEl.textContent = (side === 'sell' ? avail.toFixed(6) : avail.toFixed(2));
+    if(symEl) symEl.textContent = (side === 'sell' ? 'BTC' : 'USDT');
+  }
+
+  // Hook into existing renderOrders to also update available
+  const prevRender = window.renderOrders;
+  window.renderOrders = function(){
+    if(typeof prevRender === 'function') prevRender();
+    updateAvailableUI();
+  };
+
+  // Update available when switching Buy/Sell
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.bs-btn');
+    if(!btn) return;
+    // let existing handlers run, then update
+    setTimeout(updateAvailableUI, 0);
+  });
+
+  // Override submit handler to use AVAILABLE (base - reserved) and not a fake BAL
+  const submitBtn = document.getElementById('tradeSubmit');
+  const priceInput  = document.getElementById('tradePrice');
+  const amountInput = document.getElementById('tradeAmount');
+  const totalInput  = document.getElementById('tradeTotal');
+
+  function num(v){
+    if(v === null || v === undefined) return NaN;
+    return parseFloat(String(v).replace(',', '.').replace(/[^0-9.\-]/g,''));
+  }
+
+  function getType(){
+    const active = document.querySelector('.type-btn.active');
+    const t = (active?.textContent||'limit').toLowerCase();
+    return t.includes('market') ? 'market' : 'limit';
+  }
+
+  if(submitBtn && priceInput && amountInput && totalInput){
+    submitBtn.addEventListener('click', function(e){
+      // capture & override other handlers
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      const side = getSide();
+      const type = getType();
+      const price = num(priceInput.value);
+      let amount = num(amountInput.value);
+      const total = num(totalInput.value);
+
+      if(!Number.isFinite(price) || price<=0) return alert("Fill price");
+
+      if(!Number.isFinite(amount) || amount<=0){
+        if(Number.isFinite(total) && total>0){
+          amount = total / price;
+          amountInput.value = amount.toFixed(6);
+        }else{
+          return alert("Fill amount or total");
+        }
+      }
+
+      const orders = readOrders();
+      const avail = availableFor(side, orders);
+
+      if(side === 'buy'){
+        const cost = price * amount;
+        if(cost > avail + 1e-9) return alert("Not enough USDT");
+      }else{
+        if(amount > avail + 1e-12) return alert("Not enough BTC");
+      }
+
+      orders.push({
+        id: Date.now() + Math.floor(Math.random()*1000),
+        pair: "BTC/USDT",
+        side,
+        type,
+        price,
+        amount,
+        filled: 0,
+        ts: Date.now()
+      });
+
+      writeOrders(orders);
+      if(typeof window.renderOrders === 'function') window.renderOrders();
+      else document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+    }, true);
+  }
+
+  // Make slider use AVAILABLE (base - reserved)
+  const slider = document.getElementById('tradePct');
+  if(slider){
+    slider.min="0"; slider.max="100"; slider.step="1";
+    slider.addEventListener('input', ()=>{
+      const pct = (parseFloat(slider.value)||0)/100;
+      const orders = readOrders();
+      const side = getSide();
+      const avail = availableFor(side, orders);
+
+      const price = num(priceInput?.value) || (window.getLastPrice ? window.getLastPrice() : NaN);
+      const p = Number.isFinite(price) && price>0 ? price : 88127.97;
+
+      if(side==='buy'){
+        const usdt = avail * pct;
+        totalInput.value = usdt.toFixed(2);
+        amountInput.value = (usdt / p).toFixed(6);
+      }else{
+        const btc = avail * pct;
+        amountInput.value = btc.toFixed(6);
+        totalInput.value = (btc * p).toFixed(2);
+      }
+    });
+  }
+
+  // On load: update and render
+  window.addEventListener('DOMContentLoaded', ()=>{
+    updateAvailableUI();
+    if(typeof window.renderOrders === 'function') window.renderOrders();
+  });
+  // immediate
+  updateAvailableUI();
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v5: auto-fill limit orders when price reaches ===== */
+(function(){
+  // Price reader (re-uses the same idea as earlier patches)
+  function getLastPrice(){
+    const candidates = [
+      document.querySelector('.price-tag'),
+      document.querySelector('.last-price'),
+      document.querySelector('[data-last-price]'),
+      document.querySelector('.mid-price'),
+      document.querySelector('.ob-mid-price'),
+      document.querySelector('.ob-mid .price'),
+    ].filter(Boolean);
+
+    for(const el of candidates){
+      const t = (el.textContent || '').replace(/[^0-9.,]/g,'').replace(',', '.');
+      const v = parseFloat(t);
+      if(Number.isFinite(v) && v>0) return v;
+    }
+    // fallback to trade price input if present
+    const inp = document.getElementById('tradePrice');
+    const vi = inp ? parseFloat(String(inp.value).replace(',', '.')) : NaN;
+    if(Number.isFinite(vi) && vi>0) return vi;
+    return 0;
+  }
+
+  function readOrders(){
+    return JSON.parse(localStorage.getItem("spot_orders") || "[]");
+  }
+  function writeOrders(orders){
+    localStorage.setItem("spot_orders", JSON.stringify(orders));
+  }
+  function readTrades(){
+    return JSON.parse(localStorage.getItem("spot_trades") || "[]");
+  }
+  function writeTrades(trades){
+    localStorage.setItem("spot_trades", JSON.stringify(trades));
+  }
+
+  // We adjust the "BASE" wallet that PATCH v4 created by locating its closure is impossible,
+  // so we keep a wallet in window for runtime and keep v4 "available" logic correct by also removing orders.
+  // Start wallet fresh each load (per your test requirement).
+  if(!window.__WALLET__){
+    window.__WALLET__ = { USDT: 1000, BTC: 0 };
+  }
+
+  function settleFill(order, fillPrice){
+    const side = String(order.side||'buy').toLowerCase();
+    const amt = Number(order.amount)||0;
+    const cost = (Number(fillPrice)||0) * amt;
+
+    if(side === 'buy'){
+      window.__WALLET__.USDT = Math.max(0, window.__WALLET__.USDT - cost);
+      window.__WALLET__.BTC  = (window.__WALLET__.BTC || 0) + amt;
+    }else{
+      window.__WALLET__.BTC  = Math.max(0, (window.__WALLET__.BTC||0) - amt);
+      window.__WALLET__.USDT = (window.__WALLET__.USDT || 0) + cost;
+    }
+
+    const trades = readTrades();
+    trades.unshift({
+      id: Date.now() + Math.floor(Math.random()*1000),
+      pair: order.pair || "BTC/USDT",
+      side,
+      price: Number(fillPrice),
+      amount: amt,
+      total: cost,
+      ts: Date.now(),
+      role: "taker",
+      fee: 0
+    });
+    writeTrades(trades);
+  }
+
+  // Simple matching rule:
+  // BUY limit fills when lastPrice <= order.price
+  // SELL limit fills when lastPrice >= order.price
+  // (User said "equal", but these are the normal exchange semantics.)
+  const EPS = 1e-9;
+
+  function tryFill(){
+    const last = getLastPrice();
+    if(!(Number.isFinite(last) && last>0)) return;
+
+    const orders = readOrders();
+    if(!orders.length) return;
+
+    let changed = False = false;
+    const remaining = [];
+
+    for(const o of orders){
+      const type = String(o.type||'limit').toLowerCase();
+      if(type !== 'limit'){ remaining.push(o); continue; }
+
+      const side = String(o.side||'buy').toLowerCase();
+      const p = Number(o.price)||0;
+
+      const canFill =
+        (side === 'buy'  && last <= p + EPS) ||
+        (side === 'sell' && last >= p - EPS);
+
+      if(canFill){
+        // Fill fully at the order price (limit execution), could also use last.
+        settleFill(o, p);
+        changed = true;
+      }else{
+        remaining.push(o);
+      }
+    }
+
+    if(changed){
+      writeOrders(remaining);
+      // Update UI if render functions exist
+      if(typeof window.renderOrders === "function") window.renderOrders();
+      if(typeof window.updateAvailableUI === "function") window.updateAvailableUI();
+      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+    }
+  }
+
+  // Run periodically
+  setInterval(tryFill, 400);
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v5b: Available uses wallet (after fills) ===== */
+(function(){
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+  function reservedQuoteUSDT(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='buy')
+      .reduce((s,o)=>s+(Number(o.price)||0)*(Number(o.amount)||0),0);
+  }
+  function reservedBaseBTC(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='sell')
+      .reduce((s,o)=>s+(Number(o.amount)||0),0);
+  }
+  function getSide(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+
+  window.updateAvailableUI = function(){
+    const orders = readOrders();
+    const side = getSide();
+    const w = window.__WALLET__ || {USDT:1000,BTC:0};
+    const avail = side==='buy'
+      ? Math.max(0, (w.USDT||0) - reservedQuoteUSDT(orders))
+      : Math.max(0, (w.BTC||0)  - reservedBaseBTC(orders));
+
+    const valEl = document.querySelector('.trade-available-val');
+    const symEl = document.querySelector('.trade-available-sym');
+    if(valEl) valEl.textContent = (side==='buy' ? avail.toFixed(2) : avail.toFixed(6));
+    if(symEl) symEl.textContent = (side==='buy' ? 'USDT' : 'BTC');
+  };
+
+  // call now and on tab changes
+  window.addEventListener('DOMContentLoaded', window.updateAvailableUI);
+  document.addEventListener('click',(e)=>{
+    if(e.target.closest('.bs-btn')) setTimeout(window.updateAvailableUI,0);
+  });
+  // re-run when orders change
+  document.addEventListener('spot:ordersChanged', window.updateAvailableUI);
+  // immediate
+  window.updateAvailableUI();
+})();
+</script>
+
+
+
+<script>
+/* ===== PATCH v9: FIX slider (works with <input type="number">) + visual fill + uses available balance ===== */
+(function(){
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+  function reservedQuoteUSDT(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='buy')
+      .reduce((s,o)=>s+(Number(o.price)||0)*(Number(o.amount)||0),0);
+  }
+  function reservedBaseBTC(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='sell')
+      .reduce((s,o)=>s+(Number(o.amount)||0),0);
+  }
+  function side(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+  function num(v){
+    if(v === null || v === undefined) return NaN;
+    return parseFloat(String(v).replace(',', '.').replace(/[^0-9.\-]/g,''));
+  }
+  function getLastPrice(){
+    const el = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price');
+    if(el){
+      const v = num(el.textContent);
+      if(Number.isFinite(v) && v>0) return v;
+    }
+    const inp = document.getElementById('tradePrice');
+    const vi = inp ? num(inp.value) : NaN;
+    if(Number.isFinite(vi) && vi>0) return vi;
+    return 0;
+  }
+
+  function available(s){
+    const orders = readOrders();
+    const w = window.__WALLET__ || {USDT:1000,BTC:0};
+    if(s==='sell') return Math.max(0, (w.BTC||0) - reservedBaseBTC(orders));
+    return Math.max(0, (w.USDT||0) - reservedQuoteUSDT(orders));
+  }
+
+  const slider = document.getElementById('tradePct');
+  const priceInput  = document.getElementById('tradePrice');
+  const amountInput = document.getElementById('tradeAmount');
+  const totalInput  = document.getElementById('tradeTotal');
+
+  if(!slider || !priceInput || !amountInput || !totalInput) return;
+
+  slider.min="0"; slider.max="100"; slider.step="1";
+
+  function paint(){
+    const v = Math.max(0, Math.min(100, parseFloat(slider.value)||0));
+    slider.style.setProperty('--pct', v + '%');
+    slider.style.setProperty('--fill', side()==='sell' ? 'rgba(255,91,110,0.95)' : 'rgba(11,191,118,0.95)');
+  }
+
+  function applyFromSlider(){
+    const pct = (parseFloat(slider.value)||0)/100;
+    const s = side();
+    const avail = available(s);
+
+    // price: if empty, snap to last price
+    let p = num(priceInput.value);
+    if(!(Number.isFinite(p) && p>0)){
+      p = getLastPrice();
+      if(Number.isFinite(p) && p>0) priceInput.value = p.toFixed(2);
+    }
+    if(!(Number.isFinite(p) && p>0)){
+      // can't calculate without price
+      amountInput.value = '';
+      totalInput.value = '';
+      paint();
+      return;
+    }
+
+    if(s==='buy'){
+      const usdt = avail * pct;
+      totalInput.value = usdt.toFixed(2);         // IMPORTANT: dot for type=number
+      amountInput.value = (usdt / p).toFixed(6);
+    }else{
+      const btc = avail * pct;
+      amountInput.value = btc.toFixed(6);
+      totalInput.value = (btc * p).toFixed(2);
+    }
+
+    paint();
+  }
+
+  // Single definitive listener
+  slider.addEventListener('input', applyFromSlider);
+  window.addEventListener('DOMContentLoaded', applyFromSlider);
+  document.addEventListener('spot:ordersChanged', ()=>{ if(slider.value!=="0") applyFromSlider(); });
+  document.addEventListener('click', (e)=>{ if(e.target.closest('.bs-btn')) setTimeout(()=>{ paint(); if(slider.value!=="0") applyFromSlider(); },0); });
+
+  // Initial paint
+  paint();
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v10: unified order checks (BUY+SELL) using wallet+reserved + locale-safe numbers ===== */
+(function(){
+  // test wallet persists during session; reset if missing
+  if(!window.__WALLET__){
+    window.__WALLET__ = { USDT: 1000, BTC: 0 };
+  }
+
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+  function writeOrders(o){ localStorage.setItem("spot_orders", JSON.stringify(o)); }
+
+  function num(v){
+    if(v === null || v === undefined) return NaN;
+    // allow "88 000,12" etc
+    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
+  }
+
+  function getSide(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+  function getType(){
+    const active = document.querySelector('.type-btn.active');
+    const t = (active?.textContent||'limit').toLowerCase();
+    return t.includes('market') ? 'market' : 'limit';
+  }
+
+  function reservedQuoteUSDT(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='buy')
+      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
+  }
+  function reservedBaseBTC(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='sell')
+      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
+  }
+
+  function available(side, orders){
+    const w = window.__WALLET__;
+    if(side==='sell'){
+      return Math.max(0, (Number(w.BTC)||0) - reservedBaseBTC(orders));
+    }
+    return Math.max(0, (Number(w.USDT)||0) - reservedQuoteUSDT(orders));
+  }
+
+  function updateAvailableUI(){
+    const orders = readOrders();
+    const side = getSide();
+    const avail = available(side, orders);
+
+    const valEl = document.querySelector('.trade-available-val');
+    const symEl = document.querySelector('.trade-available-sym');
+    if(valEl) valEl.textContent = (side==='buy' ? avail.toFixed(2) : avail.toFixed(6));
+    if(symEl) symEl.textContent = (side==='buy' ? 'USDT' : 'BTC');
+  }
+  window.updateAvailableUI = updateAvailableUI;
+
+  const priceInput  = document.getElementById('tradePrice');
+  const amountInput = document.getElementById('tradeAmount');
+  const totalInput  = document.getElementById('tradeTotal');
+  let submitBtn = document.getElementById('tradeSubmit');
+
+  if(!priceInput || !amountInput || !totalInput || !submitBtn) return;
+
+  // Remove old click handlers by cloning the node
+  const clone = submitBtn.cloneNode(true);
+  submitBtn.parentNode.replaceChild(clone, submitBtn);
+  submitBtn = clone;
+
+  submitBtn.addEventListener('click', function(e){
+    e.preventDefault();
+
+    const side = getSide();
+    const type = getType();
+
+    const price = num(priceInput.value);
+    let amount = num(amountInput.value);
+    const total = num(totalInput.value);
+
+    if(!Number.isFinite(price) || price<=0) return alert("Fill price");
+
+    if(!Number.isFinite(amount) || amount<=0){
+      if(Number.isFinite(total) && total>0){
+        amount = total / price;
+        amountInput.value = amount.toFixed(6); // dot for type=number
+      }else{
+        return alert("Fill amount or total");
+      }
+    }
+
+    const orders = readOrders();
+    const avail = available(side, orders);
+
+    if(side === 'buy'){
+      const cost = price * amount;
+      if(cost > avail + 1e-9) return alert("Not enough USDT");
+    } else {
+      if(amount > avail + 1e-12) return alert("Not enough BTC");
+    }
+
+    orders.push({
+      id: Date.now() + Math.floor(Math.random()*1000),
+      pair: "BTC/USDT",
+      side, type,
+      price: Number(price),
+      amount: Number(amount),
+      filled: 0,
+      ts: Date.now()
+    });
+
+    writeOrders(orders);
+
+    if(typeof window.renderOrders === 'function') window.renderOrders();
+    updateAvailableUI();
+    document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+  });
+
+  // keep available in sync on Buy/Sell toggle and order changes
+  document.addEventListener('click', (e)=>{
+    if(e.target.closest('.bs-btn')) setTimeout(updateAvailableUI, 0);
+  });
+  document.addEventListener('spot:ordersChanged', updateAvailableUI);
+  window.addEventListener('DOMContentLoaded', updateAvailableUI);
+  updateAvailableUI();
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v12b: Market orders (instant fill) + UI toggle ===== */
+(function(){
+  if(!window.__WALLET__){
+    window.__WALLET__ = { USDT: 1000, BTC: 0 };
+  }
+
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+  function writeOrders(o){ localStorage.setItem("spot_orders", JSON.stringify(o)); }
+  function readTrades(){ return JSON.parse(localStorage.getItem("spot_trades") || "[]"); }
+  function writeTrades(t){ localStorage.setItem("spot_trades", JSON.stringify(t)); }
+
+  function num(v){
+    if(v === null || v === undefined) return NaN;
+    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
+  }
+
+  function getSide(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+  function getType(){
+    const active = document.querySelector('.type-btn.active');
+    const t = (active?.textContent||'limit').toLowerCase();
+    return t.includes('market') ? 'market' : 'limit';
+  }
+
+  function reservedQuoteUSDT(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='buy')
+      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
+  }
+  function reservedBaseBTC(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='sell')
+      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
+  }
+  function available(side, orders){
+    const w = window.__WALLET__;
+    if(side==='sell'){
+      return Math.max(0, (Number(w.BTC)||0) - reservedBaseBTC(orders));
+    }
+    return Math.max(0, (Number(w.USDT)||0) - reservedQuoteUSDT(orders));
+  }
+
+  function getLastPrice(){
+    const badge = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price');
+    if(badge){
+      const v = num(badge.textContent);
+      if(Number.isFinite(v) && v>0) return v;
+    }
+    const inp = document.getElementById('tradePrice');
+    const vi = inp ? num(inp.value) : NaN;
+    if(Number.isFinite(vi) && vi>0) return vi;
+    return 88127.97;
+  }
+
+  const tradePanel = document.querySelector('.trade-panel') || document.body;
+  const priceInput  = document.getElementById('tradePrice');
+  const amountInput = document.getElementById('tradeAmount');
+  const totalInput  = document.getElementById('tradeTotal');
+  const lastBtn     = document.getElementById('lastPriceBtn');
+  let submitBtn     = document.getElementById('tradeSubmit');
+
+  function toggleMarketUI(){
+    const isMarket = getType() === 'market';
+    tradePanel.classList.toggle('is-market', isMarket);
+
+    if(!priceInput) return;
+    if(isMarket){
+      // Freeze price at last price for display; market uses live price at click time anyway.
+      priceInput.value = getLastPrice().toFixed(2);
+      priceInput.setAttribute('disabled', 'disabled');
+      if(lastBtn) lastBtn.setAttribute('disabled', 'disabled');
+    }else{
+      priceInput.removeAttribute('disabled');
+      if(lastBtn) lastBtn.removeAttribute('disabled');
+    }
+  }
+
+  // Toggle on clicking Limit/Market buttons
+  document.addEventListener('click', (e)=>{
+    if(e.target.closest('.type-btn')) setTimeout(toggleMarketUI, 0);
+  });
+  window.addEventListener('DOMContentLoaded', toggleMarketUI);
+  toggleMarketUI();
+
+  // Replace submit handler again (market-aware)
+  if(!submitBtn || !priceInput || !amountInput || !totalInput) return;
+  const clone = submitBtn.cloneNode(true);
+  submitBtn.parentNode.replaceChild(clone, submitBtn);
+  submitBtn = clone;
+
+  submitBtn.addEventListener('click', function(e){
+    e.preventDefault();
+
+    const side = getSide();
+    const type = getType();
+
+    const orders = readOrders();
+    const avail = available(side, orders);
+
+    // Market uses live last price at the moment of click
+    const execPrice = (type === 'market') ? getLastPrice() : num(priceInput.value);
+    if(!Number.isFinite(execPrice) || execPrice<=0) return alert("No price");
+
+    let amount = num(amountInput.value);
+    const total = num(totalInput.value);
+
+    if(!Number.isFinite(amount) || amount<=0){
+      if(Number.isFinite(total) && total>0){
+        amount = total / execPrice;
+        amountInput.value = amount.toFixed(6);
+      }else{
+        return alert("Fill amount or total");
+      }
+    }
+
+    if(type === 'limit'){
+      // limit -> goes to open orders (existing behavior)
+      const cost = execPrice * amount;
+      if(side === 'buy' && cost > avail + 1e-9) return alert("Not enough USDT");
+      if(side === 'sell' && amount > avail + 1e-12) return alert("Not enough BTC");
+
+      orders.push({
+        id: Date.now() + Math.floor(Math.random()*1000),
+        pair: "BTC/USDT",
+        side, type,
+        price: Number(execPrice),
+        amount: Number(amount),
+        filled: 0,
+        ts: Date.now()
+      });
+      writeOrders(orders);
+      if(typeof window.renderOrders === 'function') window.renderOrders();
+      if(typeof window.updateAvailableUI === 'function') window.updateAvailableUI();
+      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+      return;
+    }
+
+    // MARKET -> instant fill + add trade history, no open order
+    const cost = execPrice * amount;
+    if(side === 'buy'){
+      if(cost > avail + 1e-9) return alert("Not enough USDT");
+      window.__WALLET__.USDT = Math.max(0, (window.__WALLET__.USDT||0) - cost);
+      window.__WALLET__.BTC  = (window.__WALLET__.BTC||0) + amount;
+    }else{
+      if(amount > avail + 1e-12) return alert("Not enough BTC");
+      window.__WALLET__.BTC  = Math.max(0, (window.__WALLET__.BTC||0) - amount);
+      window.__WALLET__.USDT = (window.__WALLET__.USDT||0) + cost;
+    }
+
+    const trades = readTrades();
+    trades.unshift({
+      id: Date.now() + Math.floor(Math.random()*1000),
+      pair: "BTC/USDT",
+      side,
+      price: Number(execPrice),
+      amount: Number(amount),
+      total: Number(cost),
+      ts: Date.now(),
+      role: "taker",
+      fee: 0
+    });
+    writeTrades(trades);
+
+    // Refresh UI
+    if(typeof window.updateAvailableUI === 'function') window.updateAvailableUI();
+    document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+  });
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v13b: Market mode uses only Total (buy) / Amount (sell) + slider ===== */
+(function(){
+  function num(v){
+    if(v === null || v === undefined) return NaN;
+    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
+  }
+  function getSide(){
+    const active = document.querySelector('.bs-btn.active');
+    const t = (active?.textContent||'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+  function getType(){
+    const active = document.querySelector('.type-btn.active');
+    const t = (active?.textContent||'limit').toLowerCase();
+    return t.includes('market') ? 'market' : 'limit';
+  }
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+  function reservedQuoteUSDT(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='buy')
+      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
+  }
+  function reservedBaseBTC(orders){
+    return orders.filter(o => String(o.side).toLowerCase()==='sell')
+      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
+  }
+  function available(side){
+    const orders = readOrders();
+    const w = window.__WALLET__ || {USDT:1000,BTC:0};
+    if(side==='sell') return Math.max(0, (Number(w.BTC)||0) - reservedBaseBTC(orders));
+    return Math.max(0, (Number(w.USDT)||0) - reservedQuoteUSDT(orders));
+  }
+  function getLastPrice(){
+    const badge = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price');
+    if(badge){
+      const v = num(badge.textContent);
+      if(Number.isFinite(v) && v>0) return v;
+    }
+    const inp = document.getElementById('tradePrice');
+    const vi = inp ? num(inp.value) : NaN;
+    if(Number.isFinite(vi) && vi>0) return vi;
+    return 88127.97;
+  }
+
+  const panel = document.querySelector('.trade-panel') || document.body;
+  const amountInput = document.getElementById('tradeAmount');
+  const totalInput  = document.getElementById('tradeTotal');
+  const priceInput  = document.getElementById('tradePrice');
+  const slider      = document.getElementById('tradePct');
+
+  function applyModeClasses(){
+    const side = getSide();
+    const type = getType();
+    panel.classList.toggle('is-market', type==='market');
+    panel.classList.toggle('is-buy', side==='buy');
+    panel.classList.toggle('is-sell', side==='sell');
+
+    // In market we don't want price to matter visually
+    if(type==='market' && priceInput){
+      priceInput.value = getLastPrice().toFixed(2);
+    }
+  }
+
+  document.addEventListener('click', (e)=>{
+    if(e.target.closest('.type-btn') || e.target.closest('.bs-btn')) setTimeout(applyModeClasses, 0);
+  });
+  window.addEventListener('DOMContentLoaded', applyModeClasses);
+  applyModeClasses();
+
+  // Slider behavior in market:
+  // - BUY: fills Total only
+  // - SELL: fills Amount only
+  if(slider && amountInput && totalInput){
+    slider.addEventListener('input', function(){
+      if(getType()!=='market') return; // keep other patches for limit
+      const pct = (parseFloat(slider.value)||0)/100;
+      const side = getSide();
+      const avail = available(side);
+
+      if(side==='buy'){
+        totalInput.value = (avail * pct).toFixed(2);
+      }else{
+        amountInput.value = (avail * pct).toFixed(6);
+      }
+    }, true);
+  }
+
+  // Market submit: execute at newest price using only the visible field
+  // We rely on PATCH v12b submit override, but we make sure it can infer amount from total in BUY market.
+  // To be safe, we auto-calc amount when user types total in market buy.
+  if(totalInput && amountInput){
+    totalInput.addEventListener('input', ()=>{
+      if(getType()!=='market' || getSide()!=='buy') return;
+      const p = getLastPrice();
+      const t = num(totalInput.value);
+      if(Number.isFinite(t) && t>0 && Number.isFinite(p) && p>0){
+        amountInput.value = (t/p).toFixed(6);
+      }
+    });
+  }
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v14b: apply Market UI classes to #tradeCard ===== */
+(function(){
+  const card = document.getElementById('tradeCard');
+  if(!card) return;
+
+  function getSide(){
+    const active = card.querySelector('.bs-btn.active');
+    const t = (active?.dataset.side || active?.textContent || 'buy').toLowerCase();
+    return t.includes('sell') ? 'sell' : 'buy';
+  }
+  function getType(){
+    const active = card.querySelector('.type-btn.active');
+    const t = (active?.dataset.otype || active?.textContent || 'limit').toLowerCase();
+    return t.includes('market') ? 'market' : 'limit';
+  }
+
+  function apply(){
+    const side = getSide();
+    const type = getType();
+    card.classList.toggle('is-market', type==='market');
+    card.classList.toggle('is-buy', side==='buy');
+    card.classList.toggle('is-sell', side==='sell');
+  }
+
+  // watch clicks on buy/sell + limit/market buttons
+  card.addEventListener('click', (e)=>{
+    if(e.target.closest('.bs-btn') || e.target.closest('.type-btn')){
+      setTimeout(apply, 0);
+    }
+  });
+  window.addEventListener('DOMContentLoaded', apply);
+  apply();
 })();
 </script>
 

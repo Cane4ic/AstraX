@@ -4768,6 +4768,45 @@ body.spot-mode .spot-layout{
   color:#fff;
 }
 
+
+/* Scrollable history panels */
+.orders-panel[data-panel="ordersHistory"],
+.orders-panel[data-panel="tradeHistory"]{
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+/* Hide scrollbar for history panels (keep scroll) */
+.orders-panel[data-panel="ordersHistory"],
+.orders-panel[data-panel="tradeHistory"]{
+  scrollbar-width: none;      /* Firefox */
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;   /* IE / Edge legacy */
+}
+.orders-panel[data-panel="ordersHistory"]::-webkit-scrollbar,
+.orders-panel[data-panel="tradeHistory"]::-webkit-scrollbar{
+  width: 0 !important;
+  height: 0 !important;
+}
+.orders-panel[data-panel="ordersHistory"]::-webkit-scrollbar-thumb,
+.orders-panel[data-panel="tradeHistory"]::-webkit-scrollbar-thumb{
+  background: transparent !important;
+}
+.orders-panel[data-panel="ordersHistory"]::-webkit-scrollbar-track,
+.orders-panel[data-panel="tradeHistory"]::-webkit-scrollbar-track{
+  background: transparent !important;
+}
+
+
+.orders-panel[data-panel="ordersHistory"] .orders-head,
+.orders-panel[data-panel="tradeHistory"] .orders-head{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: rgba(17,17,17,0.96);
+  /* убираем чёрную полосу от sticky-шапки */
+  backdrop-filter: none;
+}
 .th-field{
   display:flex;
   align-items:center;
@@ -5177,6 +5216,30 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* скрытый скроллбар для истории */
+.history-scroll {
+  overflow-y: auto;
+  scrollbar-width: none;      /* Firefox */
+  scrollbar-color: transparent transparent;
+  -ms-overflow-style: none;   /* IE / Edge legacy */
+}
+
+.history-scroll::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* шапка истории — без собственного фона */
+.orders-panel table thead,
+.orders-panel table thead th {
+  background: none;
+}
+
+/* аккуратная разделительная линия */
+.orders-panel table thead th {
+  border-bottom: none;
 }
 
 
@@ -14485,7 +14548,7 @@ try{
     document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
   });
 })();
-<script>
+
 /* ===== PATCH v15: Trade History filters (date picker + quick ranges) + Order History rendering ===== */
 (function(){
   function num(v){
@@ -14634,6 +14697,11 @@ try{
     if(!ohPanel) return;
 
     const hist = readOrderHistory();
+    const list = [...hist].sort((a,b)=>{
+      const ta = Number(a.ts || a.time || a.createdAt || 0) || Date.parse(a.date||a.created_at||"") || 0;
+      const tb = Number(b.ts || b.time || b.createdAt || 0) || Date.parse(b.date||b.created_at||"") || 0;
+      return tb - ta;
+    });
     ohPanel.querySelectorAll('.order-row').forEach(r => r.remove());
 
     const empty = ohPanel.querySelector('.orders-empty');
@@ -14645,7 +14713,7 @@ try{
 
     const head = ohPanel.querySelector('.orders-head');
 
-    hist.forEach(o=>{
+    list.forEach(o=>{
       const side = String(o.side||'buy').toLowerCase();
       const row = document.createElement('div');
       row.className = 'order-row';
@@ -14829,6 +14897,210 @@ try{
   });
   window.addEventListener('DOMContentLoaded', apply);
   apply();
+})();
+</script>
+
+
+<script>
+/* ===== PATCH v18: fix Open Orders counter + renderer, avoid broken v3 selector ===== */
+(function(){
+  function fmtTime(ts){
+    try { return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
+    catch(e){ return ""; }
+  }
+  function numFixed(v, d){
+    const n = Number(v);
+    return Number.isFinite(n) ? n.toFixed(d) : "—";
+  }
+  function readOpenOrders(){
+    try { return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+    catch(e){ return []; }
+  }
+  function getOpenPanel(){
+    return document.querySelector('.orders-panel[data-panel="open"]');
+  }
+
+  // Override renderer with a clean implementation
+  window.renderOrders = function(){
+    const panel = getOpenPanel();
+    if(!panel) return;
+
+    const orders = readOpenOrders();
+
+    // Update tab count
+    const tabBtn = [...document.querySelectorAll(".orders-tab")]
+      .find(b => (b.textContent||"").toLowerCase().includes("open orders"));
+    if(tabBtn){
+      tabBtn.textContent = `Open Orders (${orders.length})`;
+    }
+
+    // Remove previous rows
+    panel.querySelectorAll(".order-row").forEach(r => r.remove());
+
+    const empty = panel.querySelector(".orders-empty");
+    if(!orders.length){
+      if(empty) empty.style.display = "grid";
+      return;
+    }
+    if(empty) empty.style.display = "none";
+
+    // Render rows
+    orders.forEach((o)=>{
+      const row = document.createElement("div");
+      row.className = "order-row";
+      row.innerHTML = `
+        <div>${o.pair || "BTC/USDT"}</div>
+        <div>${fmtTime(o.ts || Date.now())}</div>
+        <div>${String(o.type || "limit").toUpperCase()}</div>
+        <div class="${String(o.side||"buy").toLowerCase()==="buy" ? "buy" : "sell"}">${String(o.side||"buy").toUpperCase()}</div>
+        <div>${numFixed(o.price, 2)}</div>
+        <div>${numFixed(o.amount, 6)}</div>
+        <div>${numFixed(o.filled || 0, 6)}</div>
+        <div>—</div>
+        <div class="right"><button class="order-cancel" type="button" data-id="${o.id}">✕</button></div>
+      `;
+      panel.appendChild(row);
+    });
+  };
+
+  // Make sure our renderer runs when orders change
+  document.addEventListener("spot:ordersChanged", ()=>{
+    try{ window.renderOrders(); }catch(e){}
+    try{ if(typeof window.renderOrderHistory==="function") window.renderOrderHistory(); }catch(e){}
+    try{ if(typeof window.renderTradeHistory==="function") window.renderTradeHistory(); }catch(e){}
+  });
+
+  // Initial render
+  window.addEventListener("DOMContentLoaded", ()=>{ try{ window.renderOrders(); }catch(e){} });
+  try{ window.renderOrders(); }catch(e){}
+})();
+</script>
+
+
+
+<script>
+/* ===== PATCH v23: correct selected pair everywhere (orders/history/labels) ===== */
+(function(){
+  if (window.__spotPatchV23) return;
+  window.__spotPatchV23 = true;
+
+  function getCurrentPair(){
+    const v = (typeof window.SPOT_SELECTED === 'string' && window.SPOT_SELECTED.trim()) ? window.SPOT_SELECTED.trim() : '';
+    if (v) return v;
+    const el = document.getElementById('spot-pair-symbol');
+    const t = el ? (el.textContent || '').trim() : '';
+    return t || 'BTC/USDT';
+  }
+
+  function getBaseQuote(pair){
+    const p = (pair || '').split('/');
+    return { base: p[0] || 'BTC', quote: p[1] || 'USDT' };
+  }
+
+  function updateTradeLabels(){
+    const pair = getCurrentPair();
+    const { base, quote } = getBaseQuote(pair);
+
+    // Amount (BASE)
+    const amountMuted = document.querySelector('.trade-field.amount-field .trade-field-label .muted');
+    if (amountMuted) amountMuted.textContent = '(' + base + ')';
+
+    // Price/Total (QUOTE)
+    const priceMuted = document.querySelector('.trade-field.price-field .trade-field-label .muted');
+    if (priceMuted) priceMuted.textContent = '(' + quote + ')';
+    const totalMuted = document.querySelector('.trade-field.total-field .trade-field-label .muted');
+    if (totalMuted) totalMuted.textContent = '(' + quote + ')';
+
+    // Button text: Buy BASE / Sell BASE
+    const submitBtn = document.getElementById('tradeSubmit');
+    const activeSide = document.querySelector('.bs-btn.active');
+    const side = activeSide ? activeSide.getAttribute('data-side') : null;
+    if (submitBtn && side) {
+      submitBtn.textContent = (side === 'sell' ? 'Sell ' : 'Buy ') + base;
+    }
+  }
+
+  // 1) Patch history push so it always stores the real selected pair
+  if (typeof window.__spotPushOrderHistory === 'function') {
+    const origPush = window.__spotPushOrderHistory;
+    window.__spotPushOrderHistory = function(entry){
+      try {
+        const current = getCurrentPair();
+        if (entry && typeof entry === 'object') {
+          // If pair not set, or stuck on default while UI selected another pair, fix it
+          if (!entry.pair || (entry.pair === 'BTC/USDT' && current !== 'BTC/USDT')) {
+            entry.pair = current;
+          }
+          if (!entry.base || !entry.quote) {
+            const bq = getBaseQuote(entry.pair);
+            entry.base = entry.base || bq.base;
+            entry.quote = entry.quote || bq.quote;
+          }
+        }
+      } catch (e) {}
+      return origPush(entry);
+    };
+  }
+
+  // 2) Patch localStorage.setItem for spot_orders / spot_trades to fix newly created records
+  (function(){
+    if (!window.__spotLSSetPatched) {
+      window.__spotLSSetPatched = true;
+      const origSet = Storage.prototype.setItem;
+      Storage.prototype.setItem = function(key, value){
+        try {
+          if (key === 'spot_orders' || key === 'spot_trades') {
+            const current = getCurrentPair();
+            if (current && current !== 'BTC/USDT') {
+              const now = Date.now();
+              const arr = JSON.parse(value || '[]');
+              if (Array.isArray(arr)) {
+                for (const it of arr) {
+                  if (!it || typeof it !== 'object') continue;
+                  const ts = Number(it.ts || it.time || it.createdAt || 0) || 0;
+                  // update only very recent items that were saved with default pair
+                  if ((it.pair === 'BTC/USDT' || !it.pair) && (now - ts) < 5000) {
+                    it.pair = current;
+                    const bq = getBaseQuote(current);
+                    it.base = it.base || bq.base;
+                    it.quote = it.quote || bq.quote;
+                  }
+                }
+                value = JSON.stringify(arr);
+              }
+            }
+          }
+        } catch (e) {}
+        return origSet.call(this, key, value);
+      };
+    }
+  })();
+
+  // 3) Keep labels synced when pair changes
+  function hookPairChanges(){
+    // when SPOT_SELECTED changes, existing code calls renderPair(); we poll lightly
+    let last = null;
+    setInterval(() => {
+      const cur = getCurrentPair();
+      if (cur !== last) {
+        last = cur;
+        updateTradeLabels();
+        // re-render history if functions exist
+        if (typeof window.renderOrderHistory === 'function') window.renderOrderHistory();
+        if (typeof window.renderTradeHistory === 'function') window.renderTradeHistory();
+      }
+    }, 300);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){
+      updateTradeLabels();
+      hookPairChanges();
+    }, { once:true });
+  } else {
+    updateTradeLabels();
+    hookPairChanges();
+  }
 })();
 </script>
 

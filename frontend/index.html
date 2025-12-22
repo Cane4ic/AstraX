@@ -2873,37 +2873,6 @@ body.spot-mode .topbar{
   background: transparent !important;
 }
 
-
-
-/* ===== FUTURES: keep same trading look as SPOT (black topbar + no site footer) ===== */
-body.futures-mode{
-  background: #000 !important; /* override global blue gradient */
-}
-
-body.futures-mode .footer{
-  display: none !important;
-}
-
-body.futures-mode .topbar{
-  background: #000 !important;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-body.futures-mode .header{
-  background: #000 !important;
-}
-
-body.futures-mode .topbar-wrapper{
-  background: #000 !important;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-body.futures-mode .topbar-wrapper::before,
-body.futures-mode .topbar-wrapper::after{
-  background: none !important;
-  content: none !important;
-}
-
 /* ===== SPOT LAYOUT ===== */
 .spot-layout{
   display: grid;
@@ -2999,12 +2968,9 @@ body.futures-mode .topbar-wrapper::after{
 }
 
 .ob-mid{
-  padding: 10px 10px;
-  margin: 10px 0;
+  padding: 6px;
+  margin: 6px 0;
   text-align:center;
-  background: rgba(0,0,0,0.35);
-  border-radius: 12px;
-
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   border-top: 1px solid rgba(255,255,255,0.08);
@@ -5053,22 +5019,6 @@ body.spot-mode .spot-trade{
   overflow: hidden;
 }
 
-/* === FUTURES FIX: remove internal scrollbars inside terminal panels === */
-body.futures-mode .spot-trade{
-  overflow: hidden !important; /* base css has overflow-y:auto */
-}
-body.futures-mode .spot-orderbook{
-  overflow: hidden !important;
-}
-/* orderbook list/body often has its own scroll */
-body.futures-mode .spot-orderbook .ob-body{
-  overflow-y: hidden !important;
-  overflow-x: hidden !important;
-}
-/* keep trade card from forcing its own scroll */
-body.futures-mode .trade-card{
-  overflow: visible !important;
-}
 /* internal layout to avoid bottom gaps */
 body.spot-mode .spot-orderbook,
 body.spot-mode .spot-trade{
@@ -5307,126 +5257,7 @@ input[type="number"] {
 }
 
 
-
-/* ===== FIX: remove white double scrollbars (Spot/Futures) ===== */
-html, body{
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden; /* убираем горизонтальный скролл */
-}
-
-/* Темный скроллбар (Chrome/Edge/Safari) */
-::-webkit-scrollbar{
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track{
-  background: rgba(0,0,0,0.85);
-}
-::-webkit-scrollbar-thumb{
-  background: rgba(255,255,255,0.18);
-  border-radius: 999px;
-  border: 2px solid rgba(0,0,0,0.85);
-}
-::-webkit-scrollbar-thumb:hover{
-  background: rgba(255,255,255,0.26);
-}
-
-/* Темный скроллбар (Firefox) */
-html{
-  scrollbar-color: rgba(255,255,255,0.18) rgba(0,0,0,0.85);
-  scrollbar-width: thin;
-}
-
-
-/* === FUTURES: remove inner scrollbars completely (use page scroll) === */
-body.futures-mode .spot-layout{
-  height: auto !important;
-  min-height: calc(100vh - var(--topbar-h));
-}
-
-body.futures-mode .spot-orderbook,
-body.futures-mode .spot-orderbook .ob-body,
-body.futures-mode .spot-orderbook .ob-side,
-body.futures-mode .spot-orderbook .ob-rows{
-  overflow: visible !important;
-  max-height: none !important;
-}
-
-body.futures-mode .orders-panel[data-panel="ordersHistory"],
-body.futures-mode .orders-panel[data-panel="tradeHistory"],
-body.futures-mode .orders-panel[data-panel="openOrders"]{
-  overflow: visible !important;
-  max-height: none !important;
-}
-
-/* Just in case: prevent any nested scroll containers inside trading page */
-body.futures-mode #spot-page *{
-  overscroll-behavior: none;
-}
-
 </style>
-
-<style id="ax-futures-inner-scrollbar-fix">
-/* FUTURES: keep internal scrolling for Order Book body, but hide the scrollbar itself */
-body.futures-mode .spot-orderbook .ob-body{
-  overflow-y: auto !important;
-  overscroll-behavior: contain;
-  scrollbar-width: none;           /* Firefox */
-}
-body.futures-mode .spot-orderbook .ob-body::-webkit-scrollbar{
-  width: 0 !important;
-  height: 0 !important;
-}
-
-/* FUTURES: prevent any "max-height+overflow" wrappers from creating a second visible scrollbar bar */
-body.futures-mode .spot-orderbook,
-body.futures-mode .spot-trade{
-  overflow: hidden !important;
-}
-
-/* If any inner panels still insist on scrollbars, hide them visually but keep wheel scroll */
-body.futures-mode .spot-trade{
-  scrollbar-width: none;
-}
-body.futures-mode .spot-trade::-webkit-scrollbar{
-  width: 0 !important;
-  height: 0 !important;
-}
-
-/* === FIX: Futures order book should scroll asks/bids separately (like Spot) === */
-body.futures-mode .spot-orderbook .ob-body{
-  display:flex !important;
-  flex-direction: column !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow: hidden !important;   /* do NOT scroll whole block */
-}
-
-body.futures-mode .spot-orderbook #ob-asks,
-body.futures-mode .spot-orderbook #ob-bids{
-  flex: 1 1 0 !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;   /* scroll each side */
-  overflow-x: hidden !important;
-  scrollbar-width: none;         /* Firefox - hide bar */
-}
-body.futures-mode .spot-orderbook #ob-asks::-webkit-scrollbar,
-body.futures-mode .spot-orderbook #ob-bids::-webkit-scrollbar{
-  width: 0 !important;
-  height: 0 !important;
-}
-
-/* mid price block must be opaque and never overlay with rows */
-body.futures-mode .spot-orderbook .ob-mid{
-  background: rgba(0,0,0,0.55) !important;
-  backdrop-filter: blur(10px);
-  position: relative;
-  z-index: 2;
-}
-
-</style>
-
 </head>
 <body>
 <script>
@@ -5452,15 +5283,13 @@ body.futures-mode .spot-orderbook .ob-mid{
   };
 
   window.__spotReadOrderHistory = function(){
-    return window.spotStorageGet(mk("order_history"), []);
+    return window.spotStorageGet("spot_order_history", []);
   };
   window.__spotWriteOrderHistory = function(hist){
-    window.spotStorageSet(mk("order_history"), hist);
+    window.spotStorageSet("spot_order_history", hist);
   };
   window.__spotPushOrderHistory = function(entry){
     const hist = window.__spotReadOrderHistory() || [];
-    // Stamp source market so futures UI can never show spot records
-    try{ if(entry && !entry.__src) entry.__src = (window.ACTIVE_MARKET === "futures") ? "futures" : "spot"; }catch(e){}
     hist.unshift(entry);
     window.__spotWriteOrderHistory(hist);
     return hist;
@@ -9243,6 +9072,21 @@ if (aboutPage) aboutPage.style.display = "none";
 }
 
 
+
+// ===== FIX: exitSpotMode was removed during futures cleanup; keep navigation working =====
+function exitSpotMode(){
+  // In this project "spot mode" is the trading terminal (#spot-page) and related body classes.
+  // Use the newer unified helper if present.
+  try{
+    if (typeof exitTradingMode === "function") return exitTradingMode();
+  }catch(e){}
+  try{ document.body.classList.remove("spot-mode","futures-mode"); }catch(e){}
+  try{
+    const sp = document.getElementById("spot-page");
+    if(sp) sp.style.display = "none";
+  }catch(e){}
+}
+
 function openHomePage() {
   exitSpotMode();
   hideAuth();
@@ -10839,111 +10683,6 @@ function exitTradingMode(){
   if (sp) sp.style.display = "none";
 }
 
-
-
-// ===================== MARKET SWITCH (SPOT / FUTURES) =====================
-// We keep one UI ("spot-page") but switch the data sources + state when user opens Futures.
-// This avoids duplicating DOM ids and prevents layout drifting.
-window.ACTIVE_MARKET = window.ACTIVE_MARKET || "spot";
-window.FUTURES_PAIRS = window.FUTURES_PAIRS || {};
-window.SPOT_PAIRS = window.SPOT_PAIRS || {};
-window.FUTURES_SELECTED = window.FUTURES_SELECTED || null;
-
-// ===== Market selection helpers (Spot vs Futures) =====
-function getSelectedPair(){
-  const m = getActiveMarket();
-  if (m === "futures") return window.FUTURES_SELECTED || window.SPOT_SELECTED || null;
-  return window.SPOT_SELECTED || null;
-}
-function syncFuturesPairFromSpot(){
-  if (!window.FUTURES_SELECTED && window.SPOT_SELECTED) window.FUTURES_SELECTED = window.SPOT_SELECTED;
-}
-
-
-function getActiveMarket(){
-  return (window.ACTIVE_MARKET === "futures") ? "futures" : "spot";
-}
-
-function marketPrefix(){
-  return getActiveMarket() === "futures" ? "futures" : "spot";
-}
-function mk(base){
-  return marketPrefix() + "_" + base;
-}
-
-function setActiveMarket(mode){
-  // hard-set active market first (no CSS/class dependency)
-  window.ACTIVE_MARKET = (mode === "futures") ? "futures" : "spot";
-  const prev = window.ACTIVE_MARKET || getActiveMarket();
-  if (mode === "futures") { try { syncFuturesPairFromSpot(); } catch(e){} }
-
-  // capture real spot map once (before we ever swap it out)
-  try{
-    if (!window.__REAL_SPOT_PAIRS && window.SPOT_PAIRS && prev === "spot") {
-      window.__REAL_SPOT_PAIRS = window.SPOT_PAIRS;
-    }
-  }catch(e){}
-
-  // persist selected pair for the market we are leaving
-  try{
-    if (prev === "spot") window.SPOT_SELECTED_SAVED = window.SPOT_SELECTED || window.SPOT_SELECTED_SAVED || null;
-    if (prev === "futures") window.FUTURES_SELECTED = window.SPOT_SELECTED || window.FUTURES_SELECTED || null;
-  }catch(e){}
-
-  // hard stop streams from previous market to prevent cross-updates
-  try { stopOrderBook(); } catch(e){}
-  try { closeKlineWS(); } catch(e){}
-  try { stopBridgeToLive?.(); } catch(e){}
-
-  window.ACTIVE_MARKET = (mode === "futures") ? "futures" : "spot";
-  try { __lastChartKey = null; __chartReqId++; } catch(e){}
-
-  // ensure both state maps exist
-  window.__REAL_SPOT_PAIRS = window.__REAL_SPOT_PAIRS || window.SPOT_PAIRS || {};
-  window.FUTURES_PAIRS = window.FUTURES_PAIRS || {};
-
-  if (window.ACTIVE_MARKET === "futures"){
-    // route the existing UI logic through FUTURES state
-    window.SPOT_PAIRS = window.FUTURES_PAIRS;
-    window.SPOT_SELECTED = window.FUTURES_SELECTED || window.SPOT_SELECTED_SAVED || window.SPOT_SELECTED || "BTC/USDT";
-  } else {
-    // restore spot state
-    window.SPOT_PAIRS = window.__REAL_SPOT_PAIRS;
-    window.SPOT_SELECTED = window.SPOT_SELECTED_SAVED || window.SPOT_SELECTED || "BTC/USDT";
-  }
-
-  // restart streams for the new market
-  try { restartMarketTickerWS(); } catch(e){}
-  try { const p = getSelectedPair(); if (p) startOrderBook(toBinanceSymbol(p)); } catch(e){}
-  try { rebuildChartForSelectedPair(__lastChartTF); } catch(e){}
-}
-
-function marketRestBase(){
-  return getActiveMarket() === "futures" ? "https://fapi.binance.com" : "https://api.binance.com";
-}
-function marketWsBase(){
-  return getActiveMarket() === "futures" ? "wss://fstream.binance.com/ws" : "wss://stream.binance.com:9443/ws";
-}
-
-
-function updateOrdersTabsForMode(mode){
-  const openTab = document.querySelector('.orders-tabs .orders-tab[data-tab="open"]');
-  const emptyTitle = document.querySelector('.orders-empty-title');
-  const emptyText = document.querySelector('.orders-empty-text');
-  if (!openTab) return;
-
-  if (mode === "futures") {
-    openTab.textContent = "Positions (0)";
-    if (emptyTitle) emptyTitle.textContent = "No positions";
-    if (emptyText) emptyText.textContent = "Your open futures positions will appear here.";
-  } else {
-    openTab.textContent = "Open Orders (0)";
-    if (emptyTitle) emptyTitle.textContent = "No open orders";
-    if (emptyText) emptyText.textContent = "Your active spot orders will appear here.";
-  }
-}
-
-
 function openTradingPage(mode){
   hideAuth?.();
   exitTradingMode(); // если уже был spot/futures-mode
@@ -10965,19 +10704,9 @@ function openTradingPage(mode){
     location.hash = "spot";
   }
 
-  // 🔁 switch data sources/state
-  try{ setActiveMarket(mode); }catch(e){}
-
-  
-  try{ updateOrdersTabsForMode(mode); }catch(e){}
-document.body.classList.remove("cabinet-mode");
+  document.body.classList.remove("cabinet-mode");
 
   window.scrollTo({ top: 0, behavior: "smooth" });
-
-  // ✅ ensure ticker/orderbook/chart are started for active market
-  try { startSpotLive(); } catch(e) {}
-  try { if (window.SPOT_SELECTED) renderPair(window.SPOT_SELECTED); } catch(e) {}
-  try { rebuildChartForSelectedPair(__lastChartTF); } catch(e) {}
 
   // после показа — пересчитать размеры канваса/графика
   setTimeout(() => {
@@ -10987,7 +10716,66 @@ document.body.classList.remove("cabinet-mode");
 }
 
 function openSpotPage() { openTradingPage("spot"); }
-function openFuturesPage() { openTradingPage("futures"); }
+
+(function () {
+  function safeCall(fnName) {
+    const fn = window[fnName];
+    if (typeof fn === 'function') { fn(); return true; }
+    return false;
+  }
+
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest('a, button, [role="button"], .clickable');
+    if (!a) return;
+
+    // 1) ЛОГО -> HOME
+    if (a.id === 'logo' || a.closest('#logo') || a.classList.contains('logo')) {
+      e.preventDefault();
+      safeCall('openHomePage') || (location.hash = '#home');
+      return;
+    }
+
+    const text = (a.textContent || '').trim().toLowerCase();
+
+    // 2) DEPOSIT
+    if (text === 'deposit' || a.dataset.action === 'deposit' || a.id === 'depositBtn') {
+      e.preventDefault();
+      safeCall('openDepositPage') || (location.hash = '#deposit');
+      return;
+    }
+
+    // 3) ASSETS -> CABINET
+    if (text === 'assets' || a.dataset.action === 'assets') {
+      e.preventDefault();
+      safeCall('openCabinetPage') || (location.hash = '#cabinet');
+      return;
+    }
+
+    // 4) MARKETS / FOREX / STOCKS
+    if (text === 'markets') {
+      e.preventDefault();
+      safeCall('openHomePage') || (location.hash = '#home');
+      return;
+    }
+    if (text === 'forex') {
+      e.preventDefault();
+      safeCall('openForexPage') || (location.hash = '#forex');
+      return;
+    }
+    if (text === 'stocks') {
+      e.preventDefault();
+      safeCall('openStocksPage') || (location.hash = '#stocks');
+      return;
+    }
+
+    // 5) Стоп на FUTURES (если где-то осталась кнопка/ссылка)
+    if (text === 'futures' || a.dataset.action === 'futures') {
+      e.preventDefault();
+      safeCall('openHomePage') || (location.hash = '#spot');
+      return;
+    }
+  }, true);
+})();
 
 
 
@@ -11216,7 +11004,6 @@ function formatVol(n){
 
 
 let BINANCE_WS = null;
-let __tickerReqId = 0;
 
 function binanceToPairKey(sym){
   // BTCUSDT -> BTC/USDT
@@ -11224,25 +11011,12 @@ function binanceToPairKey(sym){
   return sym.slice(0, -4) + "/USDT";
 }
 
-
-function restartMarketTickerWS(){
-  // Close current stream so startSpotLive() reconnects to correct market
-  __tickerReqId++;
-  try { BINANCE_WS?.close?.(); } catch(e){}
-  BINANCE_WS = null;
-  try { startSpotLive(__tickerReqId); } catch(e){}
-}
-
-function startSpotLive(token = __tickerReqId){
-
+function startSpotLive(){
   if (BINANCE_WS) return;
 
-    const wsUrl = (getActiveMarket() === "futures") ? "wss://fstream.binance.com/ws/!ticker@arr" : "wss://stream.binance.com:9443/ws/!ticker@arr";
-
-  BINANCE_WS = new WebSocket(wsUrl);
+  BINANCE_WS = new WebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
 
   BINANCE_WS.onmessage = (ev) => {
-    if (token !== __tickerReqId) return; // stale stream
     const arr = JSON.parse(ev.data); // массив тикеров
 
     for (const t of arr) {
@@ -11326,8 +11100,7 @@ function startOrderBook(binanceSymbol){
   bidsEl.innerHTML = '<div class="ob-empty">Loading…</div>';
 
   const stream = `${binanceSymbol.toLowerCase()}@depth20@100ms`;
-    const wsBase = marketWsBase();
-  const url = `${wsBase}/${stream}`;
+  const url = `wss://stream.binance.com:9443/ws/${stream}`;
 
   __obWS = new WebSocket(url);
 
@@ -11335,8 +11108,8 @@ function startOrderBook(binanceSymbol){
     let msg = null;
     try { msg = JSON.parse(ev.data); } catch { return; }
 
-    const asks = Array.isArray(msg.asks) ? msg.asks : (Array.isArray(msg.a) ? msg.a : []);
-    const bids = Array.isArray(msg.bids) ? msg.bids : (Array.isArray(msg.b) ? msg.b : []);
+    const asks = Array.isArray(msg.asks) ? msg.asks : [];
+    const bids = Array.isArray(msg.bids) ? msg.bids : [];
 
     // Binance дает asks по возрастанию цены (лучшие ближе к началу).
     // Чтобы "лучший ask" был ближе к середине — реверсим.
@@ -11795,9 +11568,8 @@ async function loadOlderIfNeeded() {
 const KLINE_LIMIT = 1000;
 
 async function fetchKlinesChunk(symbol, interval, endTime = null, limit = KLINE_LIMIT) {
-  const endpoint = (getActiveMarket() === "futures") ? "/fapi/v1/klines" : "/api/v3/klines";
   const url =
-    `${marketRestBase()}${endpoint}?symbol=${symbol}&interval=${interval}` +
+    `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}` +
     `&limit=${limit}` +
     (endTime ? `&endTime=${endTime}` : "");
 
@@ -11812,13 +11584,13 @@ async function rebuildChartForSelectedPair(tf = __lastChartTF){
   // если в этот момент включена симуляция — выключаем, чтобы переключение пары/TF вернуло live
   if (typeof CHART_SIM !== "undefined" && CHART_SIM.on) stopChartSim();
 
-  const key = getSelectedPair();
+  const key = window.SPOT_SELECTED;
   if (!key) return;
 
   
   // v24: remember which pair the chart is currently showing
   window.__chartActiveKey = key;
-const stamp = getActiveMarket() + "|" + key + "|" + tf;
+const stamp = key + "|" + tf;
   if (stamp === __lastChartKey) return;
   __lastChartKey = stamp;
 
@@ -11915,8 +11687,7 @@ function closeKlineWS(){
 function startKlineWS(symbol, interval){
   closeKlineWS();
   const stream = `${symbol.toLowerCase()}@kline_${interval}`;
-    const wsBase = marketWsBase();
-  KLINE_WS = new WebSocket(`${wsBase}/${stream}`);
+  KLINE_WS = new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`);
   const token = __chartReqId; // ✅ ignore late WS messages after pair/TF switch
 
   KLINE_WS.onmessage = (ev) => {
@@ -13526,9 +13297,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.__spotTradingLogicV1) return;
   window.__spotTradingLogicV1 = true;
 
-  function LS_ORDERS(){ return mk("orders_v1"); }
-function LS_BAL(){ return mk("balances_v1"); }
-const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
+  const LS_ORDERS = "spot_orders_v1";
+  const LS_BAL = "spot_balances_v1";
+
+  const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
   const state = {
     pair: "BTC/USDT",
     base: "BTC",
@@ -13538,11 +13310,11 @@ const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
   };
 
   try{
-    const savedBal = JSON.parse(localStorage.getItem(LS_BAL()) || "null");
+    const savedBal = JSON.parse(localStorage.getItem(LS_BAL) || "null");
     if(savedBal && typeof savedBal === "object") state.balances = { ...state.balances, ...savedBal };
   }catch(_){}
   try{
-    const savedOrders = JSON.parse(localStorage.getItem(LS_ORDERS()) || "[]");
+    const savedOrders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
     if(Array.isArray(savedOrders)) state.orders = savedOrders;
   }catch(_){}
 
@@ -13592,8 +13364,8 @@ const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
     }
 
     function save(){
-      try{ localStorage.setItem(LS_ORDERS(), JSON.stringify(state.orders)); }catch(_){}
-      try{ localStorage.setItem(LS_BAL(), JSON.stringify(state.balances)); }catch(_){}
+      try{ localStorage.setItem(LS_ORDERS, JSON.stringify(state.orders)); }catch(_){}
+      try{ localStorage.setItem(LS_BAL, JSON.stringify(state.balances)); }catch(_){}
     }
 
     function setAvailableUI(){
@@ -13972,7 +13744,7 @@ const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
     }
 
     // Insert into Open Orders list used by existing UI (localStorage key spot_orders)
-    const orders = JSON.parse(localStorage.getItem(mk("orders")) || "[]");
+    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]");
     const id = Date.now() + Math.floor(Math.random()*1000);
     orders.push({
       id,
@@ -13984,7 +13756,7 @@ const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
       filled: 0,
       ts: Date.now()
     });
-    localStorage.setItem(mk("orders"), JSON.stringify(orders));
+    localStorage.setItem("spot_orders", JSON.stringify(orders));
 
     // Re-render if a renderer exists
     if(typeof window.renderOrders === "function"){
@@ -14018,7 +13790,7 @@ const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
     const panel = getOpenPanel();
     if(!panel) return;
 
-    const orders = JSON.parse(localStorage.getItem(mk("orders")) || "[]");
+    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]");
 
     // Remove previous rows
     panel.querySelectorAll(".order-row").forEach(r => r.remove());
@@ -14067,7 +13839,7 @@ const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
     const btn = e.target.closest(".order-cancel");
     if(!btn) return;
     const id = String(btn.dataset.id);
-    const all = JSON.parse(localStorage.getItem(mk("orders")) || "[]");
+    const all = JSON.parse(localStorage.getItem("spot_orders") || "[]");
 const idx = all.findIndex(o => String(o.id) === id);
 if(idx === -1) return;
 const [ord] = all.splice(idx, 1);
@@ -14086,7 +13858,7 @@ window.__spotPushOrderHistory({
   ts: Date.now()
 });
 
-localStorage.setItem(mk("orders"), JSON.stringify(all));
+localStorage.setItem("spot_orders", JSON.stringify(all));
 window.renderOrders();
 if(typeof window.renderOrderHistory === "function") window.renderOrderHistory();
 document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
@@ -14113,10 +13885,10 @@ document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
   const BASE = { USDT: 1000, BTC: 0 }; // resets on refresh
 
   function readOrders(){
-    return JSON.parse(localStorage.getItem(mk("orders")) || "[]");
+    return JSON.parse(localStorage.getItem("spot_orders") || "[]");
   }
   function writeOrders(orders){
-    localStorage.setItem(mk("orders"), JSON.stringify(orders));
+    localStorage.setItem("spot_orders", JSON.stringify(orders));
   }
 
   function getSide(){
@@ -14301,16 +14073,16 @@ document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
   }
 
   function readOrders(){
-    return JSON.parse(localStorage.getItem(mk("orders")) || "[]");
+    return JSON.parse(localStorage.getItem("spot_orders") || "[]");
   }
   function writeOrders(orders){
-    localStorage.setItem(mk("orders"), JSON.stringify(orders));
+    localStorage.setItem("spot_orders", JSON.stringify(orders));
   }
   function readTrades(){
-    return JSON.parse(localStorage.getItem(mk("trades")) || "[]");
+    return JSON.parse(localStorage.getItem("spot_trades") || "[]");
   }
   function writeTrades(trades){
-    localStorage.setItem(mk("trades"), JSON.stringify(trades));
+    localStorage.setItem("spot_trades", JSON.stringify(trades));
   }
 
   // We adjust the "BASE" wallet that PATCH v4 created by locating its closure is impossible,
@@ -14420,7 +14192,7 @@ document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
 <script>
 /* ===== PATCH v5b: Available uses wallet (after fills) ===== */
 (function(){
-  function readOrders(){ return JSON.parse(localStorage.getItem(mk("orders")) || "[]"); }
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
   function reservedQuoteUSDT(orders){
     return orders.filter(o => String(o.side).toLowerCase()==='buy')
       .reduce((s,o)=>s+(Number(o.price)||0)*(Number(o.amount)||0),0);
@@ -14466,7 +14238,7 @@ document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
 <script>
 /* ===== PATCH v9: FIX slider (works with <input type="number">) + visual fill + uses available balance ===== */
 (function(){
-  function readOrders(){ return JSON.parse(localStorage.getItem(mk("orders")) || "[]"); }
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
   function reservedQuoteUSDT(orders){
     return orders.filter(o => String(o.side).toLowerCase()==='buy')
       .reduce((s,o)=>s+(Number(o.price)||0)*(Number(o.amount)||0),0);
@@ -14570,8 +14342,8 @@ document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
     window.__WALLET__ = { USDT: 1000, BTC: 0 };
   }
 
-  function readOrders(){ return JSON.parse(localStorage.getItem(mk("orders")) || "[]"); }
-  function writeOrders(o){ localStorage.setItem(mk("orders"), JSON.stringify(o)); }
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+  function writeOrders(o){ localStorage.setItem("spot_orders", JSON.stringify(o)); }
 
   function num(v){
     if(v === null || v === undefined) return NaN;
@@ -14697,10 +14469,10 @@ document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
     window.__WALLET__ = { USDT: 1000, BTC: 0 };
   }
 
-  function readOrders(){ return JSON.parse(localStorage.getItem(mk("orders")) || "[]"); }
-  function writeOrders(o){ localStorage.setItem(mk("orders"), JSON.stringify(o)); }
-  function readTrades(){ return JSON.parse(localStorage.getItem(mk("trades")) || "[]"); }
-  function writeTrades(t){ localStorage.setItem(mk("trades"), JSON.stringify(t)); }
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
+  function writeOrders(o){ localStorage.setItem("spot_orders", JSON.stringify(o)); }
+  function readTrades(){ return JSON.parse(localStorage.getItem("spot_trades") || "[]"); }
+  function writeTrades(t){ localStorage.setItem("spot_trades", JSON.stringify(t)); }
 
   function num(v){
     if(v === null || v === undefined) return NaN;
@@ -14891,18 +14663,11 @@ try{
     }catch(e){ return ""; }
   }
   function readTrades(){
-    try{ return JSON.parse(localStorage.getItem(mk("trades")) || "[]"); }catch(e){ return []; }
+    try{ return JSON.parse(localStorage.getItem("spot_trades") || "[]"); }catch(e){ return []; }
   }
   function readOrderHistory(){
-  try{
-    const hist = window.__spotReadOrderHistory() || [];
-    const m = getActiveMarket();
-    // In futures mode, NEVER show spot history (legacy records without __src are treated as spot)
-    if(m === "futures") return hist.filter(x => x && x.__src === "futures");
-    // In spot mode, hide futures records (if any)
-    return hist.filter(x => !x || x.__src !== "futures");
-  }catch(e){ return []; }
-}
+    try{ return window.__spotReadOrderHistory(); }catch(e){ return []; }
+  }
   function ymd(ts){
     const d = new Date(ts);
     if(Number.isNaN(+d)) return "";
@@ -15114,7 +14879,7 @@ try{
     const t = (active?.textContent||'limit').toLowerCase();
     return t.includes('market') ? 'market' : 'limit';
   }
-  function readOrders(){ return JSON.parse(localStorage.getItem(mk("orders")) || "[]"); }
+  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
   function reservedQuoteUSDT(orders){
     return orders.filter(o => String(o.side).toLowerCase()==='buy')
       .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
@@ -15250,7 +15015,7 @@ try{
     return Number.isFinite(n) ? n.toFixed(d) : "—";
   }
   function readOpenOrders(){
-    try { return JSON.parse(localStorage.getItem(mk("orders")) || "[]"); }
+    try { return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
     catch(e){ return []; }
   }
   function getOpenPanel(){

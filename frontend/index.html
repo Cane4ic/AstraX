@@ -5459,6 +5459,8 @@ body.futures-mode .spot-orderbook .ob-mid{
   };
   window.__spotPushOrderHistory = function(entry){
     const hist = window.__spotReadOrderHistory() || [];
+    // Stamp source market so futures UI can never show spot records
+    try{ if(entry && !entry.__src) entry.__src = (window.ACTIVE_MARKET === "futures") ? "futures" : "spot"; }catch(e){}
     hist.unshift(entry);
     window.__spotWriteOrderHistory(hist);
     return hist;
@@ -10859,7 +10861,7 @@ function syncFuturesPairFromSpot(){
 
 
 function getActiveMarket(){
-  return (document.body.classList.contains("futures-mode") || window.ACTIVE_MARKET === "futures") ? "futures" : "spot";
+  return (window.ACTIVE_MARKET === "futures") ? "futures" : "spot";
 }
 
 function marketPrefix(){
@@ -10870,6 +10872,8 @@ function mk(base){
 }
 
 function setActiveMarket(mode){
+  // hard-set active market first (no CSS/class dependency)
+  window.ACTIVE_MARKET = (mode === "futures") ? "futures" : "spot";
   const prev = window.ACTIVE_MARKET || getActiveMarket();
   if (mode === "futures") { try { syncFuturesPairFromSpot(); } catch(e){} }
 
@@ -14890,8 +14894,15 @@ try{
     try{ return JSON.parse(localStorage.getItem(mk("trades")) || "[]"); }catch(e){ return []; }
   }
   function readOrderHistory(){
-    try{ return window.__spotReadOrderHistory(); }catch(e){ return []; }
-  }
+  try{
+    const hist = window.__spotReadOrderHistory() || [];
+    const m = getActiveMarket();
+    // In futures mode, NEVER show spot history (legacy records without __src are treated as spot)
+    if(m === "futures") return hist.filter(x => x && x.__src === "futures");
+    // In spot mode, hide futures records (if any)
+    return hist.filter(x => !x || x.__src !== "futures");
+  }catch(e){ return []; }
+}
   function ymd(ts){
     const d = new Date(ts);
     if(Number.isNaN(+d)) return "";
@@ -15427,166 +15438,6 @@ try{
     updateTradeLabels();
     hookPairChanges();
   }
-})();
-</script>
-
-
-<script>
-/* === HARD ISOLATION PATCH: futures order/trade history never shows spot === */
-(function(){
-  // 1) Market detection: ONLY by ACTIVE_MARKET (no body class "sticky" bugs)
-  window.getActiveMarket = function(){
-    return (window.ACTIVE_MARKET === "futures") ? "futures" : "spot";
-  };
-
-  // keep body class in sync but don't rely on it
-  function syncBody(){
-    try{
-      if(window.getActiveMarket() === "futures") document.body.classList.add("futures-mode");
-      else document.body.classList.remove("futures-mode");
-    }catch(e){}
-  }
-
-  // wrap page openers (if they exist)
-  ["openSpotPage","openFuturesPage","openTradingPage","setActiveMarket"].forEach(function(fn){
-    const origFn = window[fn];
-    if(typeof origFn !== "function") return;
-    window[fn] = function(){
-      // infer mode from args or function name
-      let mode = null;
-      if(fn === "openSpotPage") mode = "spot";
-      if(fn === "openFuturesPage") mode = "futures";
-      if(mode === null && arguments && arguments.length){
-        const a0 = String(arguments[0]||"").toLowerCase();
-        if(a0 === "spot" || a0 === "futures") mode = a0;
-      }
-      if(mode) window.ACTIVE_MARKET = mode;
-      const out = origFn.apply(this, arguments);
-      syncBody();
-      // run migration on any market switch
-      try{ migrateLegacyFromFuturesToSpot(); }catch(e){}
-      return out;
-    };
-  });
-
-  function k(market, base){ return market + "_" + base; }
-  function readJson(key, defVal){
-    try{
-      const raw = localStorage.getItem(key);
-      if(!raw) return defVal;
-      const v = JSON.parse(raw);
-      return (v === null || v === undefined) ? defVal : v;
-    }catch(e){ return defVal; }
-  }
-  function writeJson(key, val){
-    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
-  }
-
-  // 2) One-time migration: anything sitting in futures_* without market:"futures" is treated as spot legacy and moved out.
-  function migrateList(base){
-    const futKey = k("futures", base);
-    const spotKey = k("spot", base);
-    const fut = readJson(futKey, []);
-    if(!Array.isArray(fut) || fut.length === 0) return;
-    const keep = [];
-    const move = [];
-    for(const it of fut){
-      const m = (it && (it.market || it.product || it.mode)) ? String(it.market||it.product||it.mode).toLowerCase() : "";
-      if(m === "futures") keep.push(it);
-      else move.push(it);
-    }
-    if(move.length){
-      const spot = readJson(spotKey, []);
-      // move to the front (newest first) preserving relative order
-      writeJson(spotKey, move.concat(Array.isArray(spot)?spot:[]));
-    }
-    if(keep.length !== fut.length){
-      writeJson(futKey, keep);
-    }
-  }
-  function migrateLegacyFromFuturesToSpot(){
-    migrateList("order_history");
-    migrateList("trade_history");
-    migrateList("orders");
-    migrateList("trades");
-  }
-
-  // run immediately on load
-  syncBody();
-  migrateLegacyFromFuturesToSpot();
-
-  // 3) Ensure all new records get market tag at write-time
-  function tagEntry(entry){
-    if(!entry || typeof entry !== "object") return entry;
-    const m = window.getActiveMarket();
-    if(!("market" in entry) && !("product" in entry) && !("mode" in entry)) entry.market = m;
-    return entry;
-  }
-
-  // 4) Redirect the history readers/writers used by the UI to market-specific keys + enforce filtering for futures view.
-  // The UI calls window.__spotReadOrderHistory() / __spotWriteOrderHistory() / __spotPushOrderHistory().
-  window.__spotReadOrderHistory = function(){
-    const m = window.getActiveMarket();
-    const key = k(m, "order_history");
-    const arr = readJson(key, []);
-    if(m === "futures"){
-      return (Array.isArray(arr) ? arr : []).filter(x => String(x?.market||x?.product||x?.mode||"").toLowerCase() === "futures");
-    }
-    return Array.isArray(arr) ? arr : [];
-  };
-  window.__spotWriteOrderHistory = function(hist){
-    const m = window.getActiveMarket();
-    const key = k(m, "order_history");
-    const arr = Array.isArray(hist) ? hist.map(tagEntry) : [];
-    writeJson(key, arr);
-  };
-  window.__spotPushOrderHistory = function(entry){
-    const m = window.getActiveMarket();
-    const key = k(m, "order_history");
-    const hist = readJson(key, []);
-    const arr = Array.isArray(hist) ? hist : [];
-    arr.unshift(tagEntry(entry));
-    writeJson(key, arr);
-    return arr;
-  };
-
-  // Trade history panel uses localStorage via mk(...) in some builds; we force a consistent API if present.
-  window.__spotReadTradeHistory = function(){
-    const m = window.getActiveMarket();
-    const key = k(m, "trade_history");
-    const arr = readJson(key, []);
-    if(m === "futures"){
-      return (Array.isArray(arr) ? arr : []).filter(x => String(x?.market||x?.product||x?.mode||"").toLowerCase() === "futures");
-    }
-    return Array.isArray(arr) ? arr : [];
-  };
-  window.__spotWriteTradeHistory = function(list){
-    const m = window.getActiveMarket();
-    const key = k(m, "trade_history");
-    writeJson(key, Array.isArray(list) ? list.map(tagEntry) : []);
-  };
-  window.__spotPushTradeHistory = function(entry){
-    const m = window.getActiveMarket();
-    const key = k(m, "trade_history");
-    const list = readJson(key, []);
-    const arr = Array.isArray(list) ? list : [];
-    arr.unshift(tagEntry(entry));
-    writeJson(key, arr);
-    return arr;
-  };
-
-  // Final safety: if we're on futures, wipe any already-rendered rows that slipped in (legacy DOM)
-  function purgeDomRows(){
-    if(window.getActiveMarket() !== "futures") return;
-    try{
-      document.querySelectorAll('.orders-panel[data-panel="orderHistory"] .order-row').forEach(r=>{
-        // if row doesn't explicitly say futures, remove
-        const t = (r.getAttribute('data-market')||"").toLowerCase();
-        if(t !== "futures") r.remove();
-      });
-    }catch(e){}
-  }
-  setTimeout(purgeDomRows, 0);
 })();
 </script>
 

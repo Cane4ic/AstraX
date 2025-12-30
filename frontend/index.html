@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Crypto Exchange – Top Bar</title>
+  <title>ArsteX Exchange</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
 
@@ -5256,7 +5256,290 @@ input[type="number"] {
   border-bottom: none;
 }
 
+/* =========================================================
+   OPEN STOCKS TRADE PAGE (clean)
+   depends on existing SPOT styles (.spot-layout, .spot-pair, .spot-chart, .spot-trade, .spot-orders)
+   ========================================================= */
 
+/* режим страницы */
+html.stocks-trade-mode,
+body.stocks-trade-mode{
+  overflow-y: auto !important;   /* ✅ вертикальный скролл */
+  overflow-x: hidden !important; /* ❌ без горизонтального */
+  background: #000 !important;
+  overscroll-behavior: none;
+}
+
+/* topbar чёрный только на этой странице */
+body.stocks-trade-mode .topbar,
+body.stocks-trade-mode header{
+  background: #000 !important;
+  box-shadow: none !important;
+}
+
+/* футер скрываем только на этой странице */
+body.stocks-trade-mode footer{
+  display: none !important;
+}
+
+/* сама страница */
+#openstockstradepage{
+  background: #000;
+  min-height: 100vh;
+  overflow: hidden;
+
+  /* отступ как у spot-page */
+  padding-top: var(--topbar-h);
+}
+
+/* ВАЖНО: убираем любые внутренние отступы, чтобы не было "двойного" */
+#openstockstradepage .spot-layout{
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+
+  /* grid без orderbook */
+  grid-template-columns: 1fr 320px;
+  grid-template-areas:
+    "pair pair"
+    "chart trade"
+    "orders orders";
+}
+
+/* чтобы не было лишнего прилипшего margin у верхней панели */
+#openstockstradepage .spot-pair{
+  margin-top: 0 !important;
+}
+
+/* высоты как в spot */
+#openstockstradepage .spot-chart,
+#openstockstradepage .spot-trade{
+  height: 640px;
+  min-height: 640px;
+}
+
+/* FIX: openstockstradepage grid WITHOUT orderbook */
+#openstockstradepage .spot-layout{
+  display: grid !important;
+  grid-template-columns: 1fr 320px !important;   /* chart | trade */
+  grid-template-areas:
+    "pair pair"
+    "chart trade"
+    "orders orders" !important;
+  gap: 12px !important;
+}
+
+/* на всякий: если где-то остался блок orderbook — скрыть его только тут */
+#openstockstradepage .spot-orderbook{
+  display: none !important;
+}
+
+#openstockstradepage .spot-pair   { grid-area: pair   !important; }
+#openstockstradepage .spot-chart  { grid-area: chart  !important; }
+#openstockstradepage .spot-trade  { grid-area: trade  !important; }
+#openstockstradepage .spot-orders { grid-area: orders !important; }
+
+/* РУЧНАЯ КОМПЕНСАЦИЯ ОТСТУПА */
+#openstockstradepage {
+  margin-top: -52px;/*-- подбирается */
+}
+
+/* ===== FOREX TRADE MODE ===== */
+html.forex-trade-mode,
+body.forex-trade-mode{
+  overflow-y: auto !important;   /* ✅ вертикальный скролл */
+  overflow-x: hidden !important; /* ❌ без горизонтального */
+  background: #000 !important;
+  overscroll-behavior: none;
+}
+
+body.forex-trade-mode footer{ display:none !important; }
+body.forex-trade-mode .topbar,
+body.forex-trade-mode header{
+  background:#000 !important;
+  box-shadow:none !important;
+}
+
+/* ===== FOREX page layout (без orderbook) ===== */
+#openforextradepage{
+  background:#000;
+  min-height:100vh;
+  overflow:hidden;
+  padding-top: var(--topbar-h);
+}
+
+#openforextradepage .spot-layout{
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+
+  display: grid !important;
+  grid-template-columns: 1fr 320px !important;
+  grid-template-areas:
+    "pair pair"
+    "chart trade"
+    "orders orders" !important;
+  gap: 12px !important;
+}
+
+#openforextradepage .spot-pair{ margin-top: 0 !important; }
+
+#openforextradepage .spot-chart,
+#openforextradepage .spot-trade{
+  height: 640px;
+  min-height: 640px;
+}
+
+/* ===== FOREX TRADE MODE ===== */
+html.forex-trade-mode,
+body.forex-trade-mode{
+  overflow-y: auto !important;   /* ✅ вертикальный скролл */
+  overflow-x: hidden !important; /* ❌ без горизонтального */
+  background: #000 !important;
+  overscroll-behavior: none;
+}
+
+/* ✅ ВСЕГДА показываем и фиксируем topbar в forex-trade */
+body.forex-trade-mode header.topbar-wrapper{
+  display: block !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20000 !important; /* выше всего терминала */
+}
+
+/* чтобы контент не залезал под topbar
+body.forex-trade-mode #openforextradepage{
+  padding-top: 0px;
+} */
+
+/* ===== FIX: FOREX topbar wrapper must be black ===== */
+body.forex-trade-mode .topbar-wrapper{
+  background: #000 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: none !important;
+}
+
+body.forex-trade-mode .topbar-wrapper::before,
+body.forex-trade-mode .topbar-wrapper::after{
+  content: none !important;
+  background: none !important;
+}
+
+/* FIX: force black header in forex trade */
+html.forex-trade-mode body header.topbar-wrapper{
+  background: #000 !important;
+  backdrop-filter: none !important;
+}
+
+html.forex-trade-mode body header.topbar-wrapper::before,
+html.forex-trade-mode body header.topbar-wrapper::after{
+  content: none !important;
+  background: none !important;
+}
+
+/* ===== FOREX TRADE MODE (FINAL) ===== */
+html.forex-trade-mode,
+body.forex-trade-mode{
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: #000 !important;
+  overscroll-behavior: none;
+}
+
+/* фиксируем шапку */
+body.forex-trade-mode header.topbar-wrapper{
+  display: block !important;
+  position: fixed !important;
+  top: 0; left: 0; right: 0;
+  z-index: 20000 !important;
+  background: #000 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* убираем “синий фон/градиент” если он через псевдо-элементы */
+body.forex-trade-mode header.topbar-wrapper::before,
+body.forex-trade-mode header.topbar-wrapper::after{
+  content: none !important;
+  background: none !important;
+}
+
+/* сама внутренняя панель */
+body.forex-trade-mode .topbar{
+  background: #000 !important;
+  box-shadow: none !important;
+}
+
+/* FIX: убрать верхний отступ в Forex Trade */
+body.forex-trade-mode #openforextradepage{
+  padding-top: 50px;
+}
+
+/* FIX: убрать глобальный main margin в Forex Trade */
+body.forex-trade-mode main{
+  margin-top: 10px !important;
+}
+
+/* STOCKS TRADE list — как SPOT */
+#openstockstradepage .pair-dd-list{
+  max-height: 1000px;  /* как в spot */
+  overflow: auto;      /* как в spot */
+  padding: 6px;        /* как в spot */
+}
+
+/* ===== STOCKS TRADE: 1:1 scroll как SPOT (#pair-list) ===== */
+#openstockstradepage .pair-dd{
+  max-height: 60vh;
+  overflow: hidden; /* скролл только у списка */
+}
+
+#openstockstradepage .pair-dd-list{
+  max-height: calc(50vh - 150px);
+  overflow: auto;
+}
+
+/* тот же scrollbar что у SPOT */
+#openstockstradepage .pair-dd-list::-webkit-scrollbar{ width: 8px; }
+#openstockstradepage .pair-dd-list::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.12);
+  border-radius: 999px;
+}
+
+
+
+
+
+/* --- FIX: make chart fill the whole block (Spot + StocksTrade) --- */
+.spot-chart{
+  display:flex;
+  flex-direction:column;
+}
+.spot-chart .chart-head{
+  flex:0 0 auto;
+}
+.spot-chart .chart-stage{
+  flex:1 1 auto;
+  height:auto !important;
+  min-height:0 !important;
+  display:flex;
+  flex-direction:column;
+}
+#stocks-chart-mount{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+}
+#stocks-chart-mount #chart-root{
+  flex:1 1 auto;
+}
+#chart-root{
+  width:100%;
+  height:100%;
+}
+#ax-chart{
+  width:100%;
+  height:100%;
+}
 </style>
 </head>
 <body>
@@ -5306,9 +5589,9 @@ input[type="number"] {
       <nav class="nav">
         <a href="#">Markets</a>
         <a href="#" onclick="openSpotPage(); return false;">Spot</a>
-        <a href="#" onclick="openFuturesPage(); return false;">Futures</a>
-        <a href="#">Forex</a>
-        <a href="#">Stocks</a>
+        <a href="#" onclick="openstockstradepage(); return false;">Stocks</a>
+        <a href="#" onclick="openforextradepage(); return false;">Forex</a>
+
       </nav>
 
       <div class="actions actions-guest" id="topbar-guest">
@@ -5949,6 +6232,8 @@ input[type="number"] {
 
 </section>
 
+
+
 <section id="forex-page" class="forex-page" style="display:none; padding-top:120px;">
 
   <div style="text-align:center; margin-bottom:40px;">
@@ -6045,6 +6330,100 @@ input[type="number"] {
   </div>
 </section>
 
+</section>
+
+<section id="forex-trade-page" class="page" style="display:none; padding-top:110px;">
+  <!-- верхняя строка, как у спота -->
+  <div class="pair-topbar">
+    <div class="pair-left">
+      <div class="pair-symbol" id="fx-pair-symbol">EUR/USD</div>
+      <div class="pair-name muted" id="fx-pair-name">Forex</div>
+    </div>
+    <div class="pair-price" id="fx-last-price">1.07540</div>
+
+    <div class="pair-stats">
+      <div class="stat">
+        <div class="label">24h Change</div>
+        <div class="val" id="fx-24h-change">0.00%</div>
+      </div>
+      <div class="stat">
+        <div class="label">24h High</div>
+        <div class="val" id="fx-24h-high">—</div>
+      </div>
+      <div class="stat">
+        <div class="label">24h Low</div>
+        <div class="val" id="fx-24h-low">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spot-layout">
+    <!-- слева график (можешь переиспользовать тот же контейнер/стили, что в споте) -->
+    <div class="spot-chart">
+      <div id="fx-chart-host" class="chart-host"></div>
+    </div>
+
+    <!-- справа: (опционально) ордербук как у тебя, если хочешь -->
+    <div class="spot-orderbook">
+      <div class="ob-card">
+        <div class="ob-title">Order Book</div>
+        <div id="fx-orderbook" class="ob-body"></div>
+      </div>
+    </div>
+
+    <!-- справа: торговая панель -->
+    <div class="spot-tradepanel">
+      <div class="trade-card" id="fxTradeCard">
+        <div class="trade-bs-toggle">
+          <button class="bs-btn active" data-side="buy" type="button">Buy</button>
+          <button class="bs-btn" data-side="sell" type="button">Sell</button>
+        </div>
+
+        <div class="trade-types">
+          <button class="type-btn active" data-otype="limit" type="button">Limit</button>
+          <button class="type-btn" data-otype="market" type="button">Market</button>
+        </div>
+
+        <div class="trade-available">
+          <div class="muted">Available</div>
+          <div class="trade-available-right">
+            <span class="trade-available-val" id="fxAvailVal">1000.00</span>
+            <span class="trade-available-sym" id="fxAvailSym">USD</span>
+          </div>
+        </div>
+
+        <div class="trade-field price-field">
+          <div class="trade-field-label">Price <span class="muted" id="fxPriceCcy">(USD)</span></div>
+          <div class="trade-field-row">
+            <input id="fxPrice" type="number" step="0.00001" placeholder="0.00">
+            <button id="fxLastBtn" class="last-btn" type="button">Last price</button>
+          </div>
+        </div>
+
+        <div class="trade-field amount-field">
+          <div class="trade-field-label">Amount <span class="muted" id="fxAmountCcy">(EUR)</span></div>
+          <input id="fxAmount" type="number" step="0.00001" placeholder="0.00000">
+        </div>
+
+        <input id="fxPct" type="range" min="0" max="100" step="1" value="0">
+
+        <div class="trade-marks">
+          <button type="button" data-p="0">0%</button>
+          <button type="button" data-p="25">25%</button>
+          <button type="button" data-p="50">50%</button>
+          <button type="button" data-p="75">75%</button>
+          <button type="button" data-p="100">100%</button>
+        </div>
+
+        <div class="trade-field total-field">
+          <div class="trade-field-label">Total <span class="muted" id="fxTotalCcy">(USD)</span></div>
+          <input id="fxTotal" type="number" step="0.01" placeholder="0.00">
+        </div>
+
+        <button id="fxSubmit" class="trade-submit buy" type="button">Buy EUR</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ===================== STOCKS PAGE ===================== -->
@@ -7541,8 +7920,8 @@ input[type="number"] {
     </div>
 
     <div class="pair-tabs">
-      <button class="pair-tab is-active" data-tab="fav">Favorites</button>
-      <button class="pair-tab" data-tab="usdt">USDT</button>
+      <button class="pair-tab" data-tab="fav">Favorites</button>
+      <button class="pair-tab is-active" data-tab="usdt">USDT</button>
     </div>
   </div>
 
@@ -7924,6 +8303,366 @@ input[type="number"] {
 
   </div>
 </section>
+
+<section id="openstockstradepage" style="display:none;">
+  <div class="spot-layout openstocks-layout">
+
+    <!-- BLOCK 1: Pair bar (1в1 как spot-pair) -->
+    <div class="spot-pair">
+      <div class="pairbar">
+
+        <div class="pair-select-wrap">
+          <button class="pair-select" type="button">
+            <img src="" alt="" class="openstocks-pair-icon" />
+            <div class="pair-text">
+              <div class="openstocks-pair-symbol">AAPL</div>
+              <div class="openstocks-pair-name">Apple</div>
+            </div>
+            <div class="pair-caret">▾</div>
+          </button>
+
+          <!-- dropdown (пока пустой, только дизайн) -->
+          <div class="pair-dd" style="display:none;">
+            <div class="pair-dd-head">
+              <div class="pair-search-wrap">
+                <input class="pair-search" placeholder="Search stock" />
+              </div>
+
+              <div class="pair-tabs">
+                <button class="pair-tab" type="button">Favorites</button>
+                <button class="pair-tab is-active" type="button">US</button>
+              </div>
+            </div>
+
+            <div class="pair-dd-cols">
+              <div>Stock / Vol.</div>
+              <div class="t-right">Last</div>
+              <div class="t-right">Change</div>
+            </div>
+
+            <div class="pair-dd-list">
+              <!-- empty -->
+            </div>
+          </div>
+        </div>
+
+        <div class="spot-stats">
+          <div class="spot-stat">
+            <div class="last-price">0.00</div>
+          </div>
+
+          <div class="spot-stat">
+            <div class="label">24h Change</div>
+            <div class="change">0.00%</div>
+          </div>
+
+          <div class="spot-stat">
+            <div class="label">Volume</div>
+            <div class="volume">0</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BLOCK 2: Chart (1в1 как spot-chart) -->
+    <div class="spot-chart">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-head-left">
+            <div class="chart-title">Chart</div>
+
+            <div class="chart-tools">
+              <button class="chart-btn is-active" type="button">1m</button>
+              <button class="chart-btn" type="button">5m</button>
+              <button class="chart-btn" type="button">15m</button>
+              <button class="chart-btn" type="button">1h</button>
+              <button class="chart-btn" type="button">4h</button>
+              <button class="chart-btn" type="button">1d</button>
+            </div>
+          </div>
+
+          <div class="chart-head-right">
+            <div class="chart-draw-tools">
+              <button class="tool-btn active" type="button" title="Cursor">✛</button>
+              <button class="tool-btn" type="button" title="Line">／</button>
+              <button class="tool-btn" type="button" title="Horizontal">—</button>
+              <button class="tool-btn" type="button" title="Vertical">│</button>
+              <div class="tool-sep"></div>
+              <button class="tool-btn" type="button" title="Text">T</button>
+              <button class="tool-btn" type="button" title="Emoji">☺</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="stocks-chart-mount"></div>
+      </div>
+    </div>
+
+    <!-- BLOCK 3: Trade (это твой блок buy/sell) — 1в1 как spot-trade -->
+    <div class="spot-trade">
+      <div class="trade-card">
+        <div class="trade-bs-toggle" role="tablist" aria-label="Buy Sell">
+          <button class="bs-btn active" type="button">Buy</button>
+          <button class="bs-btn" type="button">Sell</button>
+        </div>
+
+        <div class="trade-types">
+          <button class="type-btn active" type="button">Limit</button>
+          <button class="type-btn" type="button">Market</button>
+        </div>
+
+        <div class="trade-available">
+          <div class="trade-available-label">Available</div>
+          <div class="trade-available-val">
+            <span class="avail-amt">0</span>
+            <span class="avail-ccy">USDT</span>
+            <button class="avail-swap" type="button" title="Switch quote/base">⇅</button>
+          </div>
+        </div>
+
+        <div class="trade-field price-field">
+          <div class="trade-field-label">Price <span class="muted">(USDT)</span></div>
+          <div class="trade-input-wrap">
+            <input class="trade-input" type="number" step="0.01" placeholder="0.00" />
+            <button type="button" class="last-price-btn">Last price</button>
+          </div>
+        </div>
+
+        <div class="trade-field amount-field">
+          <div class="trade-field-label">Amount <span class="muted">(AAPL)</span></div>
+          <input class="trade-input" type="number" step="1" placeholder="0" />
+        </div>
+
+        <div class="trade-slider">
+          <div class="slider-row">
+            <input class="trade-range" type="range" min="0" max="100" value="0" step="1" />
+          </div>
+          <div class="slider-marks">
+            <button type="button">0%</button>
+            <button type="button">25%</button>
+            <button type="button">50%</button>
+            <button type="button">75%</button>
+            <button type="button">100%</button>
+          </div>
+        </div>
+
+        <div class="trade-field total-field">
+          <div class="trade-field-label">Total <span class="muted">(USDT)</span></div>
+          <input class="trade-input" type="number" step="0.01" placeholder="0.00" />
+        </div>
+
+        <label class="trade-tpsl-toggle">
+          <input type="checkbox" />
+          <span>TP / SL</span>
+        </label>
+
+        <button class="trade-submit buy" type="button">Buy AAPL</button>
+      </div>
+    </div>
+
+    <!-- BLOCK 4: Orders (1в1 как spot-orders) -->
+    <div class="spot-orders">
+      <div class="orders-header">
+        <div class="orders-tabs">
+          <button class="orders-tab active" type="button">Open Orders (0)</button>
+          <button class="orders-tab" type="button">Order History</button>
+          <button class="orders-tab" type="button">Trade History</button>
+        </div>
+      </div>
+
+      <div class="orders-table">
+        <div class="orders-panel is-active">
+          <div class="orders-head">
+            <div>Pair</div><div>Date</div><div>Type</div><div>Side</div><div>Price</div>
+            <div>Amount</div><div>Filled</div><div>Trigger</div><div class="right">Cancel</div>
+          </div>
+
+          <div class="orders-empty">
+            <div class="orders-empty-icon">📄</div>
+            <div class="orders-empty-title">No open orders</div>
+            <div class="orders-empty-text">Your active orders will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="openforextradepage" style="display:none;">
+  <div class="spot-layout forex-layout">
+
+    <!-- BLOCK 1: Pair bar -->
+    <div class="spot-pair">
+      <div class="pairbar">
+        <div class="pair-select-wrap">
+          <button class="pair-select" type="button">
+            <img src="" alt="" class="forex-pair-icon" />
+            <div class="pair-text">
+              <div class="forex-pair-symbol">EUR/USD</div>
+              <div class="forex-pair-name">Euro / US Dollar</div>
+            </div>
+            <div class="pair-caret">▾</div>
+          </button>
+
+          <!-- dropdown (пока чисто дизайн) -->
+          <div class="pair-dd" style="display:none;">
+            <div class="pair-dd-head">
+              <div class="pair-search-wrap">
+                <input class="pair-search" placeholder="Search forex pair" />
+              </div>
+              <div class="pair-tabs">
+                <button class="pair-tab is-active" type="button">Majors</button>
+                <button class="pair-tab" type="button">Minors</button>
+              </div>
+            </div>
+
+            <div class="pair-dd-cols">
+              <div>Pair</div>
+              <div class="t-right">Last</div>
+              <div class="t-right">Change</div>
+            </div>
+
+            <div class="pair-dd-list"></div>
+          </div>
+        </div>
+
+        <div class="spot-stats">
+          <div class="spot-stat"><div class="last-price">0.0000</div></div>
+          <div class="spot-stat"><div class="label">24h Change</div><div class="change">0.00%</div></div>
+          <div class="spot-stat"><div class="label">Volume</div><div class="volume">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOCK 2: Chart -->
+    <div class="spot-chart">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-head-left">
+            <div class="chart-title">Chart</div>
+            <div class="chart-tools">
+              <button class="chart-btn is-active" type="button">1m</button>
+              <button class="chart-btn" type="button">5m</button>
+              <button class="chart-btn" type="button">15m</button>
+              <button class="chart-btn" type="button">1h</button>
+              <button class="chart-btn" type="button">4h</button>
+              <button class="chart-btn" type="button">1d</button>
+            </div>
+          </div>
+
+          <div class="chart-head-right">
+            <div class="chart-draw-tools">
+              <button class="tool-btn active" type="button">✛</button>
+              <button class="tool-btn" type="button">／</button>
+              <button class="tool-btn" type="button">—</button>
+              <button class="tool-btn" type="button">│</button>
+              <div class="tool-sep"></div>
+              <button class="tool-btn" type="button">T</button>
+              <button class="tool-btn" type="button">☺</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-stage"></div>
+      </div>
+    </div>
+
+    <!-- BLOCK 3: Trade -->
+    <div class="spot-trade">
+      <div class="trade-card">
+        <div class="trade-bs-toggle">
+          <button class="bs-btn active" type="button">Buy</button>
+          <button class="bs-btn" type="button">Sell</button>
+        </div>
+
+        <div class="trade-types">
+          <button class="type-btn active" type="button">Limit</button>
+          <button class="type-btn" type="button">Market</button>
+        </div>
+
+        <div class="trade-available">
+          <div class="trade-available-label">Available</div>
+          <div class="trade-available-val">
+            <span class="avail-amt">0</span>
+            <span class="avail-ccy">USD</span>
+            <button class="avail-swap" type="button">⇅</button>
+          </div>
+        </div>
+
+        <div class="trade-field price-field">
+          <div class="trade-field-label">Price <span class="muted">(USD)</span></div>
+          <div class="trade-input-wrap">
+            <input class="trade-input" type="number" step="0.0001" placeholder="0.0000" />
+            <button type="button" class="last-price-btn">Last price</button>
+          </div>
+        </div>
+
+        <div class="trade-field amount-field">
+          <div class="trade-field-label">Amount <span class="muted">(EUR)</span></div>
+          <input class="trade-input" type="number" step="0.01" placeholder="0.00" />
+        </div>
+
+        <div class="trade-slider">
+          <div class="slider-row">
+            <input class="trade-range" type="range" min="0" max="100" value="0" step="1" />
+          </div>
+          <div class="slider-marks">
+            <button type="button">0%</button>
+            <button type="button">25%</button>
+            <button type="button">50%</button>
+            <button type="button">75%</button>
+            <button type="button">100%</button>
+          </div>
+        </div>
+
+        <div class="trade-field total-field">
+          <div class="trade-field-label">Total <span class="muted">(USD)</span></div>
+          <input class="trade-input" type="number" step="0.01" placeholder="0.00" />
+        </div>
+
+        <label class="trade-tpsl-toggle">
+          <input type="checkbox" />
+          <span>TP / SL</span>
+        </label>
+
+        <button class="trade-submit buy" type="button">Buy EUR</button>
+      </div>
+    </div>
+
+    <!-- BLOCK 4: Orders -->
+    <div class="spot-orders">
+      <div class="orders-header">
+        <div class="orders-tabs">
+          <button class="orders-tab active" type="button">Open Orders (0)</button>
+          <button class="orders-tab" type="button">Order History</button>
+          <button class="orders-tab" type="button">Trade History</button>
+        </div>
+      </div>
+
+      <div class="orders-table">
+        <div class="orders-panel is-active">
+          <div class="orders-head">
+            <div>Pair</div><div>Date</div><div>Type</div><div>Side</div><div>Price</div>
+            <div>Amount</div><div>Filled</div><div>Trigger</div><div class="right">Cancel</div>
+          </div>
+
+          <div class="orders-empty">
+            <div class="orders-empty-icon">📄</div>
+            <div class="orders-empty-title">No open orders</div>
+            <div class="orders-empty-text">Your active forex orders will appear here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+
 
 <script>
 // ===================== ОБЩЕЕ: функция рисования спарка =====================
@@ -8599,6 +9338,7 @@ function openCabinetPage(){
   hideAllPages();
   hideHomeSections();
   exitSpotMode();
+  resetTopbarTheme();
 
   document.body.classList.add("cabinet-mode");
 
@@ -8629,7 +9369,8 @@ function openDepositPage(){
   applyAuthUI();
   exitSpotMode();
   hideAllPages();
-  hideHomeSections?.(); // если у тебя есть эта функция (у других страниц она вызывается)
+  hideHomeSections?.();
+  resetTopbarTheme(); // если у тебя есть эта функция (у других страниц она вызывается)
 
   const el = document.getElementById("deposit-page");
   if (el) el.style.display = "block";
@@ -9071,6 +9812,742 @@ if (aboutPage) aboutPage.style.display = "none";
   location.hash = "stocks";
 }
 
+// ===================== STOCKS TRADE: dropdown + list (как spot) =====================
+(function(){
+
+  const FAV_KEY = "astrax_stock_favs_v1";
+
+  function getFavs(){
+    try { return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); } catch { return []; }
+  }
+  function setFavs(arr){
+    try { localStorage.setItem(FAV_KEY, JSON.stringify(arr)); } catch {}
+  }
+  function isFav(sym){
+    sym = (sym||"").toUpperCase();
+    return getFavs().includes(sym);
+  }
+  function toggleFav(sym){
+    sym = (sym||"").toUpperCase();
+    const favs = getFavs();
+    const i = favs.indexOf(sym);
+    if(i >= 0) favs.splice(i,1); else favs.unshift(sym);
+    setFavs(favs);
+  }
+
+  function stockInfoBySymbol(sym){
+    sym = (sym||"").toUpperCase();
+    const all = Object.values(window.stockmap || {});
+    return all.find(s => (s.symbol||"").toUpperCase() === sym) || null;
+  }
+
+  function getState(sym){
+    sym = (sym||"").toUpperCase();
+    return (window.stockState && window.stockState[sym]) ? window.stockState[sym] : null;
+  }
+
+  function fmtPrice(v){
+    if (typeof v !== "number") return "0.00";
+    return v.toFixed(2);
+  }
+  function fmtVol(v){
+    if (typeof v !== "number") return "0";
+    return Math.round(v).toLocaleString("en-US");
+  }
+  function fmtChangePct(state){
+    if(!state || typeof state.price !== "number" || typeof state.basePrice !== "number" || state.basePrice === 0) return "0.00%";
+    const pct = (state.price / state.basePrice - 1) * 100;
+    return pct.toFixed(2) + "%";
+  }
+  function changeClass(state){
+    if(!state || typeof state.price !== "number" || typeof state.basePrice !== "number" || state.basePrice === 0) return "";
+    const pct = (state.price / state.basePrice - 1) * 100;
+    return (pct >= 0) ? "up" : "down";
+  }
+
+  function setSelectedStock(sym){
+    sym = (sym||"").toUpperCase();
+    const info = stockInfoBySymbol(sym);
+    const state = getState(sym);
+
+    // верхний селектор (иконка/символ/название)
+    const root = document.getElementById("openstockstradepage");
+    if(!root) return;
+
+    const iconEl  = root.querySelector(".openstocks-pair-icon");
+    const symEl   = root.querySelector(".openstocks-pair-symbol");
+    const nameEl  = root.querySelector(".openstocks-pair-name");
+
+    if (symEl)  symEl.textContent = sym;
+    if (nameEl) nameEl.textContent = info?.name || sym;
+
+    // если хочешь — можно поставить любую иконку/логотип
+    if (iconEl){
+      iconEl.src = ""; // можно потом сделать логотипы
+      iconEl.style.display = "none"; // чтобы пустая не мешала
+    }
+
+    // stats
+    const lastEl = root.querySelector(".spot-stats .last-price");
+    const chEl   = root.querySelector(".spot-stats .change");
+    const volEl  = root.querySelector(".spot-stats .volume");
+
+    if (lastEl) lastEl.textContent = fmtPrice(state?.price ?? 0);
+    if (chEl){
+      chEl.textContent = fmtChangePct(state);
+      chEl.classList.remove("up","down");
+      const cls = changeClass(state);
+      if(cls) chEl.classList.add(cls);
+    }
+    if (volEl) volEl.textContent = fmtVol(state?.volume ?? 0);
+
+    // кнопка Buy/ Sell текст
+    const buyBtn = root.querySelector(".trade-submit.buy");
+    if (buyBtn) buyBtn.textContent = `Buy ${sym}`;
+
+    // сохраним выбранное
+    window.STOCKS_TRADE_SELECTED = sym;
+  }
+
+  function renderList(){
+    const root = document.getElementById("openstockstradepage");
+    if(!root) return;
+
+    const dd = root.querySelector(".pair-dd");
+    const list = root.querySelector(".pair-dd-list");
+    const search = root.querySelector(".pair-search");
+    const tabs = Array.from(root.querySelectorAll(".pair-tab"));
+
+    if(!dd || !list) return;
+
+    const q = (search?.value || "").trim().toLowerCase();
+    const activeTab = tabs.find(t => t.classList.contains("is-active"))?.textContent?.trim().toLowerCase() || "us";
+
+    const all = Object.values(window.stockmap || {}).map(s => ({
+      symbol: (s.symbol||"").toUpperCase(),
+      name: s.name || "",
+      sector: s.sector || ""
+    }));
+
+
+    let items = all;
+
+    // вкладка Favorites
+    if(activeTab === "favorites"){
+      const favs = getFavs();
+      items = items.filter(x => favs.includes(x.symbol));
+    }
+
+    // поиск
+    if(q){
+      items = items.filter(x =>
+        x.symbol.toLowerCase().includes(q) ||
+        x.name.toLowerCase().includes(q)
+      );
+    }
+
+    // сортировка: избранные сверху, потом по символу
+    items.sort((a,b)=>{
+      const fa = isFav(a.symbol) ? 1 : 0;
+      const fb = isFav(b.symbol) ? 1 : 0;
+      if(fa !== fb) return fb - fa;
+      return a.symbol.localeCompare(b.symbol);
+    });
+
+    list.innerHTML = "";
+
+    items.forEach(it => {
+      const state = getState(it.symbol);
+
+      const row = document.createElement("div");
+      row.className = "pair-item";
+      row.innerHTML = `
+        <div class="sym" style="display:flex; align-items:center; gap:10px;">
+          <span class="star" data-star="${it.symbol}" style="opacity:${isFav(it.symbol)?1:0.5}; cursor:pointer;">★</span>
+          <div>
+            <div class="sym">${it.symbol}</div>
+            <div class="nm">${it.name}</div>
+          </div>
+        </div>
+
+        <div class="right t-right">${fmtPrice(state?.price ?? 0)}</div>
+        <div class="right t-right ${changeClass(state)}">${fmtChangePct(state)}</div>
+      `;
+
+      // клик по строке = выбрать
+      row.addEventListener("click", (e)=>{
+        // если кликнули по звезде — не закрываем dropdown и не выбираем строку
+        const star = e.target.closest("[data-star]");
+        if(star) return;
+
+        setSelectedStock(it.symbol);
+        dd.style.display = "none";
+      });
+
+      // звезда (избранное)
+      row.querySelector("[data-star]")?.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        toggleFav(it.symbol);
+        renderList();
+      });
+
+      list.appendChild(row);
+    });
+  }
+
+  function startStocksTradeLive(){
+  if (window.__STOCKS_TRADE_LIVE_TIMER__) return;
+
+  window.__STOCKS_TRADE_LIVE_TIMER__ = setInterval(() => {
+    const root = document.getElementById("openstockstradepage");
+    if (!root) return;
+
+    // обновляем только когда страница реально видна
+    if (getComputedStyle(root).display === "none") return;
+
+    // обновить верхнюю панель выбранной акции (цена/%, volume и т.д.)
+    const sym = window.STOCKS_TRADE_SELECTED ||
+      Object.values(window.stockmap || {})[0]?.symbol;
+
+    if (sym) setSelectedStock(sym);
+
+    // если открыт dropdown — обновить список (чтобы цены/проценты менялись)
+    const dd = root.querySelector(".pair-dd");
+    if (dd && dd.style.display === "block") {
+      renderList();
+    }
+  }, 800);
+ }
+
+  // === LIVE UI UPDATES (как в spot) ===
+  let __stocksTradeLiveTimer = null;
+
+  function startStocksTradeLiveUpdates(){
+    if (__stocksTradeLiveTimer) return;
+
+    __stocksTradeLiveTimer = setInterval(() => {
+      const root = document.getElementById("openstockstradepage");
+      if (!root) return;
+
+      // если страница не показана — ничего не делаем
+      if (root.style.display === "none") return;
+
+      // 1) обновляем верхний блок по выбранной акции
+      const sym = (window.STOCKS_TRADE_SELECTED || "").toUpperCase();
+      if (sym) setSelectedStock(sym);
+      try{ window.__syncSelectedStockPriceToChart && window.__syncSelectedStockPriceToChart(); }catch(e){}
+
+      // 2) если открыт dropdown — обновляем список
+      const dd = root.querySelector(".pair-dd");
+      if (dd && dd.style.display === "block") {
+        renderList();
+      }
+    }, 600); // 400–800 мс нормально
+  }
+
+  function stopStocksTradeLiveUpdates(){
+    if (__stocksTradeLiveTimer){
+      clearInterval(__stocksTradeLiveTimer);
+      __stocksTradeLiveTimer = null;
+    }
+  }
+
+  // на всякий случай — наружу (не обязательно)
+  window.startStocksTradeLiveUpdates = startStocksTradeLiveUpdates;
+  window.stopStocksTradeLiveUpdates = stopStocksTradeLiveUpdates;
+  // ===== Shared chart mounting & STOCKS synthetic chart (same engine as Spot) =====
+  (function(){
+    let __spotChartParent = null;
+
+    function mountSharedChart(target){
+      const chartRoot = document.getElementById("chart-root");
+      if (!chartRoot) return;
+
+      if (!__spotChartParent) __spotChartParent = chartRoot.parentElement;
+
+      if (target === "stocks"){
+        const mount = document.getElementById("stocks-chart-mount");
+        if (mount && chartRoot.parentElement !== mount) mount.appendChild(chartRoot);
+      } else {
+        if (__spotChartParent && chartRoot.parentElement !== __spotChartParent) __spotChartParent.appendChild(chartRoot);
+      }
+
+      // resize after DOM move / show
+      requestAnimationFrame(() => {
+        try{ window.AX_CHART?.resize?.(); }catch(e){}
+      });
+    }
+
+    // --- stocks synthetic history generator ---
+    const STOCK_HIST = { candles: [], interval: "1m", symbol: "AAPL", tfMs: 60_000 };
+
+    function tfToMs(tf){
+      switch(String(tf)){
+        case "5m": return 5*60_000;
+        case "15m": return 15*60_000;
+        case "1h": return 60*60_000;
+        case "4h": return 4*60*60_000;
+        case "1d": return 24*60*60_000;
+        case "1m":
+        default: return 60_000;
+      }
+    }
+
+    function genCandlesFromPrice(price, tf, count){
+      const tfMs = tfToMs(tf);
+      const now = Date.now();
+      const startT = now - tfMs*count;
+      let p = Number(price) || 100;
+      let drift = 0;
+
+      const out = [];
+      for(let i=0;i<count;i++){
+        const t = startT + i*tfMs;
+        // soft regime drift
+        drift += (Math.random()-0.5)*0.00008;
+        drift = Math.max(-0.0012, Math.min(0.0012, drift));
+
+        const vol = Math.max(0.0006, Math.min(0.02, 0.006 + (Math.random()-0.5)*0.002));
+        const o = p;
+        // candle return
+        const ret = drift + (Math.random()-0.5) * vol;
+        const c = Math.max(0.01, o * (1 + ret));
+        const hi = Math.max(o,c) * (1 + Math.random()*vol*0.6);
+        const lo = Math.min(o,c) * (1 - Math.random()*vol*0.6);
+
+        out.push({ t, o, h: hi, l: lo, c });
+        p = c;
+      }
+      return out;
+    }
+
+    function getStockBySymbol(sym){
+  const S = (sym || "").toUpperCase();
+  const map = window.stockmap || {};
+  // stockmap НЕ по символу, поэтому ищем по values
+  return Object.values(map).find(x => (x?.symbol || "").toUpperCase() === S) || null;
+}
+
+function getSelectedStockPrice(sym){
+  const S = (sym || "").toUpperCase();
+  // 1) если у тебя есть runtime-state по символу (часто так бывает)
+  const stState = window.stockState?.[S];
+  const p1 = Number(stState?.price);
+  if (Number.isFinite(p1) && p1 > 0) return p1;
+
+  // 2) иначе берём из stockmap по values
+  const info = getStockBySymbol(S);
+  const p2 = Number(info?.price);
+  if (Number.isFinite(p2) && p2 > 0) return p2;
+
+  return NaN;
+}
+
+
+    function syncSelectedStockPriceToChart(){
+      if (window.AX_ACTIVE_CHART_SOURCE !== "stocks") return;
+      const sym = (window.STOCKS_TRADE_SELECTED || "").toUpperCase();
+      const price = getSelectedStockPrice(sym);
+      if (!Number.isFinite(price) || price <= 0) return;
+      if (!Array.isArray(STOCK_HIST.candles) || STOCK_HIST.candles.length === 0) return;
+
+      const last = STOCK_HIST.candles[STOCK_HIST.candles.length - 1];
+      // keep candle timestamp, just update C/H/L
+      const c = price;
+      const next = {
+        ...last,
+        c,
+        h: Math.max(last.h, c),
+        l: Math.min(last.l, c),
+      };
+      STOCK_HIST.candles[STOCK_HIST.candles.length - 1] = next;
+      try{ window.AX_CHART?.updateLast?.(next); }catch(e){}
+    }
+
+    async function rebuildStockChartForSelectedSymbol(tf){
+      try{
+        await waitForChart(2500);
+      }catch(e){ /* chart not ready */ }
+
+      const sym = (window.STOCKS_TRADE_SELECTED || Object.values(window.stockmap||{})[0]?.symbol || "AAPL").toUpperCase();
+      const basePrice = getSelectedStockPrice(sym);
+      const safeBase = (Number.isFinite(basePrice) && basePrice > 0) ? basePrice : 100;
+
+
+      STOCK_HIST.symbol = sym;
+      STOCK_HIST.interval = tf || "1m";
+      STOCK_HIST.tfMs = tfToMs(STOCK_HIST.interval);
+
+      // generate history where last close ~= current price
+      // load real candles
+        // 1) пробуем загрузить реальные свечи
+let candles = [];
+try {
+  const resp = await fetch(`/api/stocks/candles?symbol=${encodeURIComponent(sym)}&tf=${encodeURIComponent(STOCK_HIST.interval)}`);
+  if (resp.ok) {
+    const data = await resp.json();
+
+    // нормализуем: числа, t в ms, сортировка по времени
+    if (Array.isArray(data)) {
+      candles = data
+        .map(x => ({
+          t: Number(x.t),
+          o: Number(x.o),
+          h: Number(x.h),
+          l: Number(x.l),
+          c: Number(x.c),
+        }))
+        .filter(x => Number.isFinite(x.t) && Number.isFinite(x.o) && Number.isFinite(x.h) && Number.isFinite(x.l) && Number.isFinite(x.c))
+        .sort((a,b) => a.t - b.t);
+
+      // если backend отдаёт t в секундах — переведи в ms
+      // эвристика: если t меньше 10^12, считаем что это секунды
+      if (candles.length && candles[candles.length - 1].t < 1e12) {
+        candles = candles.map(x => ({ ...x, t: x.t * 1000 }));
+      }
+    }
+  }
+} catch(e) { /* ignore */ }
+
+// 2) если реальных свечей нет — fallback на синтетику
+if (!candles.length) {
+  const count = 140;
+  candles = genCandlesFromPrice(safeBase, STOCK_HIST.interval, count);
+
+  // форсим последнюю свечу под текущую цену (как раньше)
+  const li = candles.length - 1;
+  candles[li] = {
+    ...candles[li],
+    c: safeBase,
+    h: Math.max(candles[li].h, safeBase),
+    l: Math.min(candles[li].l, safeBase),
+  };
+}
+
+// 3) применяем в график
+STOCK_HIST.candles = candles;
+window.AX_CHART?.setCandles?.(candles);
+
+// 4) чтобы последняя свеча совпала с current price из UI
+syncSelectedStockPriceToChart();
+
+
+    }
+
+    // expose for handlers
+    window.mountSharedChart = mountSharedChart;
+    window.rebuildStockChartForSelectedSymbol = rebuildStockChartForSelectedSymbol;
+    window.__syncSelectedStockPriceToChart = syncSelectedStockPriceToChart;
+  })();
+
+
+
+  function initStocksTradeUI(){
+    if(window.__STOCKS_TRADE_UI_INITED__) return;
+    window.__STOCKS_TRADE_UI_INITED__ = true;
+
+    const root = document.getElementById("openstockstradepage");
+    if(!root) return;
+
+    const wrap = root.querySelector(".pair-select-wrap");
+    const btn  = root.querySelector(".pair-select");
+    const dd   = root.querySelector(".pair-dd");
+    const search = root.querySelector(".pair-search");
+    const tabs = Array.from(root.querySelectorAll(".pair-tab"));
+
+    if(!wrap || !btn || !dd) return;
+
+    // откроем dropdown по кнопке
+    btn.addEventListener("click", ()=>{
+      const isOpen = dd.style.display === "block";
+      dd.style.display = isOpen ? "none" : "block";
+      if(!isOpen){
+        renderList();
+        setTimeout(()=>search?.focus?.(), 0);
+      }
+    });
+
+    // закрытие по клику вне
+    document.addEventListener("click", (e)=>{
+      if(!root.contains(e.target)) dd.style.display = "none";
+    }, true);
+
+    // поиск
+    if(search){
+      search.addEventListener("input", ()=>renderList());
+    }
+
+    // табы
+    tabs.forEach(t=>{
+      t.addEventListener("click", ()=>{
+        tabs.forEach(x=>x.classList.remove("is-active"));
+        t.classList.add("is-active");
+        renderList();
+      });
+    });
+
+    // дефолт выбранная акция
+    const firstFromMap = Object.values(window.stockmap || {})[0]?.symbol;
+  const defaultSym = window.STOCKS_TRADE_SELECTED || firstFromMap;
+  if (defaultSym) setSelectedStock(defaultSym);
+  startStocksTradeLive();
+    startStocksTradeLiveUpdates();
+    startStocksTradeLive();
+  }
+
+  // делаем доступной функции снаружи
+  window.initStocksTradeUI = initStocksTradeUI;
+  window.setSelectedStockTrade = setSelectedStock;
+  window.__stocksTradeRenderList = renderList;
+  window.__stocksTradeSetSelected = setSelectedStock;
+
+  function startStocksTradeLive(){
+  if (window.__STOCKS_TRADE_LIVE_TIMER__) return;
+
+  window.__STOCKS_TRADE_LIVE_TIMER__ = setInterval(() => {
+    const root = document.getElementById("openstockstradepage");
+    if (!root) return;
+
+    // обновляем только когда страница реально показана
+    if (root.style.display === "none") return;
+
+    const sym = (window.STOCKS_TRADE_SELECTED || "AAPL").toUpperCase();
+
+    // 1) обновить верхние значения / кнопку Buy
+    window.__stocksTradeSetSelected?.(sym);
+    window.STOCKS_TRADE_SELECTED = (sym || "").toUpperCase();
+window.AX_ACTIVE_CHART_SOURCE = "stocks";
+
+
+    // 2) если открыт список — обновить цены/проценты в списке
+    const dd = root.querySelector(".pair-dd");
+    const isOpen = dd && dd.style.display === "block";
+    if (isOpen) window.__stocksTradeRenderList?.();
+    window.STOCKS_TRADE_SELECTED = (sym || "").toUpperCase();
+window.AX_ACTIVE_CHART_SOURCE = "stocks";
+
+  }, 500); // как в spot обычно 300–800мс, поставил 500мс
+}
+  window.__stocksTradeRenderList = renderList;
+window.setSelectedStockTrade = setSelectedStock; // (если уже есть — не дублируй)
+})();
+
+
+const FINNHUB_TOKEN = "d59je4pr01qgqlm0l6ngd59je4pr01qgqlm0l6o0";
+const FINNHUB_BASE = "https://finnhub.io/api/v1";
+
+async function fetchStockQuote(sym){
+  const r = await fetch(`${FINNHUB_BASE}/quote?symbol=${encodeURIComponent(sym)}&token=${encodeURIComponent(FINNHUB_TOKEN)}`, { cache: "no-store" });
+  if (!r.ok) throw new Error("quote " + r.status);
+  const j = await r.json();
+  // j.c = current price
+  return { price: Number(j.c) };
+}
+
+async function fetchStockCandles(sym, tf){
+  // маппинг tf → resolution Finnhub
+  const resMap = { "1m":"1", "5m":"5", "15m":"15", "1h":"60", "4h":"240", "1d":"D" };
+  const resolution = resMap[tf] || "1";
+  const to = Math.floor(Date.now()/1000);
+  const from = to - 60*60*24*7; // например неделя истории
+
+  const url = `${FINNHUB_BASE}/stock/candle?symbol=${encodeURIComponent(sym)}&resolution=${encodeURIComponent(resolution)}&from=${from}&to=${to}&token=${encodeURIComponent(FINNHUB_TOKEN)}`;
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error("candles " + r.status);
+  const j = await r.json();
+  if (j.s !== "ok") return [];
+
+  // Finnhub: t,o,h,l,c массивами, t в секундах
+  return j.t.map((t,i)=>({
+    t: t*1000,
+    o: Number(j.o[i]),
+    h: Number(j.h[i]),
+    l: Number(j.l[i]),
+    c: Number(j.c[i])
+  }));
+}
+
+
+
+function openstockstradepage() {
+  hideAuth();
+  exitSpotMode();
+  hideAllPages();
+  exitTradingMode();
+  resetTopbarTheme();
+  enableStocksTradeLive();   // включает live-режим
+startStocksTicker();       // запускает запросы /api/stocks/quotes
+stopStocksTradeTicker();
+  const hero = document.querySelector(".hero");
+  const firstMarkets = document.querySelectorAll(".markets")[0];
+  const forexSection = document.querySelector("#forex");
+  const stocksSection = document.querySelector("#stocks");
+
+  const cryptoPage = document.querySelector("#crypto-page");
+  const forexPage = document.querySelector("#forex-page");
+  const stocksPage = document.querySelector("#stocks-page");
+
+  // 🔥 НОВАЯ СТРАНИЦА
+  const stocksTradePage = document.querySelector("#openstockstradepage");
+
+  const steps = document.querySelector("#steps");
+  const faq = document.querySelector("#faq");
+  const partners = document.querySelector(".partners-strip");
+
+  const aboutPage = document.querySelector("#about-page");
+  const newsPage = document.querySelector("#news-page");
+  const blogPage = document.querySelector("#blog-page");
+
+  const chatPage = document.getElementById("chat-page");
+  const feedbackPage = document.getElementById("feedback-page");
+  const feesPage = document.getElementById("fees-page");
+  const agreementPage = document.getElementById("agreement-page");
+  const privacyPage = document.getElementById("privacy-page");
+  const disclaimerPage = document.getElementById("disclaimer-page");
+  const riskPage = document.getElementById("risk-page");
+  document.body.classList.add("stocks-trade-mode");
+  document.documentElement.classList.add("stocks-trade-mode");
+  // ─── скрываем всё ───
+  [
+    chatPage, feedbackPage, feesPage, agreementPage,
+    privacyPage, disclaimerPage, riskPage,
+    newsPage, blogPage, aboutPage,
+    hero, firstMarkets, forexSection, stocksSection,
+    steps, faq, partners,
+    cryptoPage, forexPage, stocksPage
+  ].forEach(el => {
+    if (el) el.style.display = "none";
+  });
+
+  // ─── показываем ТОЛЬКО новую страницу ───
+  if (stocksTradePage) stocksTradePage.style.display = "block";
+  window.AX_ACTIVE_CHART_SOURCE = "stocks";
+  try{ window.mountSharedChart && window.mountSharedChart("stocks"); }catch(e){}
+  try{ window.rebuildStockChartForSelectedSymbol && window.rebuildStockChartForSelectedSymbol(__lastChartTF); }catch(e){}
+  if (loginPage) loginPage.style.display = "none";
+  
+
+  initStocksTradeUI();
+  startStocksTradeTicker();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  location.hash = "stocks-trade";
+}
+
+function openforextradepage() {
+  hideAuth();
+  exitSpotMode();
+  hideAllPages();
+hideHomeSections();
+setFooterVisible(false);
+  // снимаем режимы других спец-страниц
+  document.documentElement.classList.remove("stocks-trade-mode");
+  document.body.classList.remove("stocks-trade-mode");
+
+  // включаем forex режим
+  document.documentElement.classList.add("forex-trade-mode");
+  document.body.classList.add("forex-trade-mode");
+
+  // ─── скрываем главную и остальные секции (чтобы не торчали сверху) ───
+  const hero = document.querySelector(".hero");
+  const firstMarkets = document.querySelectorAll(".markets")[0];
+  const forexSection = document.querySelector("#forex");
+  const stocksSection = document.querySelector("#stocks");
+  const steps = document.querySelector("#steps");
+  const faq = document.querySelector("#faq");
+  const partners = document.querySelector("#partners");
+
+  const cryptoPage = document.querySelector("#crypto-page");
+  const forexPage  = document.querySelector("#forex-page");
+  const stocksPage = document.querySelector("#stocks-page");
+
+  const newsPage = document.getElementById("news-page");
+  const blogPage = document.getElementById("blog-page");
+  const aboutPage = document.getElementById("about-page");
+  const chatPage = document.getElementById("chat-page");
+
+  [
+    hero, firstMarkets, forexSection, stocksSection, steps, faq, partners,
+    cryptoPage, forexPage, stocksPage,
+    newsPage, blogPage, aboutPage, chatPage
+  ].forEach(el => { if (el) el.style.display = "none"; });
+
+
+  // спрячь все остальные страницы/секции (как ты уже делаешь)
+  hideAllPages?.(); // если есть
+  const stocksTrade = document.getElementById("openstockstradepage");
+  if (stocksTrade) stocksTrade.style.display = "none";
+
+  const forexTrade = document.getElementById("openforextradepage");
+  if (forexTrade) forexTrade.style.display = "block";
+
+  window.scrollTo({ top: 0, behavior: "auto" });
+  history.replaceState(null, "", "#openforextradepage");
+  setTopbarForexTheme();
+// === FORCE REMOVE TOP OFFSET IN FOREX ===
+requestAnimationFrame(() => {
+  const forexPage = document.getElementById("openforextradepage");
+  const main = document.querySelector("main");
+
+  if (forexPage) {
+    forexPage.style.paddingTop = "78px";
+    forexPage.style.marginTop = "0";
+  }
+
+  if (main) {
+    main.style.marginTop = "0";
+    main.style.paddingTop = "0";
+  }
+
+  // на всякий случай — первый блок внутри
+  if (forexPage && forexPage.firstElementChild) {
+    forexPage.firstElementChild.style.marginTop = "0";
+  }
+});
+
+}
+
+function setTopbarForexTheme() {
+  const header = document.querySelector("header.topbar-wrapper");
+  const topbar  = document.querySelector(".topbar");
+  if (!header) return;
+
+  // сохраняем текущие inline-стили, чтобы можно было восстановить
+  if (header.dataset.prevStyle == null) header.dataset.prevStyle = header.getAttribute("style") || "";
+  if (topbar && topbar.dataset.prevStyle == null) topbar.dataset.prevStyle = topbar.getAttribute("style") || "";
+
+  // применяем forex-вид
+  header.style.position = "fixed";
+  header.style.top = "0";
+  header.style.left = "0";
+  header.style.right = "0";
+  header.style.zIndex = "20000";
+  header.style.background = "#000";
+  header.style.backgroundImage = "none";
+  header.style.boxShadow = "none";
+  header.style.backdropFilter = "none";
+
+  if (topbar) {
+    topbar.style.background = "#000";
+    topbar.style.backgroundImage = "none";
+    topbar.style.boxShadow = "none";
+  }
+}
+
+function resetTopbarTheme() {
+  const header = document.querySelector("header.topbar-wrapper");
+  const topbar  = document.querySelector(".topbar");
+  if (!header) return;
+
+  // откатываем именно то, что меняли (inline)
+  header.setAttribute("style", header.dataset.prevStyle || "");
+  delete header.dataset.prevStyle;
+
+  if (topbar) {
+    topbar.setAttribute("style", topbar.dataset.prevStyle || "");
+    delete topbar.dataset.prevStyle;
+  }
+}
+
 
 
 // ===== FIX: exitSpotMode was removed during futures cleanup; keep navigation working =====
@@ -9088,8 +10565,12 @@ function exitSpotMode(){
 }
 
 function openHomePage() {
+  resetTopbarTheme();
+  hideAllPages()
   exitSpotMode();
   hideAuth();
+  exitTradeModes(); 
+  stopStocksTradeTicker();
   // обёртки страниц
   const homePage = document.getElementById("home-page");
   const signupPage = document.getElementById("signup-page");
@@ -9154,6 +10635,9 @@ if (aboutPage) aboutPage.style.display = "none";
   window.scrollTo({ top: 0, behavior: "smooth" });
   location.hash = "home";
   document.body.classList.remove("cabinet-mode");
+  document.body.classList.remove("stocks-trade-mode");
+  document.documentElement.classList.remove("stocks-trade-mode");
+  
 }
 
 function hideAuth() {
@@ -9479,13 +10963,76 @@ const stockmap = {
   bhp: { name: "BHP Group", symbol: "BHP", sector: "materials" },
   mt:  { name: "ArcelorMittal", symbol: "MT", sector: "materials" },
   shw: { name: "Sherwin-Williams", symbol: "SHW", sector: "materials" }
+  
 };
+
+
 
 // ===================== SYNTHETIC STOCKS (без API) =====================
 
 const stockState = {};
 const STOCK_HISTORY_POINTS = 40;
 const STOCK_STORAGE_KEY = "astrax_stock_state_v1"; // <-- добавили ключ
+window.stockmap = stockmap;
+window.stockState = stockState;
+
+// === LIVE ONLY FOR STOCKS TRADE ===
+window.__STOCKS_TRADE_LIVE__ = false;
+
+function enableStocksTradeLive(){
+  window.__STOCKS_TRADE_LIVE__ = true;
+}
+
+function disableStocksTradeLive(){
+  window.__STOCKS_TRADE_LIVE__ = false;
+}
+
+// ===================== STOCKS TRADE ONLY TICKER =====================
+let __STOCKS_TRADE_TICKER__ = null;
+
+function tickStocksForTradeOnly(){
+  // двигаем state, но НЕ обновляем страницу Stocks
+  Object.values(window.stockState || {}).forEach(st => {
+    if (!st || typeof st.price !== "number") return;
+
+    const drift = 1 + (Math.random() - 0.5) * 0.007; // +-0.35%
+    st.price = Math.max(0.5, st.price * drift);
+
+    if (typeof st.volume === "number") {
+      st.volume = Math.max(0, st.volume * (0.96 + Math.random() * 0.08));
+    }
+    if (!Array.isArray(st.history)) st.history = [];
+    st.history.push(st.price);
+    if (st.history.length > 40) st.history.shift();
+  });
+
+  // обновить ВЕРХНЮЮ ПАНЕЛЬ stockstrade
+  if (window.STOCKS_TRADE_SELECTED && window.setSelectedStockTrade) {
+    window.setSelectedStockTrade(window.STOCKS_TRADE_SELECTED);
+  }
+
+  // если открыт dropdown на stockstrade — обновить список
+  if (window.__stocksTradeRenderList) {
+    const root = document.getElementById("openstockstradepage");
+    const dd = root?.querySelector(".pair-dd");
+    if (dd && dd.style.display === "block") {
+      window.__stocksTradeRenderList();
+    }
+  }
+}
+
+function startStocksTradeTicker(){
+  if (!window.__STOCKS_TRADE_LIVE__) return;
+  if (__STOCKS_TRADE_TICKER__) return;
+  __STOCKS_TRADE_TICKER__ = setInterval(tickStocksForTradeOnly, 1000);
+}
+
+function stopStocksTradeTicker(){
+  if (!__STOCKS_TRADE_TICKER__) return;
+  clearInterval(__STOCKS_TRADE_TICKER__);
+  __STOCKS_TRADE_TICKER__ = null;
+}
+
 
 // базовая цена по сектору, чтобы всё выглядело логично
 function getSyntheticBasePrice(sector) {
@@ -9508,6 +11055,20 @@ function getSyntheticBasePrice(sector) {
 
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+function exitTradeModes(){
+  // снять режимы
+  document.documentElement.classList.remove("forex-trade-mode","stocks-trade-mode");
+  document.body.classList.remove("forex-trade-mode","stocks-trade-mode");
+
+  // спрятать trade-страницы
+  const fx = document.getElementById("openforextradepage");
+  const st = document.getElementById("openstockstradepage");
+  if (fx) fx.style.display = "none";
+  if (st) st.style.display = "none";
+  stopStocksTradeTicker();
 }
 
 
@@ -9633,6 +11194,60 @@ function updateStockDom(state) {
     }
   });
 }
+
+// ===================== LIVE TICK (synthetic) =====================
+let __STOCKS_TICKER__ = null;
+let __STOCKS_TICK_COUNT__ = 0;
+
+async function tickRealStocks(){
+  if (!window.stockState) return;
+
+  // соберём символы, которые реально используешь
+  const symbols = Object.keys(window.stockState); // или Object.values(stockmap).map(x=>x.symbol)
+  if (!symbols.length) return;
+
+  // ⚠️ ВАЖНО: это должен быть ТВОЙ backend endpoint (иначе CORS/ключи/лимиты)
+  const resp = await fetch(`/api/stocks/quotes?symbols=${encodeURIComponent(symbols.join(","))}`);
+  const data = await resp.json();
+  // ожидаем формат: { AAPL: { price: 189.12, volume: 12345 }, MSFT: {...} }
+
+  for (const sym of symbols){
+    const q = data[sym];
+    if (!q || !Number.isFinite(+q.price)) continue;
+
+    const st = window.stockState[sym];
+    st.price = +q.price;
+    if (Number.isFinite(+q.volume)) st.volume = +q.volume;
+
+    // поддерживаем history для sparkline (у тебя так же сделано в synthetic)
+    if (!Array.isArray(st.history)) st.history = [];
+    st.history.push(st.price);
+    if (st.history.length > STOCK_HISTORY_POINTS) st.history.shift();
+
+    updateStockDom(st); // у тебя уже есть
+  }
+
+  // обновить stockstrade UI выбранной акции — это у тебя уже предусмотрено в тикере
+  if (window.STOCKS_TRADE_SELECTED && window.setSelectedStockTrade) {
+    window.setSelectedStockTrade(window.STOCKS_TRADE_SELECTED);
+  }
+
+  // и чтобы последняя свеча подтянулась к новой цене:
+  window.__syncSelectedStockPriceToChart?.();
+}
+
+
+function startStocksTicker(){
+  if (__STOCKS_TICKER__) return;
+  __STOCKS_TICKER__ = setInterval(tickRealStocks, 1500); // 1.5 сек как “живой” рынок
+}
+
+function stopStocksTicker(){
+  if (!__STOCKS_TICKER__) return;
+  clearInterval(__STOCKS_TICKER__);
+  __STOCKS_TICKER__ = null;
+}
+
 
 
 // ===================== РЕНДЕР СТРОК ДЛЯ STOCKS PAGE =====================
@@ -9870,7 +11485,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadCryptoOnce();
   loadForexOnce();
-    initSyntheticStocks();  // теперь вызывается, когда весь скрипт уже выполнен, stockmap существует
+    initSyntheticStocks(); 
+    startStocksTicker(); // теперь вызывается, когда весь скрипт уже выполнен, stockmap существует
 });
 // ======= ПЕРЕКЛЮЧЕНИЕ HOME / SIGNUP =======
 
@@ -10083,6 +11699,8 @@ function openResetConfirmPage() {
 
   // Функция открытия страницы входа
   function openLoginPage() {
+    hideAllPages();
+    resetTopbarTheme();
     if (signupPage) signupPage.style.display = "none";
     if (homePage) homePage.style.display = "none";
     loginPage.style.display = "flex";
@@ -10092,6 +11710,7 @@ function openResetConfirmPage() {
 
   // Функция открытия регистрации
   function openSignupPage() {
+    resetTopbarTheme();
     loginPage.style.display = "none";
     if (homePage) homePage.style.display = "none";
     signupPage.style.display = "flex";
@@ -10279,6 +11898,18 @@ function applyAuthUI(){
   }
 }
 
+function setFooterVisible(visible){
+  const footer = document.querySelector("footer.footer");
+  if (!footer) return;
+  footer.style.display = visible ? "" : "none";
+}
+
+function exitTradeModes(){
+  document.body.classList.remove("forex-trade-mode", "stocks-trade-mode");
+  document.documentElement.classList.remove("forex-trade-mode", "stocks-trade-mode");
+  setFooterVisible(true);
+  stopStocksTradeTicker();
+}
 
 window.addEventListener("load", () => {
   applyAuthUI();
@@ -10320,11 +11951,24 @@ function hideAllPages() {
     "agreement-page","privacy-page","disclaimer-page","risk-page",
     "crypto-page","forex-page","stocks-page",
     "signup-page","login-page","reset-email-page","reset-confirm-page",
-    "chat-page","feedback-page","cabinet-page","fees-page", "deposit-page"
+    "chat-page","feedback-page","cabinet-page","fees-page", "deposit-page",
+    "openstockstradepage", "openforextradepage"
   ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = "none";
   });
+  document.body.classList.remove("stocks-trade-mode");
+document.documentElement.classList.remove("stocks-trade-mode");
+document.body.style.overflow = "";
+document.documentElement.style.overflow = "";
+document.body.style.position = "";
+document.body.style.top = "";
+  document.body.classList.remove("forex-trade-mode");
+document.documentElement.classList.remove("forex-trade-mode");
+document.body.style.overflow = "";
+document.documentElement.style.overflow = "";
+document.body.style.position = "";
+document.body.style.top = "";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -10692,6 +12336,8 @@ function openTradingPage(mode){
 
   const sp = document.getElementById("spot-page");
   if (sp) sp.style.display = "block";
+  window.AX_ACTIVE_CHART_SOURCE = "spot";
+  try{ window.mountSharedChart && window.mountSharedChart("spot"); }catch(e){}
 
   // режим (визуально один и тот же терминал, но разный "контекст" страницы)
   if (mode === "futures") {
@@ -10723,7 +12369,7 @@ function openSpotPage() { openTradingPage("spot"); }
     if (typeof fn === 'function') { fn(); return true; }
     return false;
   }
-
+document.documentElement.classList.remove("stocks-trade-mode");
   document.addEventListener('click', function (e) {
     const a = e.target.closest('a, button, [role="button"], .clickable');
     if (!a) return;
@@ -10759,12 +12405,12 @@ function openSpotPage() { openTradingPage("spot"); }
     }
     if (text === 'forex') {
       e.preventDefault();
-      safeCall('openForexPage') || (location.hash = '#forex');
+      safeCall('openForexpPage') || (location.hash = '#forex');
       return;
     }
     if (text === 'stocks') {
       e.preventDefault();
-      safeCall('openStocksPage') || (location.hash = '#stocks');
+      safeCall('openStockspPage') || (location.hash = '#stocks');
       return;
     }
 
@@ -10903,7 +12549,7 @@ function spotRefreshUI(){
 
   // v24: if UI pair changed but chart didn't rebuild (e.g., after SIM clear / async), force rebuild
   try{
-    if (window.SPOT_SELECTED && window.__chartActiveKey && window.SPOT_SELECTED !== window.__chartActiveKey) {
+    if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks' && window.SPOT_SELECTED && window.__chartActiveKey && window.SPOT_SELECTED !== window.__chartActiveKey) {
       // prevent loops
       window.__chartActiveKey = window.SPOT_SELECTED;
       if (typeof rebuildChartForSelectedPair === "function") rebuildChartForSelectedPair(__lastChartTF);
@@ -10912,7 +12558,7 @@ function spotRefreshUI(){
 
 // Re-render top stats + order book using the same price source as the chart.
   try{
-    if (window.SPOT_SELECTED && typeof renderPair === "function") renderPair(window.SPOT_SELECTED);
+    if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks' && window.SPOT_SELECTED && typeof renderPair === "function") renderPair(window.SPOT_SELECTED);
   }catch(e){}
   try{
     if (typeof renderOrderBook === "function" && typeof __obLatest !== "undefined" && __obLatest){
@@ -11038,7 +12684,7 @@ function startSpotLive(){
     }
 
     // обновляем UI:
-    if (window.SPOT_SELECTED && (!window.CHART_SIM || CHART_SIM.mode === "off")) renderPair(window.SPOT_SELECTED);
+    if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks' && window.SPOT_SELECTED && (!window.CHART_SIM || CHART_SIM.mode === "off")) renderPair(window.SPOT_SELECTED);
     if (pairWrap?.classList.contains("open")) {
       renderPairList(searchEl.value || "");
     }
@@ -11414,7 +13060,7 @@ async function bridgeHistoryToSpotIfNeeded(pairKey, tf, reqId){
         // append to chart + history
         try{
           HISTORY.candles.push(candle);
-          window.AX_CHART?.setCandles(HISTORY.candles);
+          if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks') window.AX_CHART?.setCandles(HISTORY.candles);
         }catch(e){}
 
         // advance CHART_SIM current candle so UI (top price/orderbook) matches
@@ -11457,7 +13103,7 @@ async function initHistory(symbol, interval, reqId) {
   if (reqId !== __chartReqId) return false;
 
   if (!chunk.length) {
-    window.AX_CHART?.setCandles([]);
+    if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks') window.AX_CHART?.setCandles([]);
     return true;
   }
 
@@ -11524,7 +13170,7 @@ try{
   }
 }catch(e){}
 if (reqId !== __chartReqId) return false;
-window.AX_CHART?.setCandles(HISTORY.candles);
+if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks') window.AX_CHART?.setCandles(HISTORY.candles);
 
 // resume simulation if it was active before reload
 if (__resumeSimDir) {
@@ -11559,7 +13205,7 @@ async function loadOlderIfNeeded() {
     HISTORY.candles = mapped.concat(HISTORY.candles);
     HISTORY.oldestOpenTime = HISTORY.candles[0].t;
 
-    window.AX_CHART?.setCandles(HISTORY.candles);
+    if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks') window.AX_CHART?.setCandles(HISTORY.candles);
   } finally {
     HISTORY.loading = false;
   }
@@ -11597,7 +13243,7 @@ const stamp = key + "|" + tf;
 
 // 🧹 clear previous chart immediately so old pair doesn't "stick" during async load
 try { closeKlineWS(); } catch {}
-try { window.AX_CHART?.setCandles([]); } catch {}
+try { if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks') window.AX_CHART?.setCandles([]); } catch {}
 
 // ✅ hard reset of all live/sim state so new pair never inherits old zoom/shift/ticks
 try {
@@ -11716,7 +13362,9 @@ function startKlineWS(symbol, interval){
     const shift = Number(LIVE_FEED.timeShiftMs) || 0;
     const candle = { ...candleRaw, t: candleRaw.t + shift };
 
-    if (window.AX_CHART?.updateLast) window.AX_CHART.updateLast(candle);
+    if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks') {
+  window.AX_CHART?.updateLast(candle);
+}
 
     // sync HISTORY without wiping synthetic candles
     if (Array.isArray(HISTORY.candles)) {
@@ -12053,14 +13701,16 @@ function startChartSim(dir) {
   if (prev && prev.t === CHART_SIM.cur.t) HISTORY.candles[HISTORY.candles.length - 1] = CHART_SIM.cur;
   else HISTORY.candles.push(CHART_SIM.cur);
 
-  if (window.AX_CHART?.updateLast) window.AX_CHART.updateLast(CHART_SIM.cur);
+  if (window.AX_ACTIVE_CHART_SOURCE !== 'stocks') {
+  window.AX_CHART?.updateLast(CHART_SIM.cur);
+}
 
   // не плодим несколько таймеров
   stopChartSimTimer();
 
   CHART_SIM.timer = setInterval(() => {
     if (CHART_SIM.mode === "off") return;
-    if (!window.AX_CHART?.updateLast) return;
+    if (window.AX_ACTIVE_CHART_SOURCE === 'stocks') return;
     if (!Array.isArray(HISTORY.candles) || HISTORY.candles.length === 0) return;
 
     // защитно: если cur потеряли — восстановим
@@ -12140,7 +13790,7 @@ function startChartSim(dir) {
           // просто возвращаемся к live-потоку и размьючиваем.
           stopChartSimTimer();
           CHART_SIM.mode = "off";
-  try{ localStorage.setItem("astrax_ui_sim_on_v1","0"); }catch(e){}
+      try{ localStorage.setItem("astrax_ui_sim_on_v1","0"); }catch(e){}
 
           CHART_SIM.dir = 0;
           CHART_SIM.target = null;
@@ -12157,7 +13807,9 @@ function startChartSim(dir) {
             // применяем live candle поверх последней синтетической свечи (в тот же timestamp)
             const shifted = { ...raw, t: raw.t + (Number(LIVE_FEED.timeShiftMs) || 0) };
 
-            if (window.AX_CHART?.updateLast) window.AX_CHART.updateLast(shifted);
+            if (window.AX_ACTIVE_CHART_SOURCE === 'stocks') {
+  window.AX_CHART?.updateLast?.(shifted);
+}
 
             const li = HISTORY.candles.length - 1;
             if (HISTORY.candles[li]?.t === shifted.t) HISTORY.candles[li] = shifted;
@@ -12226,7 +13878,7 @@ document.querySelectorAll(".pair-tab").forEach(t => {
     e.stopPropagation(); // важно
     document.querySelectorAll(".pair-tab").forEach(x => x.classList.remove("active"));
     t.classList.add("active");
-    ACTIVE_TAB = t.dataset.tab;
+    ACTIVE_TAB = (t.dataset.tab === "fav") ? "favorites" : t.dataset.tab;
     renderPairList(searchEl.value || "");
   });
 });
@@ -12276,7 +13928,11 @@ document.addEventListener("click", (e) => {
   
   try{ localStorage.setItem("astrax_ui_chart_tf_v1", tf); }catch(e){}
 // сюда потом добавишь перерисовку графика / запрос данных
-  rebuildChartForSelectedPair(tf);
+  if (window.AX_ACTIVE_CHART_SOURCE === "stocks") {
+    if (typeof rebuildStockChartForSelectedSymbol === "function") rebuildStockChartForSelectedSymbol(tf);
+  } else {
+    rebuildChartForSelectedPair(tf);
+  }
 });
 
 
@@ -12878,6 +14534,9 @@ drawLastPrice(w, h, last, prev, min, max);
       draw();
     },
 
+    resize(){ try{ resize(); }catch(e){} },
+
+
     redraw: draw,
   };
 
@@ -13001,6 +14660,21 @@ document.addEventListener("DOMContentLoaded", () => {
   setActive(initial);
 })();
 
+
+
+function openForexpPage(){
+  hideAllPages();
+  document.body.className = ''; // сброс режимов
+  document.getElementById('forex-page').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function openStockspPage(){
+  hideAllPages();
+  document.body.className = '';
+  document.getElementById('stocks-page').style.display = 'block';
+  window.scrollTo(0,0);
+}
 
 </script>
 
@@ -13286,515 +14960,183 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 <script>
-/* ================= SPOT TRADING LOGIC (UI) =================
-   - Limit: Price/Amount/Total sync
-   - Percent buttons use Available balance
-   - Place order -> Open Orders
-   - Cancel order
-   - Persists orders + balances in localStorage
+/* ===== AstraX Spot: unified trading logic (cleaned) =====
+   Features:
+   - Wallet reset each refresh: 1000 USDT / 0 BTC
+   - Limit orders -> Open Orders with reserved balance
+   - Cancel order -> Order History (cancelled)
+   - Auto-fill limit when price crosses
+   - Market orders -> instant fill + Trade History + Order History (filled)
+   - Last price button, percent slider, locale-safe numbers
+   - Pair-aware labels & histories
 */
 (function(){
-  if (window.__spotTradingLogicV1) return;
-  window.__spotTradingLogicV1 = true;
+  if (window.__astraxSpotUnifiedV1) return;
+  window.__astraxSpotUnifiedV1 = true;
 
-  const LS_ORDERS = "spot_orders_v1";
-  const LS_BAL = "spot_balances_v1";
+  const LS_OPEN   = "spot_orders";          // open orders
+  const LS_TRADES = "spot_trades";          // fills (market + limit fills)
+  const LS_HIST   = "spot_order_history";   // order history (filled/cancelled)
 
-  const DEFAULT_BAL = { USDT: 10000, BTC: 0.25 };
-  const state = {
-    pair: "BTC/USDT",
-    base: "BTC",
-    quote: "USDT",
-    orders: [],
-    balances: { ...DEFAULT_BAL }
+  // Reset wallet each refresh (test mode)
+  window.__WALLET__ = { USDT: 1000, BTC: 0 };
+
+  const $  = (s, r=document)=> r.querySelector(s);
+  const $$ = (s, r=document)=> Array.from((r||document).querySelectorAll(s));
+
+  const num = (v)=>{
+    if(v===null || v===undefined) return NaN;
+    // allow: "88 000,12", "88000.12", etc.
+    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
   };
 
-  try{
-    const savedBal = JSON.parse(localStorage.getItem(LS_BAL) || "null");
-    if(savedBal && typeof savedBal === "object") state.balances = { ...state.balances, ...savedBal };
-  }catch(_){}
-  try{
-    const savedOrders = JSON.parse(localStorage.getItem(LS_ORDERS) || "[]");
-    if(Array.isArray(savedOrders)) state.orders = savedOrders;
-  }catch(_){}
+  const nowId = ()=> (Date.now() + Math.floor(Math.random()*100000)).toString(16);
 
-  function $(sel, root=document){ return root.querySelector(sel); }
-  function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
-
-  function onReady(fn){
-    if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn, {once:true});
-    else fn();
+  function readJSON(key, fallback){
+    try{
+      const v = JSON.parse(localStorage.getItem(key) || "null");
+      return (v===null || v===undefined) ? fallback : v;
+    }catch(e){ return fallback; }
+  }
+  function writeJSON(key, val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
   }
 
-  onReady(() => {
-    const priceInput  = $("#tradePrice");
-    const amountInput = $("#tradeAmount");
-    const totalInput  = $("#tradeTotal");
-    const submitBtn   = $("#tradeSubmit");
-
-    const availAmtEl  = $("#tradeAvailAmt");
-    const availCcyEl  = $("#tradeAvailCcy");
-
-    const sideBtns = $all(".bs-btn");
-    const typeBtns = $all(".type-btn");
-    const pctBtns  = $all('[data-p]'); // your 0/25/50/75/100 buttons
-
-    if(!priceInput || !amountInput || !totalInput || !submitBtn){
-      console.warn("[spot] trade inputs not found; logic not attached");
-      return;
-    }
-
-    // Guess current market price from the UI (price label in pair header) if available
-    function readMarketPrice(){
-      const el = document.querySelector(".pair-price") || document.querySelector("#pairPrice") || null;
-      if(el){
-        const v = parseFloat(String(el.textContent).replace(/[^0-9.]/g,""));
-        if(!Number.isNaN(v) && v>0) return v;
-      }
-      // fallback: keep last / or use price input
-      const pv = parseFloat(priceInput.value);
-      return (!Number.isNaN(pv) && pv>0) ? pv : 88000;
-    }
-
-    function currentSide(){
-      return $(".bs-btn.active")?.dataset.side || "buy";
-    }
-    function currentType(){
-      return $(".type-btn.active")?.dataset.otype || "limit";
-    }
-
-    function save(){
-      try{ localStorage.setItem(LS_ORDERS, JSON.stringify(state.orders)); }catch(_){}
-      try{ localStorage.setItem(LS_BAL, JSON.stringify(state.balances)); }catch(_){}
-    }
-
-    function setAvailableUI(){
-      const side = currentSide();
-      if(side === "buy"){
-        if(availAmtEl) availAmtEl.textContent = (state.balances.USDT ?? 0).toFixed(2);
-        if(availCcyEl) availCcyEl.textContent = "USDT";
-      }else{
-        if(availAmtEl) availAmtEl.textContent = (state.balances.BTC ?? 0).toFixed(6);
-        if(availCcyEl) availCcyEl.textContent = "BTC";
-      }
-    }
-
-    // Prevent infinite loops when syncing fields
-    let lock = false;
-    function setVal(el, v){
-      if(!el) return;
-      el.value = v;
-    }
-
-    function syncFromAmount(){
-      if(lock) return;
-      const p = parseFloat(priceInput.value);
-      const a = parseFloat(amountInput.value);
-      if(!(p>0) || !(a>=0)) return;
-      lock = true;
-      setVal(totalInput, (p * a).toFixed(2));
-      lock = false;
-    }
-    function syncFromTotal(){
-      if(lock) return;
-      const p = parseFloat(priceInput.value);
-      const t = parseFloat(totalInput.value);
-      if(!(p>0) || !(t>=0)) return;
-      lock = true;
-      setVal(amountInput, (t / p).toFixed(6));
-      lock = false;
-    }
-
-    priceInput.addEventListener("input", () => {
-      // If user edits price, recompute whichever is filled (amount -> total)
-      syncFromAmount();
-    });
-    amountInput.addEventListener("input", syncFromAmount);
-    totalInput.addEventListener("input", syncFromTotal);
-
-    // Percent buttons (0/25/50/75/100)
-    pctBtns.forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        const pct = parseFloat(btn.getAttribute("data-p") || "0") / 100;
-        const side = currentSide();
-        const price = parseFloat(priceInput.value) || readMarketPrice();
-
-        lock = true;
-        if(side === "buy"){
-          const usdt = (state.balances.USDT || 0) * pct;
-          setVal(totalInput, usdt.toFixed(2));
-          setVal(amountInput, (usdt / price).toFixed(6));
-        }else{
-          const btc = (state.balances.BTC || 0) * pct;
-          setVal(amountInput, btc.toFixed(6));
-          setVal(totalInput, (btc * price).toFixed(2));
-        }
-        lock = false;
-      });
-    });
-
-    // Side buttons: update available + submit label
-    sideBtns.forEach(b=>{
-      b.addEventListener("click", ()=>{
-        sideBtns.forEach(x=>x.classList.remove("active"));
-        b.classList.add("active");
-        setAvailableUI();
-
-        // Update submit button text
-        const side = currentSide();
-        submitBtn.textContent = (side === "buy" ? "Buy " : "Sell ") + state.base;
-      });
-    });
-
-    // Type buttons: just toggle active
-    typeBtns.forEach(b=>{
-      b.addEventListener("click", ()=>{
-        typeBtns.forEach(x=>x.classList.remove("active"));
-        b.classList.add("active");
-      });
-    });
-
-    // Ensure limit price prefilled once
-    if(currentType() === "limit" && !priceInput.value){
-      priceInput.value = readMarketPrice().toFixed(2);
-    }
-
-    // Open Orders rendering
-    function ensureRowsHost(panel){
-      let host = panel.querySelector(".orders-rows");
-      if(!host){
-        host = document.createElement("div");
-        host.className = "orders-rows";
-        const head = panel.querySelector(".orders-head");
-        if(head) head.insertAdjacentElement("afterend", host);
-        else panel.appendChild(host);
-      }
-      return host;
-    }
-
-    function renderOpenOrders(){
-      const panel = document.querySelector('[data-panel="open"]');
-      if(!panel) return;
-      const host = ensureRowsHost(panel);
-      const empty = panel.querySelector(".orders-empty");
-
-      host.innerHTML = "";
-
-      const open = state.orders.filter(o => o.status === "open");
-      // update tab counter if present
-      const tabOpen = document.querySelector('.orders-tab[data-tab="open"]');
-      if(tabOpen) tabOpen.textContent = `Open Orders (${open.length})`;
-
-      if(!open.length){
-        if(empty) empty.style.display = "grid";
-        return;
-      }
-      if(empty) empty.style.display = "none";
-
-      open.forEach(o=>{
-        const row = document.createElement("div");
-        row.className = "order-row";
-        row.innerHTML = `
-          <div>${o.pair}</div>
-          <div>${new Date(o.ts).toLocaleTimeString()}</div>
-          <div>${o.type}</div>
-          <div class="${o.side}">${o.side.toUpperCase()}</div>
-          <div>${Number(o.price).toFixed(2)}</div>
-          <div>${Number(o.amount).toFixed(6)}</div>
-          <div>${Number(o.filled||0).toFixed(6)}</div>
-          <div>—</div>
-          <div class="right"><button class="order-cancel" type="button" data-id="${o.id}">✕</button></div>
-        `;
-        host.appendChild(row);
-      });
-    }
-
-    // Cancel button (event delegation)
-    document.addEventListener("click", (e)=>{
-      const btn = e.target.closest(".order-cancel");
-      if(!btn) return;
-      const id = btn.getAttribute("data-id");
-      const ord = state.orders.find(o => String(o.id) === String(id));
-      if(!ord) return;
-      ord.status = "cancelled";
-      save();
-      renderOpenOrders();
-    });
-
-    // Place order
-    submitBtn.addEventListener("click", ()=>{
-      const side = currentSide();
-      const type = currentType();
-      const price = parseFloat(priceInput.value);
-      const amount = parseFloat(amountInput.value);
-
-      if(type === "limit" && !(price>0)) return alert("Enter price");
-      if(!(amount>0)) return alert("Enter amount");
-
-      const px = (type === "market") ? readMarketPrice() : price;
-      const cost = px * amount;
-
-      if(side === "buy"){
-        if(cost > (state.balances.USDT || 0)) return alert("Not enough USDT");
-        // Reserve funds like exchanges do (simple)
-        state.balances.USDT = (state.balances.USDT || 0) - cost;
-      }else{
-        if(amount > (state.balances.BTC || 0)) return alert("Not enough BTC");
-        state.balances.BTC = (state.balances.BTC || 0) - amount;
-      }
-
-      const order = {
-        id: (Date.now() + Math.random()).toString(16).replace(".",""),
-        pair: state.pair,
-        side,
-        type,
-        price: px,
-        amount,
-        filled: 0,
-        status: "open",
-        ts: Date.now()
-      };
-      state.orders.unshift(order);
-      save();
-      setAvailableUI();
-      renderOpenOrders();
-
-      // Clear amount/total like many exchanges (keep price)
-      amountInput.value = "";
-      totalInput.value = "";
-    });
-
-    // Initial UI sync
-    setAvailableUI();
-    renderOpenOrders();
-  });
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v1: balance reset + slider fills + last price button ===== */
-(function(){
-  // Always reset balance for testing
-  const BAL = { USDT: 1000, BTC: 0 };
-  // store on window for other scripts if needed
-  window.__TEST_BALANCES__ = BAL;
-
-  const elAvail = document.querySelector('.trade-available-val');
-  const elAvailSym = document.querySelector('.trade-available-sym');
-  if(elAvail) elAvail.textContent = BAL.USDT.toFixed(2);
-  if(elAvailSym) elAvailSym.textContent = 'USDT';
-
-  const priceInput  = document.getElementById('tradePrice');
-  const amountInput = document.getElementById('tradeAmount');
-  const totalInput  = document.getElementById('tradeTotal');
-  const slider      = document.getElementById('tradePct');
-  const lastBtn     = document.getElementById('lastPriceBtn');
-
-  // Helpers
-  function getSide(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
+  function getCurrentPair(){
+    const v = (typeof window.SPOT_SELECTED === "string" && window.SPOT_SELECTED.trim()) ? window.SPOT_SELECTED.trim() : "";
+    if(v) return v;
+    const el = document.getElementById("spot-pair-symbol");
+    const t = el ? (el.textContent||"").trim() : "";
+    return t || "BTC/USDT";
+  }
+  function baseQuote(pair){
+    const p = String(pair||"BTC/USDT").split("/");
+    return { base: p[0]||"BTC", quote: p[1]||"USDT" };
   }
 
-  function getLastPrice(){
-    // Prefer your existing last-price badge if present, else fallback to tradePrice value, else a sane default.
-    const badge = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price');
-    if(badge){
-      const v = parseFloat((badge.textContent||'').replace(/[^0-9.]/g,''));
+  function side(){
+    const b = document.querySelector(".bs-btn.active") || document.querySelector(".trade-bs-toggle .bs-btn.active");
+    const ds = b ? (b.getAttribute("data-side") || b.dataset.side || "") : "";
+    if(ds) return ds.toLowerCase()==="sell" ? "sell" : "buy";
+    const txt = (b?.textContent || "buy").toLowerCase();
+    return txt.includes("sell") ? "sell" : "buy";
+  }
+  function otype(){
+    const b = document.querySelector(".type-btn.active");
+    const dt = b ? (b.getAttribute("data-otype") || b.dataset.otype || "") : "";
+    if(dt) return dt.toLowerCase().includes("market") ? "market" : "limit";
+    const txt = (b?.textContent || "limit").toLowerCase();
+    return txt.includes("market") ? "market" : "limit";
+  }
+
+  function readLastPrice(){
+    const el = document.querySelector("#spot-last-price, .price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price, [data-last-price]");
+    if(el){
+      const v = num(el.textContent);
       if(Number.isFinite(v) && v>0) return v;
     }
-    const fromInput = parseFloat(priceInput?.value);
-    if(Number.isFinite(fromInput) && fromInput>0) return fromInput;
-    return 88127.97;
+    const inp = document.getElementById("tradePrice");
+    const v2 = inp ? num(inp.value) : NaN;
+    if(Number.isFinite(v2) && v2>0) return v2;
+    return 0;
   }
 
-  function syncFromAmount(){
-    const p = parseFloat(priceInput.value);
-    const a = parseFloat(amountInput.value);
-    if(Number.isFinite(p) && p>0 && Number.isFinite(a) && a>=0){
-      totalInput.value = (p*a).toFixed(2);
-    }
+  function openOrders(){
+    const arr = readJSON(LS_OPEN, []);
+    return Array.isArray(arr) ? arr : [];
+  }
+  function setOpenOrders(arr){
+    writeJSON(LS_OPEN, Array.isArray(arr) ? arr : []);
+  }
+  function trades(){
+    const arr = readJSON(LS_TRADES, []);
+    return Array.isArray(arr) ? arr : [];
+  }
+  function setTrades(arr){
+    writeJSON(LS_TRADES, Array.isArray(arr) ? arr : []);
+  }
+  function hist(){
+    const arr = readJSON(LS_HIST, []);
+    return Array.isArray(arr) ? arr : [];
+  }
+  function pushHist(entry){
+    const h = hist();
+    h.unshift(entry);
+    writeJSON(LS_HIST, h.slice(0, 2000));
+  }
+  // Back-compat hooks used elsewhere in file
+  window.__spotReadOrderHistory = ()=> hist();
+  window.__spotPushOrderHistory = (e)=> { try{ pushHist(e); }catch(_){ } };
+
+  function reservedQuoteUSDT(orders){
+    return orders
+      .filter(o => String(o.side).toLowerCase()==="buy" && String(o.type).toLowerCase()==="limit")
+      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
+  }
+  function reservedBase(orders, baseSym){
+    // reserve base for SELL limits
+    return orders
+      .filter(o => String(o.side).toLowerCase()==="sell" && String(o.type).toLowerCase()==="limit")
+      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
   }
 
-  function syncFromTotal(){
-    const p = parseFloat(priceInput.value);
-    const t = parseFloat(totalInput.value);
-    if(Number.isFinite(p) && p>0 && Number.isFinite(t) && t>=0){
-      amountInput.value = (t/p).toFixed(6);
-    }
-  }
+  function availableFor(sideNow){
+    const pair = getCurrentPair();
+    const { base, quote } = baseQuote(pair);
+    const orders = openOrders().filter(o => (o.pair||"") === pair);
 
-  if(priceInput){
-    priceInput.addEventListener('input', syncFromAmount);
-  }
-  if(amountInput){
-    amountInput.addEventListener('input', syncFromAmount);
-  }
-  if(totalInput){
-    totalInput.addEventListener('input', syncFromTotal);
-  }
-
-  // Last price button
-  if(lastBtn){
-    lastBtn.addEventListener('click', () => {
-      const p = getLastPrice();
-      priceInput.value = p.toFixed(2);
-      // if user already typed one of the fields, recalc the other
-      const a = parseFloat(amountInput.value);
-      const t = parseFloat(totalInput.value);
-      if(Number.isFinite(a) && a>0) syncFromAmount();
-      else if(Number.isFinite(t) && t>0) syncFromTotal();
-    });
-  }
-
-  // Slider: 0..100% of available balance, sets Total/Amount (and fills price if empty using last price)
-  if(slider){
-    slider.min = '0';
-    slider.max = '100';
-    slider.step = '1';
-    slider.addEventListener('input', () => {
-      const pct = (parseFloat(slider.value)||0)/100;
-      const p = parseFloat(priceInput.value) || getLastPrice();
-      if(!priceInput.value) priceInput.value = p.toFixed(2);
-
-      if(getSide()==='buy'){
-        const usdt = BAL.USDT * pct;
-        totalInput.value = usdt.toFixed(2);
-        amountInput.value = (usdt / p).toFixed(6);
-      } else {
-        const btc = BAL.BTC * pct;
-        amountInput.value = btc.toFixed(6);
-        totalInput.value = (btc * p).toFixed(2);
-      }
-    });
-  }
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v2: correct balance check + locale commas + override submit ===== */
-(function(){
-  const BAL = { USDT: 1000, BTC: 0 };
-  // Try to sync any existing global states used elsewhere
-  if(window.SPOT && window.SPOT.balances){
-    window.SPOT.balances.USDT = BAL.USDT;
-    window.SPOT.balances.BTC = BAL.BTC;
-  }
-  if(window.STATE && window.STATE.balances){
-    window.STATE.balances.USDT = BAL.USDT;
-    window.STATE.balances.BTC = BAL.BTC;
-  }
-
-  function num(v){
-    if(v === null || v === undefined) return NaN;
-    return parseFloat(String(v).replace(',', '.').replace(/[^0-9.\-]/g,''));
-  }
-
-  const priceInput  = document.getElementById('tradePrice');
-  const amountInput = document.getElementById('tradeAmount');
-  const totalInput  = document.getElementById('tradeTotal');
-  const submitBtn   = document.getElementById('tradeSubmit');
-
-  if(!submitBtn || !priceInput || !amountInput || !totalInput) return;
-
-  function getSide(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-  function getType(){
-    const active = document.querySelector('.type-btn.active');
-    const t = (active?.textContent||'limit').toLowerCase();
-    return t.includes('market') ? 'market' : 'limit';
-  }
-
-  // Override any previous click handlers by capturing and stopping propagation
-  submitBtn.addEventListener('click', function(e){
-    e.preventDefault();
-    e.stopImmediatePropagation();
-
-    const side = getSide();
-    const type = getType();
-    const price = num(priceInput.value);
-    const amount = num(amountInput.value);
-    const total = num(totalInput.value);
-
-    if(!Number.isFinite(price) || price<=0) return alert("Fill price");
-    if(!Number.isFinite(amount) || amount<=0){
-      // allow placing by total only
-      if(Number.isFinite(total) && total>0){
-        const a = total / price;
-        amountInput.value = a.toFixed(6);
-      }else{
-        return alert("Fill amount or total");
-      }
-    }
-
-    const finalAmount = num(amountInput.value);
-    const cost = price * finalAmount;
-
-    if(side === 'buy' && cost > BAL.USDT + 1e-9){
-      return alert("Not enough USDT");
-    }
-    if(side === 'sell' && finalAmount > BAL.BTC + 1e-12){
-      return alert("Not enough BTC");
-    }
-
-    // Insert into Open Orders list used by existing UI (localStorage key spot_orders)
-    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]");
-    const id = Date.now() + Math.floor(Math.random()*1000);
-    orders.push({
-      id,
-      pair: "BTC/USDT",
-      side,
-      type,
-      price,
-      amount: finalAmount,
-      filled: 0,
-      ts: Date.now()
-    });
-    localStorage.setItem("spot_orders", JSON.stringify(orders));
-
-    // Re-render if a renderer exists
-    if(typeof window.renderOrders === "function"){
-      window.renderOrders();
+    if(sideNow === "sell"){
+      const res = reservedBase(orders, base);
+      return Math.max(0, (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) - res);
     }else{
-      // try to trigger any existing render by dispatching custom event
-      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+      const res = reservedQuoteUSDT(orders);
+      return Math.max(0, (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) - res);
     }
-  }, true);
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v3: render Open Orders from localStorage ===== */
-(function(){
-  function fmtTime(ts){
-    try { return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
-    catch(e){ return ""; }
-  }
-  function numFixed(v, d){
-    const n = Number(v);
-    return Number.isFinite(n) ? n.toFixed(d) : "—";
   }
 
-  function getOpenPanel(){
-    return document.querySelector('.orders-panel[data-panel="open"]');
+  function updateLabels(){
+    const pair = getCurrentPair();
+    const { base, quote } = baseQuote(pair);
+
+    const amountMuted = document.querySelector('.trade-field.amount-field .trade-field-label .muted');
+    if(amountMuted) amountMuted.textContent = '(' + base + ')';
+
+    const priceMuted = document.querySelector('.trade-field.price-field .trade-field-label .muted');
+    if(priceMuted) priceMuted.textContent = '(' + quote + ')';
+
+    const totalMuted = document.querySelector('.trade-field.total-field .trade-field-label .muted');
+    if(totalMuted) totalMuted.textContent = '(' + quote + ')';
+
+    const submit = document.getElementById("tradeSubmit");
+    if(submit) submit.textContent = (side()==="sell" ? "Sell " : "Buy ") + base;
   }
 
-  window.renderOrders = function(){
-    const panel = getOpenPanel();
+  function updateAvailableUI(){
+    const pair = getCurrentPair();
+    const { base, quote } = baseQuote(pair);
+    const s = side();
+    const avail = availableFor(s);
+
+    const valEl = document.querySelector(".trade-available-val") || document.getElementById("tradeAvailAmt");
+    const symEl = document.querySelector(".trade-available-sym") || document.getElementById("tradeAvailCcy");
+
+    if(valEl) valEl.textContent = (s==="buy" ? avail.toFixed(2) : avail.toFixed(6));
+    if(symEl) symEl.textContent = (s==="buy" ? quote : base);
+  }
+  window.updateAvailableUI = updateAvailableUI;
+
+  function renderOpenOrders(){
+    const panel = document.querySelector('.orders-panel[data-panel="open"]');
     if(!panel) return;
 
-    const orders = JSON.parse(localStorage.getItem("spot_orders") || "[]");
+    const pair = getCurrentPair();
+    const orders = openOrders().filter(o => (o.pair||"") === pair);
 
-    // Remove previous rows
+    // tab count
+    const tabBtn = $$(".orders-tab").find(b => (b.textContent||"").toLowerCase().includes("open orders"));
+    if(tabBtn) tabBtn.textContent = `Open Orders (${orders.length})`;
+
     panel.querySelectorAll(".order-row").forEach(r => r.remove());
-
     const empty = panel.querySelector(".orders-empty");
     if(!orders.length){
       if(empty) empty.style.display = "grid";
@@ -13802,1409 +15144,491 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if(empty) empty.style.display = "none";
 
-    // Insert rows after header
-    const head = panel.querySelector(".orders-head");
-    const insertAfter = head || null;
+    const fmtTime = (ts)=>{ try{return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});}catch(e){return "";} };
 
-    orders.forEach(o => {
+    orders.forEach(o=>{
       const row = document.createElement("div");
       row.className = "order-row";
       row.innerHTML = `
-        <div>${o.pair || "BTC/USDT"}</div>
-        <div>${fmtTime(o.ts)}</div>
-        <div>${(o.type || "limit").toUpperCase()}</div>
-        <div class="${(o.side||"buy").toLowerCase()}">${(o.side||"buy").toUpperCase()}</div>
-        <div>${numFixed(o.price, 2)}</div>
-        <div>${numFixed(o.amount, 6)}</div>
-        <div>${numFixed(o.filled || 0, 6)}</div>
+        <div>${o.pair}</div>
+        <div>${fmtTime(o.ts||Date.now())}</div>
+        <div>${String(o.type||"limit").toUpperCase()}</div>
+        <div class="${String(o.side||"buy").toLowerCase()}">${String(o.side||"buy").toUpperCase()}</div>
+        <div>${Number(o.price||0).toFixed(2)}</div>
+        <div>${Number(o.amount||0).toFixed(6)}</div>
+        <div>${Number(o.filled||0).toFixed(6)}</div>
         <div>—</div>
         <div class="right"><button class="order-cancel" type="button" data-id="${o.id}">✕</button></div>
       `;
-      if(insertAfter && insertAfter.parentNode){
-        insertAfter.parentNode.insertBefore(row, insertAfter.nextSibling);
-      }else{
-        panel.appendChild(row);
-      }
-    });
-
-    // Update tab count "Open Orders (N)" if exists
-    const tabBtn = [...document.querySelectorAll(".orders-tab, .orders-tabs button, .orders-header button")].find(b => (b.textContent||"").toLowerCase().includes("open orders"));
-    if(tabBtn){
-      tabBtn.textContent = `Open Orders (${orders.length})`;
-    }
-  };
-
-  // Cancel order handler (delegated)
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".order-cancel");
-    if(!btn) return;
-    const id = String(btn.dataset.id);
-    const all = JSON.parse(localStorage.getItem("spot_orders") || "[]");
-const idx = all.findIndex(o => String(o.id) === id);
-if(idx === -1) return;
-const [ord] = all.splice(idx, 1);
-
-// push to order history as cancelled
-window.__spotPushOrderHistory({
-  id: ord.id,
-  pair: ord.pair || "BTC/USDT",
-  side: String(ord.side||"buy").toLowerCase(),
-  type: String(ord.type||"limit").toLowerCase(),
-  price: Number(ord.price)||0,
-  amount: Number(ord.amount)||0,
-  filled: Number(ord.filled||0),
-  status: "cancelled",
-  fee: 0,
-  ts: Date.now()
-});
-
-localStorage.setItem("spot_orders", JSON.stringify(all));
-window.renderOrders();
-if(typeof window.renderOrderHistory === "function") window.renderOrderHistory();
-document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-  });
-
-  // Re-render on our custom event
-  document.addEventListener("spot:ordersChanged", () => {
-  if(typeof window.renderOrders === "function") window.renderOrders();
-  if(typeof window.renderOrderHistory === "function") window.renderOrderHistory();
-  if(typeof window.renderTradeHistory === "function") window.renderTradeHistory();
-});
-
-  // Initial render on load
-  window.addEventListener("DOMContentLoaded", () => window.renderOrders());
-  // Also render immediately in case script loads late
-  window.renderOrders();
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v4: reserved balance (decrease on open, return on cancel) ===== */
-(function(){
-  const BASE = { USDT: 1000, BTC: 0 }; // resets on refresh
-
-  function readOrders(){
-    return JSON.parse(localStorage.getItem("spot_orders") || "[]");
-  }
-  function writeOrders(orders){
-    localStorage.setItem("spot_orders", JSON.stringify(orders));
-  }
-
-  function getSide(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-
-  function reservedQuoteUSDT(orders){
-    return orders
-      .filter(o => String(o.side).toLowerCase() === 'buy')
-      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
-  }
-  function reservedBaseBTC(orders){
-    return orders
-      .filter(o => String(o.side).toLowerCase() === 'sell')
-      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
-  }
-
-  function availableFor(side, orders){
-    if(side === 'sell'){
-      const resB = reservedBaseBTC(orders);
-      return Math.max(0, BASE.BTC - resB);
-    }
-    const resQ = reservedQuoteUSDT(orders);
-    return Math.max(0, BASE.USDT - resQ);
-  }
-
-  function updateAvailableUI(){
-    const orders = readOrders();
-    const side = getSide();
-    const avail = availableFor(side, orders);
-
-    const valEl = document.querySelector('.trade-available-val');
-    const symEl = document.querySelector('.trade-available-sym');
-    if(valEl) valEl.textContent = (side === 'sell' ? avail.toFixed(6) : avail.toFixed(2));
-    if(symEl) symEl.textContent = (side === 'sell' ? 'BTC' : 'USDT');
-  }
-
-  // Hook into existing renderOrders to also update available
-  const prevRender = window.renderOrders;
-  window.renderOrders = function(){
-    if(typeof prevRender === 'function') prevRender();
-    updateAvailableUI();
-  };
-
-  // Update available when switching Buy/Sell
-  document.addEventListener('click', (e)=>{
-    const btn = e.target.closest('.bs-btn');
-    if(!btn) return;
-    // let existing handlers run, then update
-    setTimeout(updateAvailableUI, 0);
-  });
-
-  // Override submit handler to use AVAILABLE (base - reserved) and not a fake BAL
-  const submitBtn = document.getElementById('tradeSubmit');
-  const priceInput  = document.getElementById('tradePrice');
-  const amountInput = document.getElementById('tradeAmount');
-  const totalInput  = document.getElementById('tradeTotal');
-
-  function num(v){
-    if(v === null || v === undefined) return NaN;
-    return parseFloat(String(v).replace(',', '.').replace(/[^0-9.\-]/g,''));
-  }
-
-  function getType(){
-    const active = document.querySelector('.type-btn.active');
-    const t = (active?.textContent||'limit').toLowerCase();
-    return t.includes('market') ? 'market' : 'limit';
-  }
-
-  if(submitBtn && priceInput && amountInput && totalInput){
-    submitBtn.addEventListener('click', function(e){
-      // capture & override other handlers
-      e.preventDefault();
-      e.stopImmediatePropagation();
-
-      const side = getSide();
-      const type = getType();
-      const price = num(priceInput.value);
-      let amount = num(amountInput.value);
-      const total = num(totalInput.value);
-
-      if(!Number.isFinite(price) || price<=0) return alert("Fill price");
-
-      if(!Number.isFinite(amount) || amount<=0){
-        if(Number.isFinite(total) && total>0){
-          amount = total / price;
-          amountInput.value = amount.toFixed(6);
-        }else{
-          return alert("Fill amount or total");
-        }
-      }
-
-      const orders = readOrders();
-      const avail = availableFor(side, orders);
-
-      if(side === 'buy'){
-        const cost = price * amount;
-        if(cost > avail + 1e-9) return alert("Not enough USDT");
-      }else{
-        if(amount > avail + 1e-12) return alert("Not enough BTC");
-      }
-
-      orders.push({
-        id: Date.now() + Math.floor(Math.random()*1000),
-        pair: "BTC/USDT",
-        side,
-        type,
-        price,
-        amount,
-        filled: 0,
-        ts: Date.now()
-      });
-
-      writeOrders(orders);
-      if(typeof window.renderOrders === 'function') window.renderOrders();
-      else document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-    }, true);
-  }
-
-  // Make slider use AVAILABLE (base - reserved)
-  const slider = document.getElementById('tradePct');
-  if(slider){
-    slider.min="0"; slider.max="100"; slider.step="1";
-    slider.addEventListener('input', ()=>{
-      const pct = (parseFloat(slider.value)||0)/100;
-      const orders = readOrders();
-      const side = getSide();
-      const avail = availableFor(side, orders);
-
-      const price = num(priceInput?.value) || (window.getLastPrice ? window.getLastPrice() : NaN);
-      const p = Number.isFinite(price) && price>0 ? price : 88127.97;
-
-      if(side==='buy'){
-        const usdt = avail * pct;
-        totalInput.value = usdt.toFixed(2);
-        amountInput.value = (usdt / p).toFixed(6);
-      }else{
-        const btc = avail * pct;
-        amountInput.value = btc.toFixed(6);
-        totalInput.value = (btc * p).toFixed(2);
-      }
+      panel.appendChild(row);
     });
   }
+  window.renderOrders = renderOpenOrders;
 
-  // On load: update and render
-  window.addEventListener('DOMContentLoaded', ()=>{
-    updateAvailableUI();
-    if(typeof window.renderOrders === 'function') window.renderOrders();
-  });
-  // immediate
-  updateAvailableUI();
-})();
-</script>
+  function renderTradeHistory(){
+    const panel = document.querySelector('.orders-panel[data-panel="tradeHistory"]');
+    if(!panel) return;
 
-
-<script>
-/* ===== PATCH v5: auto-fill limit orders when price reaches ===== */
-(function(){
-  // Price reader (re-uses the same idea as earlier patches)
-  function getLastPrice(){
-    const candidates = [
-      document.querySelector('.price-tag'),
-      document.querySelector('.last-price'),
-      document.querySelector('[data-last-price]'),
-      document.querySelector('.mid-price'),
-      document.querySelector('.ob-mid-price'),
-      document.querySelector('.ob-mid .price'),
-    ].filter(Boolean);
-
-    for(const el of candidates){
-      const t = (el.textContent || '').replace(/[^0-9.,]/g,'').replace(',', '.');
-      const v = parseFloat(t);
-      if(Number.isFinite(v) && v>0) return v;
-    }
-    // fallback to trade price input if present
-    const inp = document.getElementById('tradePrice');
-    const vi = inp ? parseFloat(String(inp.value).replace(',', '.')) : NaN;
-    if(Number.isFinite(vi) && vi>0) return vi;
-    return 0;
-  }
-
-  function readOrders(){
-    return JSON.parse(localStorage.getItem("spot_orders") || "[]");
-  }
-  function writeOrders(orders){
-    localStorage.setItem("spot_orders", JSON.stringify(orders));
-  }
-  function readTrades(){
-    return JSON.parse(localStorage.getItem("spot_trades") || "[]");
-  }
-  function writeTrades(trades){
-    localStorage.setItem("spot_trades", JSON.stringify(trades));
-  }
-
-  // We adjust the "BASE" wallet that PATCH v4 created by locating its closure is impossible,
-  // so we keep a wallet in window for runtime and keep v4 "available" logic correct by also removing orders.
-  // Start wallet fresh each load (per your test requirement).
-  if(!window.__WALLET__){
-    window.__WALLET__ = { USDT: 1000, BTC: 0 };
-  }
-
-  function settleFill(order, fillPrice){
-    const side = String(order.side||'buy').toLowerCase();
-    const amt = Number(order.amount)||0;
-    const cost = (Number(fillPrice)||0) * amt;
-
-    if(side === 'buy'){
-      window.__WALLET__.USDT = Math.max(0, window.__WALLET__.USDT - cost);
-      window.__WALLET__.BTC  = (window.__WALLET__.BTC || 0) + amt;
-    }else{
-      window.__WALLET__.BTC  = Math.max(0, (window.__WALLET__.BTC||0) - amt);
-      window.__WALLET__.USDT = (window.__WALLET__.USDT || 0) + cost;
-    }
-
-    const trades = readTrades();
-    trades.unshift({
-      id: Date.now() + Math.floor(Math.random()*1000),
-      pair: order.pair || "BTC/USDT",
-      side,
-      price: Number(fillPrice),
-      amount: amt,
-      total: cost,
-      ts: Date.now(),
-      role: "taker",
-      fee: 0
-    });
-  writeTrades(trades);
-
-  // Also push to Order History (filled)
-  try{
-    window.__spotPushOrderHistory({
-      id: order.id || (Date.now() + Math.floor(Math.random()*1000)),
-      pair: order.pair || "BTC/USDT",
-      side,
-      type: String(order.type||"limit").toLowerCase(),
-      price: Number(fillPrice),
-      amount: amt,
-      filled: amt,
-      status: "filled",
-      fee: 0,
-      ts: Date.now()
-    });
-  }catch(e){}
-}
-
-  // Simple matching rule:
-  // BUY limit fills when lastPrice <= order.price
-  // SELL limit fills when lastPrice >= order.price
-  // (User said "equal", but these are the normal exchange semantics.)
-  const EPS = 1e-9;
-
-  function tryFill(){
-    const last = getLastPrice();
-    if(!(Number.isFinite(last) && last>0)) return;
-
-    const orders = readOrders();
-    if(!orders.length) return;
-
-    let changed = false;
-    const remaining = [];
-
-    for(const o of orders){
-      const type = String(o.type||'limit').toLowerCase();
-      if(type !== 'limit'){ remaining.push(o); continue; }
-
-      const side = String(o.side||'buy').toLowerCase();
-      const p = Number(o.price)||0;
-
-      const canFill =
-        (side === 'buy'  && last <= p + EPS) ||
-        (side === 'sell' && last >= p - EPS);
-
-      if(canFill){
-        // Fill fully at the order price (limit execution), could also use last.
-        settleFill(o, p);
-        changed = true;
-      }else{
-        remaining.push(o);
-      }
-    }
-
-    if(changed){
-      writeOrders(remaining);
-      // Update UI if render functions exist
-      if(typeof window.renderOrders === "function") window.renderOrders();
-      if(typeof window.renderOrderHistory === "function") window.renderOrderHistory();
-      if(typeof window.renderTradeHistory === "function") window.renderTradeHistory();
-      if(typeof window.updateAvailableUI === "function") window.updateAvailableUI();
-      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-    }
-  }
-
-  // Run periodically
-  setInterval(tryFill, 400);
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v5b: Available uses wallet (after fills) ===== */
-(function(){
-  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
-  function reservedQuoteUSDT(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='buy')
-      .reduce((s,o)=>s+(Number(o.price)||0)*(Number(o.amount)||0),0);
-  }
-  function reservedBaseBTC(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='sell')
-      .reduce((s,o)=>s+(Number(o.amount)||0),0);
-  }
-  function getSide(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-
-  window.updateAvailableUI = function(){
-    const orders = readOrders();
-    const side = getSide();
-    const w = window.__WALLET__ || {USDT:1000,BTC:0};
-    const avail = side==='buy'
-      ? Math.max(0, (w.USDT||0) - reservedQuoteUSDT(orders))
-      : Math.max(0, (w.BTC||0)  - reservedBaseBTC(orders));
-
-    const valEl = document.querySelector('.trade-available-val');
-    const symEl = document.querySelector('.trade-available-sym');
-    if(valEl) valEl.textContent = (side==='buy' ? avail.toFixed(2) : avail.toFixed(6));
-    if(symEl) symEl.textContent = (side==='buy' ? 'USDT' : 'BTC');
-  };
-
-  // call now and on tab changes
-  window.addEventListener('DOMContentLoaded', window.updateAvailableUI);
-  document.addEventListener('click',(e)=>{
-    if(e.target.closest('.bs-btn')) setTimeout(window.updateAvailableUI,0);
-  });
-  // re-run when orders change
-  document.addEventListener('spot:ordersChanged', window.updateAvailableUI);
-  // immediate
-  window.updateAvailableUI();
-})();
-</script>
-
-
-
-<script>
-/* ===== PATCH v9: FIX slider (works with <input type="number">) + visual fill + uses available balance ===== */
-(function(){
-  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
-  function reservedQuoteUSDT(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='buy')
-      .reduce((s,o)=>s+(Number(o.price)||0)*(Number(o.amount)||0),0);
-  }
-  function reservedBaseBTC(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='sell')
-      .reduce((s,o)=>s+(Number(o.amount)||0),0);
-  }
-  function side(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-  function num(v){
-    if(v === null || v === undefined) return NaN;
-    return parseFloat(String(v).replace(',', '.').replace(/[^0-9.\-]/g,''));
-  }
-  function getLastPrice(){
-    const el = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price');
-    if(el){
-      const v = num(el.textContent);
-      if(Number.isFinite(v) && v>0) return v;
-    }
-    const inp = document.getElementById('tradePrice');
-    const vi = inp ? num(inp.value) : NaN;
-    if(Number.isFinite(vi) && vi>0) return vi;
-    return 0;
-  }
-
-  function available(s){
-    const orders = readOrders();
-    const w = window.__WALLET__ || {USDT:1000,BTC:0};
-    if(s==='sell') return Math.max(0, (w.BTC||0) - reservedBaseBTC(orders));
-    return Math.max(0, (w.USDT||0) - reservedQuoteUSDT(orders));
-  }
-
-  const slider = document.getElementById('tradePct');
-  const priceInput  = document.getElementById('tradePrice');
-  const amountInput = document.getElementById('tradeAmount');
-  const totalInput  = document.getElementById('tradeTotal');
-
-  if(!slider || !priceInput || !amountInput || !totalInput) return;
-
-  slider.min="0"; slider.max="100"; slider.step="1";
-
-  function paint(){
-    const v = Math.max(0, Math.min(100, parseFloat(slider.value)||0));
-    slider.style.setProperty('--pct', v + '%');
-    slider.style.setProperty('--fill', side()==='sell' ? 'rgba(255,91,110,0.95)' : 'rgba(11,191,118,0.95)');
-  }
-
-  function applyFromSlider(){
-    const pct = (parseFloat(slider.value)||0)/100;
-    const s = side();
-    const avail = available(s);
-
-    // price: if empty, snap to last price
-    let p = num(priceInput.value);
-    if(!(Number.isFinite(p) && p>0)){
-      p = getLastPrice();
-      if(Number.isFinite(p) && p>0) priceInput.value = p.toFixed(2);
-    }
-    if(!(Number.isFinite(p) && p>0)){
-      // can't calculate without price
-      amountInput.value = '';
-      totalInput.value = '';
-      paint();
-      return;
-    }
-
-    if(s==='buy'){
-      const usdt = avail * pct;
-      totalInput.value = usdt.toFixed(2);         // IMPORTANT: dot for type=number
-      amountInput.value = (usdt / p).toFixed(6);
-    }else{
-      const btc = avail * pct;
-      amountInput.value = btc.toFixed(6);
-      totalInput.value = (btc * p).toFixed(2);
-    }
-
-    paint();
-  }
-
-  // Single definitive listener
-  slider.addEventListener('input', applyFromSlider);
-  window.addEventListener('DOMContentLoaded', applyFromSlider);
-  document.addEventListener('spot:ordersChanged', ()=>{ if(slider.value!=="0") applyFromSlider(); });
-  document.addEventListener('click', (e)=>{ if(e.target.closest('.bs-btn')) setTimeout(()=>{ paint(); if(slider.value!=="0") applyFromSlider(); },0); });
-
-  // Initial paint
-  paint();
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v10: unified order checks (BUY+SELL) using wallet+reserved + locale-safe numbers ===== */
-(function(){
-  // test wallet persists during session; reset if missing
-  if(!window.__WALLET__){
-    window.__WALLET__ = { USDT: 1000, BTC: 0 };
-  }
-
-  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
-  function writeOrders(o){ localStorage.setItem("spot_orders", JSON.stringify(o)); }
-
-  function num(v){
-    if(v === null || v === undefined) return NaN;
-    // allow "88 000,12" etc
-    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
-  }
-
-  function getSide(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-  function getType(){
-    const active = document.querySelector('.type-btn.active');
-    const t = (active?.textContent||'limit').toLowerCase();
-    return t.includes('market') ? 'market' : 'limit';
-  }
-
-  function reservedQuoteUSDT(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='buy')
-      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
-  }
-  function reservedBaseBTC(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='sell')
-      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
-  }
-
-  function available(side, orders){
-    const w = window.__WALLET__;
-    if(side==='sell'){
-      return Math.max(0, (Number(w.BTC)||0) - reservedBaseBTC(orders));
-    }
-    return Math.max(0, (Number(w.USDT)||0) - reservedQuoteUSDT(orders));
-  }
-
-  function updateAvailableUI(){
-    const orders = readOrders();
-    const side = getSide();
-    const avail = available(side, orders);
-
-    const valEl = document.querySelector('.trade-available-val');
-    const symEl = document.querySelector('.trade-available-sym');
-    if(valEl) valEl.textContent = (side==='buy' ? avail.toFixed(2) : avail.toFixed(6));
-    if(symEl) symEl.textContent = (side==='buy' ? 'USDT' : 'BTC');
-  }
-  window.updateAvailableUI = updateAvailableUI;
-
-  const priceInput  = document.getElementById('tradePrice');
-  const amountInput = document.getElementById('tradeAmount');
-  const totalInput  = document.getElementById('tradeTotal');
-  let submitBtn = document.getElementById('tradeSubmit');
-
-  if(!priceInput || !amountInput || !totalInput || !submitBtn) return;
-
-  // Remove old click handlers by cloning the node
-  const clone = submitBtn.cloneNode(true);
-  submitBtn.parentNode.replaceChild(clone, submitBtn);
-  submitBtn = clone;
-
-  submitBtn.addEventListener('click', function(e){
-    e.preventDefault();
-
-    const side = getSide();
-    const type = getType();
-
-    const price = num(priceInput.value);
-    let amount = num(amountInput.value);
-    const total = num(totalInput.value);
-
-    if(!Number.isFinite(price) || price<=0) return alert("Fill price");
-
-    if(!Number.isFinite(amount) || amount<=0){
-      if(Number.isFinite(total) && total>0){
-        amount = total / price;
-        amountInput.value = amount.toFixed(6); // dot for type=number
-      }else{
-        return alert("Fill amount or total");
-      }
-    }
-
-    const orders = readOrders();
-    const avail = available(side, orders);
-
-    if(side === 'buy'){
-      const cost = price * amount;
-      if(cost > avail + 1e-9) return alert("Not enough USDT");
-    } else {
-      if(amount > avail + 1e-12) return alert("Not enough BTC");
-    }
-
-    orders.push({
-      id: Date.now() + Math.floor(Math.random()*1000),
-      pair: "BTC/USDT",
-      side, type,
-      price: Number(price),
-      amount: Number(amount),
-      filled: 0,
-      ts: Date.now()
-    });
-
-    writeOrders(orders);
-
-    if(typeof window.renderOrders === 'function') window.renderOrders();
-    updateAvailableUI();
-    document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-  });
-
-  // keep available in sync on Buy/Sell toggle and order changes
-  document.addEventListener('click', (e)=>{
-    if(e.target.closest('.bs-btn')) setTimeout(updateAvailableUI, 0);
-  });
-  document.addEventListener('spot:ordersChanged', updateAvailableUI);
-  window.addEventListener('DOMContentLoaded', updateAvailableUI);
-  updateAvailableUI();
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v12b: Market orders (instant fill) + UI toggle ===== */
-(function(){
-  if(!window.__WALLET__){
-    window.__WALLET__ = { USDT: 1000, BTC: 0 };
-  }
-
-  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
-  function writeOrders(o){ localStorage.setItem("spot_orders", JSON.stringify(o)); }
-  function readTrades(){ return JSON.parse(localStorage.getItem("spot_trades") || "[]"); }
-  function writeTrades(t){ localStorage.setItem("spot_trades", JSON.stringify(t)); }
-
-  function num(v){
-    if(v === null || v === undefined) return NaN;
-    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
-  }
-
-  function getSide(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-  function getType(){
-    const active = document.querySelector('.type-btn.active');
-    const t = (active?.textContent||'limit').toLowerCase();
-    return t.includes('market') ? 'market' : 'limit';
-  }
-
-  function reservedQuoteUSDT(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='buy')
-      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
-  }
-  function reservedBaseBTC(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='sell')
-      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
-  }
-  function available(side, orders){
-    const w = window.__WALLET__;
-    if(side==='sell'){
-      return Math.max(0, (Number(w.BTC)||0) - reservedBaseBTC(orders));
-    }
-    return Math.max(0, (Number(w.USDT)||0) - reservedQuoteUSDT(orders));
-  }
-
-  function getLastPrice(){
-    const badge = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price');
-    if(badge){
-      const v = num(badge.textContent);
-      if(Number.isFinite(v) && v>0) return v;
-    }
-    const inp = document.getElementById('tradePrice');
-    const vi = inp ? num(inp.value) : NaN;
-    if(Number.isFinite(vi) && vi>0) return vi;
-    return 88127.97;
-  }
-
-  const tradePanel = document.querySelector('.trade-panel') || document.body;
-  const priceInput  = document.getElementById('tradePrice');
-  const amountInput = document.getElementById('tradeAmount');
-  const totalInput  = document.getElementById('tradeTotal');
-  const lastBtn     = document.getElementById('lastPriceBtn');
-  let submitBtn     = document.getElementById('tradeSubmit');
-
-  function toggleMarketUI(){
-    const isMarket = getType() === 'market';
-    tradePanel.classList.toggle('is-market', isMarket);
-
-    if(!priceInput) return;
-    if(isMarket){
-      // Freeze price at last price for display; market uses live price at click time anyway.
-      priceInput.value = getLastPrice().toFixed(2);
-      priceInput.setAttribute('disabled', 'disabled');
-      if(lastBtn) lastBtn.setAttribute('disabled', 'disabled');
-    }else{
-      priceInput.removeAttribute('disabled');
-      if(lastBtn) lastBtn.removeAttribute('disabled');
-    }
-  }
-
-  // Toggle on clicking Limit/Market buttons
-  document.addEventListener('click', (e)=>{
-    if(e.target.closest('.type-btn')) setTimeout(toggleMarketUI, 0);
-  });
-  window.addEventListener('DOMContentLoaded', toggleMarketUI);
-  toggleMarketUI();
-
-  // Replace submit handler again (market-aware)
-  if(!submitBtn || !priceInput || !amountInput || !totalInput) return;
-  const clone = submitBtn.cloneNode(true);
-  submitBtn.parentNode.replaceChild(clone, submitBtn);
-  submitBtn = clone;
-
-  submitBtn.addEventListener('click', function(e){
-    e.preventDefault();
-
-    const side = getSide();
-    const type = getType();
-
-    const orders = readOrders();
-    const avail = available(side, orders);
-
-    // Market uses live last price at the moment of click
-    const execPrice = (type === 'market') ? getLastPrice() : num(priceInput.value);
-    if(!Number.isFinite(execPrice) || execPrice<=0) return alert("No price");
-
-    let amount = num(amountInput.value);
-    const total = num(totalInput.value);
-
-    if(!Number.isFinite(amount) || amount<=0){
-      if(Number.isFinite(total) && total>0){
-        amount = total / execPrice;
-        amountInput.value = amount.toFixed(6);
-      }else{
-        return alert("Fill amount or total");
-      }
-    }
-
-    if(type === 'limit'){
-      // limit -> goes to open orders (existing behavior)
-      const cost = execPrice * amount;
-      if(side === 'buy' && cost > avail + 1e-9) return alert("Not enough USDT");
-      if(side === 'sell' && amount > avail + 1e-12) return alert("Not enough BTC");
-
-      orders.push({
-        id: Date.now() + Math.floor(Math.random()*1000),
-        pair: "BTC/USDT",
-        side, type,
-        price: Number(execPrice),
-        amount: Number(amount),
-        filled: 0,
-        ts: Date.now()
-      });
-      writeOrders(orders);
-      if(typeof window.renderOrders === 'function') window.renderOrders();
-      if(typeof window.updateAvailableUI === 'function') window.updateAvailableUI();
-      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-      return;
-    }
-
-    // MARKET -> instant fill + add trade history, no open order
-    const cost = execPrice * amount;
-    if(side === 'buy'){
-      if(cost > avail + 1e-9) return alert("Not enough USDT");
-      window.__WALLET__.USDT = Math.max(0, (window.__WALLET__.USDT||0) - cost);
-      window.__WALLET__.BTC  = (window.__WALLET__.BTC||0) + amount;
-    }else{
-      if(amount > avail + 1e-12) return alert("Not enough BTC");
-      window.__WALLET__.BTC  = Math.max(0, (window.__WALLET__.BTC||0) - amount);
-      window.__WALLET__.USDT = (window.__WALLET__.USDT||0) + cost;
-    }
-
-    const trades = readTrades();
-    trades.unshift({
-      id: Date.now() + Math.floor(Math.random()*1000),
-      pair: "BTC/USDT",
-      side,
-      price: Number(execPrice),
-      amount: Number(amount),
-      total: Number(cost),
-      ts: Date.now(),
-      role: "taker",
-      fee: 0
-    });
-writeTrades(trades);
-
-// Order History record for market fill
-try{
-  window.__spotPushOrderHistory({
-    id: Date.now() + Math.floor(Math.random()*1000),
-    pair: "BTC/USDT",
-    side,
-    type: "market",
-    price: Number(execPrice),
-    amount: Number(amount),
-    filled: Number(amount),
-    status: "filled",
-    fee: 0,
-    ts: Date.now()
-  });
-}catch(e){}
-
-// Refresh UI
-    if(typeof window.updateAvailableUI === 'function') window.updateAvailableUI();
-    if(typeof window.renderOrderHistory === 'function') window.renderOrderHistory();
-    if(typeof window.renderTradeHistory === 'function') window.renderTradeHistory();
-    document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-  });
-})();
-
-/* ===== PATCH v15: Trade History filters (date picker + quick ranges) + Order History rendering ===== */
-(function(){
-  function num(v){
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  }
-  function fmtTime(ts){
-    try{
-      return new Date(ts).toLocaleString([], { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit' });
-    }catch(e){ return ""; }
-  }
-  function readTrades(){
-    try{ return JSON.parse(localStorage.getItem("spot_trades") || "[]"); }catch(e){ return []; }
-  }
-  function readOrderHistory(){
-    try{ return window.__spotReadOrderHistory(); }catch(e){ return []; }
-  }
-  function ymd(ts){
-    const d = new Date(ts);
-    if(Number.isNaN(+d)) return "";
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const dd = String(d.getDate()).padStart(2,'0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
-  function startOfDay(ts){ const d = new Date(ts); d.setHours(0,0,0,0); return +d; }
-  function endOfDay(ts){ const d = new Date(ts); d.setHours(23,59,59,999); return +d; }
-
-  // ---------- Trade History ----------
-  const thPanel = document.querySelector('.orders-panel[data-panel="tradeHistory"]');
-  const thStart = document.getElementById('thStart');
-  const thEnd   = document.getElementById('thEnd');
-  const thReset = document.getElementById('thReset');
-
-  function setActivePill(rangeKey){
-    if(!thPanel) return;
-    thPanel.querySelectorAll('.th-pill').forEach(b=>{
-      b.classList.toggle('active', b.dataset.range === rangeKey);
-    });
-  }
-
-  function applyQuickRange(rangeKey){
-    const now = new Date();
-    const end = endOfDay(now);
-    let days = 30;
-    if(rangeKey === '1d') days = 1;
-    if(rangeKey === '3d') days = 3;
-    if(rangeKey === '7d') days = 7;
-    if(rangeKey === '30d') days = 30;
-
-    const start = startOfDay(+now - (days-1)*24*60*60*1000);
-    if(thStart) thStart.value = ymd(start);
-    if(thEnd) thEnd.value = ymd(end);
-    setActivePill(rangeKey);
-    window.renderTradeHistory?.();
-  }
-
-  function getFilterRange(){
-    const now = new Date();
-    const defEnd = endOfDay(now);
-    const defStart = startOfDay(+now - (30-1)*24*60*60*1000);
-
-    const s = thStart?.value ? Date.parse(thStart.value) : NaN;
-    const e = thEnd?.value ? Date.parse(thEnd.value) : NaN;
-
-    const start = Number.isFinite(s) ? startOfDay(s) : defStart;
-    const end   = Number.isFinite(e) ? endOfDay(e) : defEnd;
-
-    return { start, end };
-  }
-
-  window.renderTradeHistory = function(){
-    if(!thPanel) return;
-    const table = thPanel.querySelector('.th-table');
+    const table = panel.querySelector(".th-table");
     if(!table) return;
 
-    table.querySelectorAll('.th-row').forEach(r => r.remove());
-    const empty = table.querySelector('.th-empty');
+    table.querySelectorAll(".th-row").forEach(r=>r.remove());
+    const empty = table.querySelector(".th-empty");
 
-    const { start, end } = getFilterRange();
-    const trades = readTrades().filter(t=>{
+    const pair = getCurrentPair();
+    const list = trades().filter(t => (t.pair||"") === pair);
+
+    // optional date filter
+    const thStart = document.getElementById("thStart");
+    const thEnd   = document.getElementById("thEnd");
+    let start = -Infinity, end = Infinity;
+    if(thStart?.value){
+      const s = Date.parse(thStart.value);
+      if(Number.isFinite(s)) start = s;
+    }
+    if(thEnd?.value){
+      const e = Date.parse(thEnd.value);
+      if(Number.isFinite(e)) end = e + 24*60*60*1000 - 1;
+    }
+    const filtered = list.filter(t=>{
       const ts = Number(t.ts)||0;
-      return ts >= start && ts <= end;
+      return ts>=start && ts<=end;
     });
 
-    if(!trades.length){
+    if(!filtered.length){
       if(empty) empty.style.display = "grid";
     }else{
       if(empty) empty.style.display = "none";
     }
 
-    let sumTotal = 0, buyTotal = 0, sellTotal = 0;
+    const fmt = (ts)=>{ try{return new Date(ts).toLocaleString([], {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'});}catch(e){return "";} };
 
-    const head = table.querySelector('.th-head');
-    trades.forEach(t=>{
-      const side = String(t.side||'buy').toLowerCase();
-      const total = num(t.total);
-      sumTotal += total;
-      if(side === 'buy') buyTotal += total; else sellTotal += total;
+    let sum=0, buy=0, sell=0;
+    const head = table.querySelector(".th-head");
 
-      const row = document.createElement('div');
-      row.className = 'th-row';
+    filtered.sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0)).forEach(t=>{
+      const s = String(t.side||"buy").toLowerCase();
+      const total = Number(t.total||0);
+      sum += total; if(s==="buy") buy += total; else sell += total;
+
+      const row = document.createElement("div");
+      row.className = "th-row";
       row.innerHTML = `
-        <div>${t.pair || "BTC/USDT"}</div>
-        <div>${fmtTime(t.ts)}</div>
-        <div class="${side}">${side.toUpperCase()}</div>
+        <div>${t.pair}</div>
+        <div>${fmt(t.ts)}</div>
+        <div class="${s}">${s.toUpperCase()}</div>
         <div>${Number(t.price||0).toFixed(2)}</div>
         <div>${Number(t.amount||0).toFixed(6)}</div>
         <div>${Number(total||0).toFixed(2)}</div>
         <div>${t.role || "taker"}</div>
         <div class="right">${Number(t.fee||0).toFixed(4)}</div>
       `;
-      if(head && head.parentNode){
-        head.parentNode.insertBefore(row, head.nextSibling);
-      }else{
-        table.appendChild(row);
-      }
+      if(head && head.parentNode) head.parentNode.insertBefore(row, head.nextSibling);
+      else table.appendChild(row);
     });
 
-    const sumVal = thPanel.querySelector('.th-sum-val');
-    const buyEl  = thPanel.querySelector('.th-buy');
-    const sellEl = thPanel.querySelector('.th-sell');
-    if(sumVal) sumVal.textContent = `${sumTotal.toFixed(2)} USDT`;
-    if(buyEl) buyEl.textContent = buyTotal.toFixed(2);
-    if(sellEl) sellEl.textContent = sellTotal.toFixed(2);
-  };
-
-  if(thPanel){
-    thPanel.addEventListener('click', (e)=>{
-      const pill = e.target.closest('.th-pill');
-      if(!pill) return;
-      applyQuickRange(pill.dataset.range || '30d');
-    });
+    const sumVal = panel.querySelector(".th-sum-val");
+    const buyEl  = panel.querySelector(".th-buy");
+    const sellEl = panel.querySelector(".th-sell");
+    if(sumVal) sumVal.textContent = `${sum.toFixed(2)}`;
+    if(buyEl) buyEl.textContent = buy.toFixed(2);
+    if(sellEl) sellEl.textContent = sell.toFixed(2);
   }
-  function deactivatePills(){
-    if(!thPanel) return;
-    thPanel.querySelectorAll('.th-pill').forEach(b=>b.classList.remove('active'));
-  }
-  thStart?.addEventListener('change', ()=>{ deactivatePills(); window.renderTradeHistory?.(); });
-  thEnd?.addEventListener('change', ()=>{ deactivatePills(); window.renderTradeHistory?.(); });
-  thReset?.addEventListener('click', ()=> applyQuickRange('30d'));
+  window.renderTradeHistory = renderTradeHistory;
 
-  // ---------- Order History ----------
-  const ohPanel = document.querySelector('.orders-panel[data-panel="ordersHistory"]');
-  window.renderOrderHistory = function(){
-    if(!ohPanel) return;
+  function renderOrderHistory(){
+    const panel = document.querySelector('.orders-panel[data-panel="ordersHistory"]');
+    if(!panel) return;
 
-    const hist = readOrderHistory();
-    const list = [...hist].sort((a,b)=>{
-      const ta = Number(a.ts || a.time || a.createdAt || 0) || Date.parse(a.date||a.created_at||"") || 0;
-      const tb = Number(b.ts || b.time || b.createdAt || 0) || Date.parse(b.date||b.created_at||"") || 0;
-      return tb - ta;
-    });
-    ohPanel.querySelectorAll('.order-row').forEach(r => r.remove());
+    panel.querySelectorAll(".order-row").forEach(r=>r.remove());
+    const empty = panel.querySelector(".orders-empty");
 
-    const empty = ohPanel.querySelector('.orders-empty');
-    if(!hist.length){
+    const pair = getCurrentPair();
+    const list = hist().filter(h => (h.pair||"") === pair);
+
+    if(!list.length){
       if(empty) empty.style.display = "grid";
       return;
     }
     if(empty) empty.style.display = "none";
 
-    const head = ohPanel.querySelector('.orders-head');
+    const fmt = (ts)=>{ try{return new Date(ts).toLocaleString([], {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'});}catch(e){return "";} };
 
-    list.forEach(o=>{
-      const side = String(o.side||'buy').toLowerCase();
-      const row = document.createElement('div');
-      row.className = 'order-row';
+    list.sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0)).forEach(o=>{
+      const s = String(o.side||"buy").toLowerCase();
+      const row = document.createElement("div");
+      row.className = "order-row";
       row.innerHTML = `
-        <div>${o.pair || "BTC/USDT"}</div>
-        <div>${fmtTime(o.ts)}</div>
+        <div>${o.pair}</div>
+        <div>${fmt(o.ts||Date.now())}</div>
         <div>${String(o.type||"limit").toUpperCase()}</div>
-        <div class="${side}">${side.toUpperCase()}</div>
+        <div class="${s}">${s.toUpperCase()}</div>
         <div>${Number(o.price||0).toFixed(2)}</div>
         <div>${Number(o.amount||0).toFixed(6)}</div>
         <div>${Number(o.filled||0).toFixed(6)}</div>
         <div>${String(o.status||"filled")}</div>
         <div class="right">${Number(o.fee||0).toFixed(4)}</div>
       `;
-      if(head && head.parentNode){
-        head.parentNode.insertBefore(row, head.nextSibling);
-      }else{
-        ohPanel.appendChild(row);
-      }
-    });
-  };
-
-  document.addEventListener('spot:ordersChanged', ()=>{
-    window.renderTradeHistory?.();
-    window.renderOrderHistory?.();
-  });
-
-  window.addEventListener('DOMContentLoaded', ()=>{
-    // default quick range 30d
-    if(thStart && !thStart.value && thEnd && !thEnd.value) applyQuickRange('30d');
-    else window.renderTradeHistory?.();
-    window.renderOrderHistory?.();
-  });
-
-  // immediate render (if scripts loaded late)
-  try{
-    if(thStart && !thStart.value && thEnd && !thEnd.value) applyQuickRange('30d');
-    else window.renderTradeHistory?.();
-  }catch(e){}
-  try{ window.renderOrderHistory?.(); }catch(e){}
-})();
-</script>
-
-</script>
-
-
-<script>
-/* ===== PATCH v13b: Market mode uses only Total (buy) / Amount (sell) + slider ===== */
-(function(){
-  function num(v){
-    if(v === null || v === undefined) return NaN;
-    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
-  }
-  function getSide(){
-    const active = document.querySelector('.bs-btn.active');
-    const t = (active?.textContent||'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-  function getType(){
-    const active = document.querySelector('.type-btn.active');
-    const t = (active?.textContent||'limit').toLowerCase();
-    return t.includes('market') ? 'market' : 'limit';
-  }
-  function readOrders(){ return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
-  function reservedQuoteUSDT(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='buy')
-      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
-  }
-  function reservedBaseBTC(orders){
-    return orders.filter(o => String(o.side).toLowerCase()==='sell')
-      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
-  }
-  function available(side){
-    const orders = readOrders();
-    const w = window.__WALLET__ || {USDT:1000,BTC:0};
-    if(side==='sell') return Math.max(0, (Number(w.BTC)||0) - reservedBaseBTC(orders));
-    return Math.max(0, (Number(w.USDT)||0) - reservedQuoteUSDT(orders));
-  }
-  function getLastPrice(){
-    const badge = document.querySelector('.price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price');
-    if(badge){
-      const v = num(badge.textContent);
-      if(Number.isFinite(v) && v>0) return v;
-    }
-    const inp = document.getElementById('tradePrice');
-    const vi = inp ? num(inp.value) : NaN;
-    if(Number.isFinite(vi) && vi>0) return vi;
-    return 88127.97;
-  }
-
-  const panel = document.querySelector('.trade-panel') || document.body;
-  const amountInput = document.getElementById('tradeAmount');
-  const totalInput  = document.getElementById('tradeTotal');
-  const priceInput  = document.getElementById('tradePrice');
-  const slider      = document.getElementById('tradePct');
-
-  function applyModeClasses(){
-    const side = getSide();
-    const type = getType();
-    panel.classList.toggle('is-market', type==='market');
-    panel.classList.toggle('is-buy', side==='buy');
-    panel.classList.toggle('is-sell', side==='sell');
-
-    // In market we don't want price to matter visually
-    if(type==='market' && priceInput){
-      priceInput.value = getLastPrice().toFixed(2);
-    }
-  }
-
-  document.addEventListener('click', (e)=>{
-    if(e.target.closest('.type-btn') || e.target.closest('.bs-btn')) setTimeout(applyModeClasses, 0);
-  });
-  window.addEventListener('DOMContentLoaded', applyModeClasses);
-  applyModeClasses();
-
-  // Slider behavior in market:
-  // - BUY: fills Total only
-  // - SELL: fills Amount only
-  if(slider && amountInput && totalInput){
-    slider.addEventListener('input', function(){
-      if(getType()!=='market') return; // keep other patches for limit
-      const pct = (parseFloat(slider.value)||0)/100;
-      const side = getSide();
-      const avail = available(side);
-
-      if(side==='buy'){
-        totalInput.value = (avail * pct).toFixed(2);
-      }else{
-        amountInput.value = (avail * pct).toFixed(6);
-      }
-    }, true);
-  }
-
-  // Market submit: execute at newest price using only the visible field
-  // We rely on PATCH v12b submit override, but we make sure it can infer amount from total in BUY market.
-  // To be safe, we auto-calc amount when user types total in market buy.
-  if(totalInput && amountInput){
-    totalInput.addEventListener('input', ()=>{
-      if(getType()!=='market' || getSide()!=='buy') return;
-      const p = getLastPrice();
-      const t = num(totalInput.value);
-      if(Number.isFinite(t) && t>0 && Number.isFinite(p) && p>0){
-        amountInput.value = (t/p).toFixed(6);
-      }
-    });
-  }
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v14b: apply Market UI classes to #tradeCard ===== */
-(function(){
-  const card = document.getElementById('tradeCard');
-  if(!card) return;
-
-  function getSide(){
-    const active = card.querySelector('.bs-btn.active');
-    const t = (active?.dataset.side || active?.textContent || 'buy').toLowerCase();
-    return t.includes('sell') ? 'sell' : 'buy';
-  }
-  function getType(){
-    const active = card.querySelector('.type-btn.active');
-    const t = (active?.dataset.otype || active?.textContent || 'limit').toLowerCase();
-    return t.includes('market') ? 'market' : 'limit';
-  }
-
-  function apply(){
-    const side = getSide();
-    const type = getType();
-    card.classList.toggle('is-market', type==='market');
-    card.classList.toggle('is-buy', side==='buy');
-    card.classList.toggle('is-sell', side==='sell');
-  }
-
-  // watch clicks on buy/sell + limit/market buttons
-  card.addEventListener('click', (e)=>{
-    if(e.target.closest('.bs-btn') || e.target.closest('.type-btn')){
-      setTimeout(apply, 0);
-    }
-  });
-  window.addEventListener('DOMContentLoaded', apply);
-  apply();
-})();
-</script>
-
-
-<script>
-/* ===== PATCH v18: fix Open Orders counter + renderer, avoid broken v3 selector ===== */
-(function(){
-  function fmtTime(ts){
-    try { return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'}); }
-    catch(e){ return ""; }
-  }
-  function numFixed(v, d){
-    const n = Number(v);
-    return Number.isFinite(n) ? n.toFixed(d) : "—";
-  }
-  function readOpenOrders(){
-    try { return JSON.parse(localStorage.getItem("spot_orders") || "[]"); }
-    catch(e){ return []; }
-  }
-  function getOpenPanel(){
-    return document.querySelector('.orders-panel[data-panel="open"]');
-  }
-
-  // Override renderer with a clean implementation
-  window.renderOrders = function(){
-    const panel = getOpenPanel();
-    if(!panel) return;
-
-    const orders = readOpenOrders();
-
-    // Update tab count
-    const tabBtn = [...document.querySelectorAll(".orders-tab")]
-      .find(b => (b.textContent||"").toLowerCase().includes("open orders"));
-    if(tabBtn){
-      tabBtn.textContent = `Open Orders (${orders.length})`;
-    }
-
-    // Remove previous rows
-    panel.querySelectorAll(".order-row").forEach(r => r.remove());
-
-    const empty = panel.querySelector(".orders-empty");
-    if(!orders.length){
-      if(empty) empty.style.display = "grid";
-      return;
-    }
-    if(empty) empty.style.display = "none";
-
-    // Render rows
-    orders.forEach((o)=>{
-      const row = document.createElement("div");
-      row.className = "order-row";
-      row.innerHTML = `
-        <div>${o.pair || "BTC/USDT"}</div>
-        <div>${fmtTime(o.ts || Date.now())}</div>
-        <div>${String(o.type || "limit").toUpperCase()}</div>
-        <div class="${String(o.side||"buy").toLowerCase()==="buy" ? "buy" : "sell"}">${String(o.side||"buy").toUpperCase()}</div>
-        <div>${numFixed(o.price, 2)}</div>
-        <div>${numFixed(o.amount, 6)}</div>
-        <div>${numFixed(o.filled || 0, 6)}</div>
-        <div>—</div>
-        <div class="right"><button class="order-cancel" type="button" data-id="${o.id}">✕</button></div>
-      `;
       panel.appendChild(row);
     });
-  };
+  }
+  window.renderOrderHistory = renderOrderHistory;
 
-  // Make sure our renderer runs when orders change
-  document.addEventListener("spot:ordersChanged", ()=>{
-    try{ window.renderOrders(); }catch(e){}
-    try{ if(typeof window.renderOrderHistory==="function") window.renderOrderHistory(); }catch(e){}
-    try{ if(typeof window.renderTradeHistory==="function") window.renderTradeHistory(); }catch(e){}
+  // Cancel open order
+  document.addEventListener("click", (e)=>{
+    const btn = e.target.closest(".order-cancel");
+    if(!btn) return;
+    const id = String(btn.getAttribute("data-id")||"");
+    const pair = getCurrentPair();
+
+    const all = openOrders();
+    const idx = all.findIndex(o => String(o.id)===id);
+    if(idx===-1) return;
+
+    const [ord] = all.splice(idx,1);
+    setOpenOrders(all);
+
+    pushHist({
+      id: ord.id,
+      pair: ord.pair || pair,
+      side: String(ord.side||"buy").toLowerCase(),
+      type: String(ord.type||"limit").toLowerCase(),
+      price: Number(ord.price)||0,
+      amount: Number(ord.amount)||0,
+      filled: Number(ord.filled||0),
+      status: "cancelled",
+      fee: 0,
+      ts: Date.now()
+    });
+
+    renderOpenOrders();
+    renderOrderHistory();
+    updateAvailableUI();
+    document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
   });
 
-  // Initial render
-  window.addEventListener("DOMContentLoaded", ()=>{ try{ window.renderOrders(); }catch(e){} });
-  try{ window.renderOrders(); }catch(e){}
-})();
-</script>
+  // Inputs + button + slider
+  function hookTradeForm(){
+    const priceInput  = document.getElementById("tradePrice");
+    const amountInput = document.getElementById("tradeAmount");
+    const totalInput  = document.getElementById("tradeTotal");
+    const lastBtn     = document.getElementById("lastPriceBtn");
+    const slider      = document.getElementById("tradePct");
+    const submitBtn   = document.getElementById("tradeSubmit");
+    const card        = document.getElementById("tradeCard") || document.querySelector(".trade-panel");
 
+    if(!priceInput || !amountInput || !totalInput || !submitBtn) return;
 
+    // sync Total<->Amount for limit (and generally)
+    let lock=false;
+    const syncFromAmount = ()=>{
+      if(lock) return;
+      const p=num(priceInput.value); const a=num(amountInput.value);
+      if(!(p>0) || !(a>=0)) return;
+      lock=true; totalInput.value = (p*a).toFixed(2); lock=false;
+    };
+    const syncFromTotal = ()=>{
+      if(lock) return;
+      const p=num(priceInput.value); const t=num(totalInput.value);
+      if(!(p>0) || !(t>=0)) return;
+      lock=true; amountInput.value = (t/p).toFixed(6); lock=false;
+    };
 
-<script>
-/* ===== PATCH v23: correct selected pair everywhere (orders/history/labels) ===== */
-(function(){
-  if (window.__spotPatchV23) return;
-  window.__spotPatchV23 = true;
+    priceInput.addEventListener("input", ()=>{ if(otype()==="limit") syncFromAmount(); });
+    amountInput.addEventListener("input", ()=>{ if(otype()==="limit") syncFromAmount(); });
+    totalInput.addEventListener("input", ()=>{
+      if(otype()==="limit") syncFromTotal();
+      // market buy convenience: total -> amount (for execution)
+      if(otype()==="market" && side()==="buy"){
+        const p = readLastPrice();
+        const t = num(totalInput.value);
+        if(p>0 && t>0) amountInput.value = (t/p).toFixed(6);
+      }
+    });
 
-  function getCurrentPair(){
-    const v = (typeof window.SPOT_SELECTED === 'string' && window.SPOT_SELECTED.trim()) ? window.SPOT_SELECTED.trim() : '';
-    if (v) return v;
-    const el = document.getElementById('spot-pair-symbol');
-    const t = el ? (el.textContent || '').trim() : '';
-    return t || 'BTC/USDT';
-  }
-
-  function getBaseQuote(pair){
-    const p = (pair || '').split('/');
-    return { base: p[0] || 'BTC', quote: p[1] || 'USDT' };
-  }
-
-  function updateTradeLabels(){
-    const pair = getCurrentPair();
-    const { base, quote } = getBaseQuote(pair);
-
-    // Amount (BASE)
-    const amountMuted = document.querySelector('.trade-field.amount-field .trade-field-label .muted');
-    if (amountMuted) amountMuted.textContent = '(' + base + ')';
-
-    // Price/Total (QUOTE)
-    const priceMuted = document.querySelector('.trade-field.price-field .trade-field-label .muted');
-    if (priceMuted) priceMuted.textContent = '(' + quote + ')';
-    const totalMuted = document.querySelector('.trade-field.total-field .trade-field-label .muted');
-    if (totalMuted) totalMuted.textContent = '(' + quote + ')';
-
-    // Button text: Buy BASE / Sell BASE
-    const submitBtn = document.getElementById('tradeSubmit');
-    const activeSide = document.querySelector('.bs-btn.active');
-    const side = activeSide ? activeSide.getAttribute('data-side') : null;
-    if (submitBtn && side) {
-      submitBtn.textContent = (side === 'sell' ? 'Sell ' : 'Buy ') + base;
+    // last price button
+    if(lastBtn){
+      lastBtn.addEventListener("click", ()=>{
+        const p = readLastPrice();
+        if(!(p>0)) return;
+        priceInput.value = p.toFixed(2);
+        if(otype()==="limit"){
+          const a=num(amountInput.value); const t=num(totalInput.value);
+          if(a>0) syncFromAmount();
+          else if(t>0) syncFromTotal();
+        }
+      });
     }
-  }
 
-  // 1) Patch history push so it always stores the real selected pair
-  if (typeof window.__spotPushOrderHistory === 'function') {
-    const origPush = window.__spotPushOrderHistory;
-    window.__spotPushOrderHistory = function(entry){
-      try {
-        const current = getCurrentPair();
-        if (entry && typeof entry === 'object') {
-          // If pair not set, or stuck on default while UI selected another pair, fix it
-          if (!entry.pair || (entry.pair === 'BTC/USDT' && current !== 'BTC/USDT')) {
-            entry.pair = current;
-          }
-          if (!entry.base || !entry.quote) {
-            const bq = getBaseQuote(entry.pair);
-            entry.base = entry.base || bq.base;
-            entry.quote = entry.quote || bq.quote;
+    // Market UI toggle: disable price input
+    function applyMarketUI(){
+      const isMarket = (otype()==="market");
+      if(card) card.classList.toggle("is-market", isMarket);
+      if(isMarket){
+        const p = readLastPrice();
+        if(p>0) priceInput.value = p.toFixed(2);
+        priceInput.setAttribute("disabled","disabled");
+        if(lastBtn) lastBtn.setAttribute("disabled","disabled");
+      }else{
+        priceInput.removeAttribute("disabled");
+        if(lastBtn) lastBtn.removeAttribute("disabled");
+      }
+    }
+
+    document.addEventListener("click", (e)=>{
+      if(e.target.closest(".type-btn") || e.target.closest(".bs-btn")){
+        setTimeout(()=>{ applyMarketUI(); updateLabels(); updateAvailableUI(); }, 0);
+      }
+    });
+
+    // slider: uses available balance
+    if(slider){
+      slider.min="0"; slider.max="100"; slider.step="1";
+      const paint = ()=>{
+        const v = Math.max(0, Math.min(100, parseFloat(slider.value)||0));
+        slider.style.setProperty("--pct", v + "%");
+      };
+      const apply = ()=>{
+        const pct = (parseFloat(slider.value)||0)/100;
+        const s = side();
+        const avail = availableFor(s);
+        const isMarket = (otype()==="market");
+        const p = readLastPrice() || num(priceInput.value) || 0;
+        if(p>0 && !priceInput.value) priceInput.value = p.toFixed(2);
+
+        if(isMarket){
+          if(s==="buy") totalInput.value = (avail * pct).toFixed(2);
+          else amountInput.value = (avail * pct).toFixed(6);
+        }else{
+          if(!(p>0)){
+            amountInput.value=""; totalInput.value="";
+          }else if(s==="buy"){
+            const usdt = avail * pct;
+            totalInput.value = usdt.toFixed(2);
+            amountInput.value = (usdt/p).toFixed(6);
+          }else{
+            const b = avail * pct;
+            amountInput.value = b.toFixed(6);
+            totalInput.value = (b*p).toFixed(2);
           }
         }
-      } catch (e) {}
-      return origPush(entry);
-    };
-  }
-
-  // 2) Patch localStorage.setItem for spot_orders / spot_trades to fix newly created records
-  (function(){
-    if (!window.__spotLSSetPatched) {
-      window.__spotLSSetPatched = true;
-      const origSet = Storage.prototype.setItem;
-      Storage.prototype.setItem = function(key, value){
-        try {
-          if (key === 'spot_orders' || key === 'spot_trades') {
-            const current = getCurrentPair();
-            if (current && current !== 'BTC/USDT') {
-              const now = Date.now();
-              const arr = JSON.parse(value || '[]');
-              if (Array.isArray(arr)) {
-                for (const it of arr) {
-                  if (!it || typeof it !== 'object') continue;
-                  const ts = Number(it.ts || it.time || it.createdAt || 0) || 0;
-                  // update only very recent items that were saved with default pair
-                  if ((it.pair === 'BTC/USDT' || !it.pair) && (now - ts) < 5000) {
-                    it.pair = current;
-                    const bq = getBaseQuote(current);
-                    it.base = it.base || bq.base;
-                    it.quote = it.quote || bq.quote;
-                  }
-                }
-                value = JSON.stringify(arr);
-              }
-            }
-          }
-        } catch (e) {}
-        return origSet.call(this, key, value);
+        paint();
       };
+      slider.addEventListener("input", apply);
+      document.addEventListener("spot:ordersChanged", ()=>{ if(slider.value!=="0") apply(); else paint(); });
+      paint();
     }
-  })();
 
-  // 3) Keep labels synced when pair changes
-  function hookPairChanges(){
-    // when SPOT_SELECTED changes, existing code calls renderPair(); we poll lightly
-    let last = null;
-    setInterval(() => {
-      const cur = getCurrentPair();
-      if (cur !== last) {
-        last = cur;
-        updateTradeLabels();
-        // re-render history if functions exist
-        if (typeof window.renderOrderHistory === 'function') window.renderOrderHistory();
-        if (typeof window.renderTradeHistory === 'function') window.renderTradeHistory();
+    // submit
+    submitBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+
+      const pair = getCurrentPair();
+      const { base, quote } = baseQuote(pair);
+
+      const s = side();
+      const t = otype();
+
+      const execPrice = (t==="market") ? readLastPrice() : num(priceInput.value);
+      if(!(execPrice>0)) return alert("Fill price");
+
+      let amt = num(amountInput.value);
+      const tot = num(totalInput.value);
+
+      if(!(amt>0)){
+        if(tot>0) amt = tot / execPrice;
       }
-    }, 300);
+      if(!(amt>0)) return alert("Fill amount or total");
+
+      const avail = availableFor(s);
+      const cost = execPrice * amt;
+
+      if(s==="buy" && cost > avail + 1e-9) return alert("Not enough " + quote);
+      if(s==="sell" && amt  > avail + 1e-12) return alert("Not enough " + base);
+
+      if(t==="limit"){
+        const all = openOrders();
+        all.push({
+          id: nowId(),
+          pair,
+          side: s,
+          type: "limit",
+          price: Number(execPrice),
+          amount: Number(amt),
+          filled: 0,
+          ts: Date.now()
+        });
+        setOpenOrders(all);
+
+        renderOpenOrders();
+        updateAvailableUI();
+        document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+        return;
+      }
+
+      // MARKET instant fill
+      if(s==="buy"){
+        window.__WALLET__[quote] = Math.max(0, Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0) - cost);
+        window.__WALLET__[base]  = (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) + amt;
+      }else{
+        window.__WALLET__[base]  = Math.max(0, Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0) - amt);
+        window.__WALLET__[quote] = (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) + cost;
+      }
+
+      const tr = trades();
+      tr.unshift({
+        id: nowId(),
+        pair,
+        side: s,
+        price: Number(execPrice),
+        amount: Number(amt),
+        total: Number(cost),
+        ts: Date.now(),
+        role: "taker",
+        fee: 0
+      });
+      setTrades(tr);
+
+      pushHist({
+        id: nowId(),
+        pair,
+        side: s,
+        type: "market",
+        price: Number(execPrice),
+        amount: Number(amt),
+        filled: Number(amt),
+        status: "filled",
+        fee: 0,
+        ts: Date.now()
+      });
+
+      updateAvailableUI();
+      renderTradeHistory();
+      renderOrderHistory();
+      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+    });
+
+    applyMarketUI();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){
-      updateTradeLabels();
-      hookPairChanges();
-    }, { once:true });
-  } else {
-    updateTradeLabels();
-    hookPairChanges();
+  // Limit auto-fill when price crosses
+  function tryFillLimits(){
+    const last = readLastPrice();
+    if(!(last>0)) return;
+
+    const pair = getCurrentPair();
+    const { base, quote } = baseQuote(pair);
+
+    const all = openOrders();
+    if(!all.length) return;
+
+    let changed=false;
+    const keep=[];
+
+    for(const o of all){
+      if((o.pair||"") !== pair){ keep.push(o); continue; }
+      if(String(o.type||"limit").toLowerCase()!=="limit"){ keep.push(o); continue; }
+
+      const s = String(o.side||"buy").toLowerCase();
+      const p = Number(o.price)||0;
+      const a = Number(o.amount)||0;
+
+      const canFill = (s==="buy" && last <= p) || (s==="sell" && last >= p);
+
+      if(!canFill){ keep.push(o); continue; }
+
+      const cost = p * a;
+
+      // execute at limit price
+      if(s==="buy"){
+        window.__WALLET__[quote] = Math.max(0, Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0) - cost);
+        window.__WALLET__[base]  = (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) + a;
+      }else{
+        window.__WALLET__[base]  = Math.max(0, Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0) - a);
+        window.__WALLET__[quote] = (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) + cost;
+      }
+
+      const tr = trades();
+      tr.unshift({ id: nowId(), pair, side:s, price:p, amount:a, total:cost, ts:Date.now(), role:"taker", fee:0 });
+      setTrades(tr);
+
+      pushHist({
+        id: o.id || nowId(),
+        pair,
+        side: s,
+        type: "limit",
+        price: p,
+        amount: a,
+        filled: a,
+        status: "filled",
+        fee: 0,
+        ts: Date.now()
+      });
+
+      changed=true;
+    }
+
+    if(changed){
+      setOpenOrders(keep);
+      renderOpenOrders();
+      renderTradeHistory();
+      renderOrderHistory();
+      updateAvailableUI();
+      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+    }
   }
+
+  function boot(){
+    // Ensure storages exist
+    if(!localStorage.getItem(LS_OPEN)) writeJSON(LS_OPEN, []);
+    if(!localStorage.getItem(LS_TRADES)) writeJSON(LS_TRADES, []);
+    if(!localStorage.getItem(LS_HIST)) writeJSON(LS_HIST, []);
+
+    hookTradeForm();
+    updateLabels();
+    updateAvailableUI();
+    renderOpenOrders();
+    renderTradeHistory();
+    renderOrderHistory();
+
+    // keep in sync when pair changes (best-effort)
+    let lastPair = null;
+    setInterval(()=>{
+      const cur = getCurrentPair();
+      if(cur !== lastPair){
+        lastPair = cur;
+        updateLabels();
+        updateAvailableUI();
+        renderOpenOrders();
+        renderTradeHistory();
+        renderOrderHistory();
+      }
+      tryFillLimits();
+    }, 400);
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
+  else boot();
 })();
 </script>
+
+<!-- <script>
+function openForexTradePage(pairKey){
+  hideAllPages();
+  document.body.className = '';
+  document.getElementById('forex-trade-page').style.display = 'block';
+  window.scrollTo(0,0);
+
+  // выбрать пару по умолчанию, если не передали
+  window.FX_SELECTED = pairKey || window.FX_SELECTED || 'EUR/USD';
+
+  fxSelectPair(window.FX_SELECTED); // функция из шага 3
+}
+
+</script> -->
+
+
+
 
 </body>
 </html>

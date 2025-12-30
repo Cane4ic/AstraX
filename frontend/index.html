@@ -5540,6 +5540,221 @@ body.forex-trade-mode main{
   width:100%;
   height:100%;
 }
+
+/* ✅ OPEN STOCKS TRADE: trade слева, orders по центру/справа, chart убран */
+#openstockstradepage .spot-layout{
+  display: grid !important;
+  grid-template-columns: 360px 1fr !important;   /* BLOCK 1 | BLOCK 2 */
+  grid-template-areas:
+    "pair pair"
+    "trade orders" !important;
+  gap: 12px !important;
+
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* назначаем области */
+#openstockstradepage .spot-pair   { grid-area: pair !important; }
+#openstockstradepage .spot-trade  { grid-area: trade !important; }
+#openstockstradepage .spot-orders { grid-area: orders !important; }
+
+/* ❌ график убираем полностью */
+#openstockstradepage .spot-chart{
+  display: none !important;
+}
+
+/* чтобы trade был “на месте” и не растягивался */
+#openstockstradepage .spot-trade{
+  align-self: start;
+  position: sticky;
+  top: calc(var(--topbar-h) + 12px);
+}
+
+/* чтобы orders занимал всю высоту и был со скроллом внутри */
+#openstockstradepage .spot-orders{
+  min-height: 640px;
+  overflow: auto;
+}
+
+/* === STOCKS TRADE: фиксируем страницу без общего скролла === */
+html, body{
+  height: 100%;
+}
+
+body.stockstrade-mode{
+  overflow: hidden;   /* убираем прокрутку страницы */
+}
+
+/* секция занимает весь экран под topbar */
+#openstockstradepage{
+  position: fixed;
+  left: 0; right: 0;
+  top: var(--topbar-h, 64px);   /* высота topbar */
+  bottom: 0;
+  overflow: hidden;             /* без скролла у секции */
+  display: none;                /* как у тебя, покажешь через JS */
+}
+
+/* layout: 2 строки — pairbar (auto) + контент (1fr) */
+#openstockstradepage .spot-layout.openstocks-layout{
+  height: 100%;
+  display: grid !important;
+  grid-template-columns: 360px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "pair pair"
+    "trade orders";
+  gap: 12px;
+}
+
+/* назначаем области */
+#openstockstradepage .spot-pair   { grid-area: pair; }
+#openstockstradepage .spot-trade  { grid-area: trade; }
+#openstockstradepage .spot-orders { grid-area: orders; }
+
+/* тянем оба блока до низа */
+#openstockstradepage .spot-trade,
+#openstockstradepage .spot-orders{
+  height: 100%;
+  min-height: 0; /* важно для overflow в grid */
+}
+
+/* trade без sticky — просто на всю высоту */
+#openstockstradepage .spot-trade{
+  position: static !important;
+}
+
+/* скролл только внутри таблицы ордеров (если не помещается) */
+#openstockstradepage .spot-orders{
+  overflow: hidden;  /* внешний без скролла */
+}
+
+#openstockstradepage .orders-table{
+  height: 100%;
+  overflow: auto;    /* внутренний скролл */
+  min-height: 0;
+}
+
+/* небольшой отступ снизу как на других страницах */
+#openstockstradepage{
+  padding-bottom: 16px; /* можно 12–24px */
+}
+
+/* ✅ OPEN FOREX TRADE: trade слева, orders по центру/справа, chart убран */
+#openforextradepage .spot-layout{
+  display: grid !important;
+  grid-template-columns: 360px 1fr !important;
+  grid-template-areas:
+    "pair pair"
+    "trade orders" !important;
+  gap: 12px !important;
+
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* назначаем области */
+#openforextradepage .spot-pair   { grid-area: pair !important; }
+#openforextradepage .spot-trade  { grid-area: trade !important; }
+#openforextradepage .spot-orders { grid-area: orders !important; }
+
+/* ❌ график убираем полностью */
+#openforextradepage .spot-chart{
+  display: none !important;
+}
+
+/* чтобы trade был “на месте” и не растягивался */
+#openforextradepage .spot-trade{
+  align-self: start;
+  position: sticky;
+  top: calc(var(--topbar-h) + 12px);
+}
+
+/* чтобы orders занимал всю высоту и был со скроллом внутри */
+#openforextradepage .spot-orders{
+  min-height: 640px;
+  overflow: auto;
+}
+
+/* === FOREX TRADE: фиксируем страницу без общего скролла === */
+html, body{
+  height: 100%;
+}
+
+body.forextrade-mode{
+  overflow: hidden;
+}
+
+/* секция занимает весь экран под topbar */
+#openforextradepage{
+  position: fixed;
+  left: 0; right: 0;
+  top: 12px;
+  bottom: 0;
+  overflow: hidden;
+  display: none; /* показываешь через JS */
+}
+
+/* layout: 2 строки — pairbar (auto) + контент (1fr) */
+#openforextradepage .spot-layout.forex-layout{
+  height: 100%;
+  display: grid !important;
+  grid-template-columns: 360px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "pair pair"
+    "trade orders";
+  gap: 12px;
+}
+
+/* назначаем области */
+#openforextradepage .spot-pair   { grid-area: pair; }
+#openforextradepage .spot-trade  { grid-area: trade; }
+#openforextradepage .spot-orders { grid-area: orders; }
+
+/* тянем оба блока до низа */
+#openforextradepage .spot-trade,
+#openforextradepage .spot-orders{
+  height: 100%;
+  min-height: 0;
+}
+
+/* trade без sticky — просто на всю высоту */
+#openforextradepage .spot-trade{
+  position: static !important;
+}
+
+/* скролл только внутри таблицы ордеров */
+#openforextradepage .spot-orders{
+  overflow: hidden;
+}
+
+#openforextradepage .orders-table{
+  height: 100%;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* небольшой отступ снизу как на других страницах */
+#openforextradepage{
+  padding-bottom: 16px;
+}
+/* убираем лишний верхний отступ внутри forex-trade */
+#openforextradepage .spot-layout.forex-layout{
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* на всякий случай ещё и pairbar (если он тянет вниз) */
+#openforextradepage .spot-pair{
+  margin-top: 0 !important;
+}
+
+
+
+
+
 </style>
 </head>
 <body>
@@ -8366,38 +8581,7 @@ body.forex-trade-mode main{
     </div>
 
     <!-- BLOCK 2: Chart (1в1 как spot-chart) -->
-    <div class="spot-chart">
-      <div class="chart-card">
-        <div class="chart-head">
-          <div class="chart-head-left">
-            <div class="chart-title">Chart</div>
-
-            <div class="chart-tools">
-              <button class="chart-btn is-active" type="button">1m</button>
-              <button class="chart-btn" type="button">5m</button>
-              <button class="chart-btn" type="button">15m</button>
-              <button class="chart-btn" type="button">1h</button>
-              <button class="chart-btn" type="button">4h</button>
-              <button class="chart-btn" type="button">1d</button>
-            </div>
-          </div>
-
-          <div class="chart-head-right">
-            <div class="chart-draw-tools">
-              <button class="tool-btn active" type="button" title="Cursor">✛</button>
-              <button class="tool-btn" type="button" title="Line">／</button>
-              <button class="tool-btn" type="button" title="Horizontal">—</button>
-              <button class="tool-btn" type="button" title="Vertical">│</button>
-              <div class="tool-sep"></div>
-              <button class="tool-btn" type="button" title="Text">T</button>
-              <button class="tool-btn" type="button" title="Emoji">☺</button>
-            </div>
-          </div>
-        </div>
-
-        <div id="stocks-chart-mount"></div>
-      </div>
-    </div>
+    
 
     <!-- BLOCK 3: Trade (это твой блок buy/sell) — 1в1 как spot-trade -->
     <div class="spot-trade">
@@ -8537,37 +8721,7 @@ body.forex-trade-mode main{
     </div>
 
     <!-- BLOCK 2: Chart -->
-    <div class="spot-chart">
-      <div class="chart-card">
-        <div class="chart-head">
-          <div class="chart-head-left">
-            <div class="chart-title">Chart</div>
-            <div class="chart-tools">
-              <button class="chart-btn is-active" type="button">1m</button>
-              <button class="chart-btn" type="button">5m</button>
-              <button class="chart-btn" type="button">15m</button>
-              <button class="chart-btn" type="button">1h</button>
-              <button class="chart-btn" type="button">4h</button>
-              <button class="chart-btn" type="button">1d</button>
-            </div>
-          </div>
-
-          <div class="chart-head-right">
-            <div class="chart-draw-tools">
-              <button class="tool-btn active" type="button">✛</button>
-              <button class="tool-btn" type="button">／</button>
-              <button class="tool-btn" type="button">—</button>
-              <button class="tool-btn" type="button">│</button>
-              <div class="tool-sep"></div>
-              <button class="tool-btn" type="button">T</button>
-              <button class="tool-btn" type="button">☺</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="chart-stage"></div>
-      </div>
-    </div>
+    
 
     <!-- BLOCK 3: Trade -->
     <div class="spot-trade">
@@ -10182,46 +10336,22 @@ function getSelectedStockPrice(sym){
       // load real candles
         // 1) пробуем загрузить реальные свечи
 let candles = [];
-try {
-  const resp = await fetch(`/api/stocks/candles?symbol=${encodeURIComponent(sym)}&tf=${encodeURIComponent(STOCK_HIST.interval)}`);
-  if (resp.ok) {
-    const data = await resp.json();
-
-    // нормализуем: числа, t в ms, сортировка по времени
-    if (Array.isArray(data)) {
-      candles = data
-        .map(x => ({
-          t: Number(x.t),
-          o: Number(x.o),
-          h: Number(x.h),
-          l: Number(x.l),
-          c: Number(x.c),
-        }))
-        .filter(x => Number.isFinite(x.t) && Number.isFinite(x.o) && Number.isFinite(x.h) && Number.isFinite(x.l) && Number.isFinite(x.c))
-        .sort((a,b) => a.t - b.t);
-
-      // если backend отдаёт t в секундах — переведи в ms
-      // эвристика: если t меньше 10^12, считаем что это секунды
-      if (candles.length && candles[candles.length - 1].t < 1e12) {
-        candles = candles.map(x => ({ ...x, t: x.t * 1000 }));
-      }
-    }
-  }
-} catch(e) { /* ignore */ }
-
-// 2) если реальных свечей нет — fallback на синтетику
-if (!candles.length) {
-  const count = 140;
+// полностью синтетическая история для Stocks Trade (без backend/API)
+{
+  const baseCountMap = { "1m": 420, "5m": 420, "15m": 320, "1h": 260, "4h": 220, "1d": 220 };
+  const count = baseCountMap[STOCK_HIST.interval] || 320;
   candles = genCandlesFromPrice(safeBase, STOCK_HIST.interval, count);
 
-  // форсим последнюю свечу под текущую цену (как раньше)
+  // форсим последнюю свечу под текущую цену (как "live")
   const li = candles.length - 1;
-  candles[li] = {
-    ...candles[li],
-    c: safeBase,
-    h: Math.max(candles[li].h, safeBase),
-    l: Math.min(candles[li].l, safeBase),
-  };
+  if (li >= 0) {
+    candles[li] = {
+      ...candles[li],
+      c: safeBase,
+      h: Math.max(candles[li].h, safeBase),
+      l: Math.min(candles[li].l, safeBase),
+    };
+  }
 }
 
 // 3) применяем в график
@@ -10375,9 +10505,6 @@ function openstockstradepage() {
   hideAllPages();
   exitTradingMode();
   resetTopbarTheme();
-  enableStocksTradeLive();   // включает live-режим
-startStocksTicker();       // запускает запросы /api/stocks/quotes
-stopStocksTradeTicker();
   const hero = document.querySelector(".hero");
   const firstMarkets = document.querySelectorAll(".markets")[0];
   const forexSection = document.querySelector("#forex");
@@ -10421,6 +10548,7 @@ stopStocksTradeTicker();
 
   // ─── показываем ТОЛЬКО новую страницу ───
   if (stocksTradePage) stocksTradePage.style.display = "block";
+  try{ enableStocksTradeLive && enableStocksTradeLive(); }catch(e){}
   window.AX_ACTIVE_CHART_SOURCE = "stocks";
   try{ window.mountSharedChart && window.mountSharedChart("stocks"); }catch(e){}
   try{ window.rebuildStockChartForSelectedSymbol && window.rebuildStockChartForSelectedSymbol(__lastChartTF); }catch(e){}
@@ -10437,17 +10565,18 @@ function openforextradepage() {
   hideAuth();
   exitSpotMode();
   hideAllPages();
-hideHomeSections();
-setFooterVisible(false);
+  hideHomeSections();
+  setFooterVisible(false);
+
   // снимаем режимы других спец-страниц
-  document.documentElement.classList.remove("stocks-trade-mode");
-  document.body.classList.remove("stocks-trade-mode");
+  document.documentElement.classList.remove("stockstrade-mode");
+  document.body.classList.remove("stockstrade-mode");
 
-  // включаем forex режим
-  document.documentElement.classList.add("forex-trade-mode");
-  document.body.classList.add("forex-trade-mode");
+  // включаем forex режим (ВАЖНО: без дефиса, как в CSS)
+  document.documentElement.classList.add("forextrade-mode");
+  document.body.classList.add("forextrade-mode");
 
-  // ─── скрываем главную и остальные секции (чтобы не торчали сверху) ───
+  // ─── скрываем главную и остальные секции ───
   const hero = document.querySelector(".hero");
   const firstMarkets = document.querySelectorAll(".markets")[0];
   const forexSection = document.querySelector("#forex");
@@ -10471,40 +10600,19 @@ setFooterVisible(false);
     newsPage, blogPage, aboutPage, chatPage
   ].forEach(el => { if (el) el.style.display = "none"; });
 
-
-  // спрячь все остальные страницы/секции (как ты уже делаешь)
-  hideAllPages?.(); // если есть
+  // скрыть stocks-trade
   const stocksTrade = document.getElementById("openstockstradepage");
   if (stocksTrade) stocksTrade.style.display = "none";
 
+  // показать forex-trade
   const forexTrade = document.getElementById("openforextradepage");
   if (forexTrade) forexTrade.style.display = "block";
 
   window.scrollTo({ top: 0, behavior: "auto" });
   history.replaceState(null, "", "#openforextradepage");
   setTopbarForexTheme();
-// === FORCE REMOVE TOP OFFSET IN FOREX ===
-requestAnimationFrame(() => {
-  const forexPage = document.getElementById("openforextradepage");
-  const main = document.querySelector("main");
-
-  if (forexPage) {
-    forexPage.style.paddingTop = "78px";
-    forexPage.style.marginTop = "0";
-  }
-
-  if (main) {
-    main.style.marginTop = "0";
-    main.style.paddingTop = "0";
-  }
-
-  // на всякий случай — первый блок внутри
-  if (forexPage && forexPage.firstElementChild) {
-    forexPage.firstElementChild.style.marginTop = "0";
-  }
-});
-
 }
+
 
 function setTopbarForexTheme() {
   const header = document.querySelector("header.topbar-wrapper");
@@ -10637,7 +10745,8 @@ if (aboutPage) aboutPage.style.display = "none";
   document.body.classList.remove("cabinet-mode");
   document.body.classList.remove("stocks-trade-mode");
   document.documentElement.classList.remove("stocks-trade-mode");
-  
+  document.body.classList.remove('forextrade-mode');
+document.getElementById('openforextradepage').style.display = 'none';
 }
 
 function hideAuth() {

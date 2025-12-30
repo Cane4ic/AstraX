@@ -15783,43 +15783,31 @@ function openStockspPage(){
 
 <script>
   function logoutUser() {
-  // 1. Очистить данные авторизации
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("user");
-  localStorage.removeItem("session");
-  // если есть ещё ключи — добавишь сюда
+  // 1) Сбрасываем авторизацию (это главное в твоей системе)
+  setLoggedIn(false); // обновит UI через applyAuthUI()
 
-  // 2. Сбросить UI
-  hideAllPages?.();
+  // 2) Выйти из спец-режимов (trade/кабинет и т.п.)
+  exitTradeModes?.(); // снимает forex-trade-mode / stocks-trade-mode :contentReference[oaicite:3]{index=3}
+  document.body.classList.remove("cabinet-mode"); // кабинет включается в openCabinetPage :contentReference[oaicite:4]{index=4}
+
+  // если ты где-то используешь другие классы (ты писал про stockstrade-mode/forextrade-mode) — убери тоже:
+  document.body.classList.remove("stockstrade-mode", "forextrade-mode");
+  document.documentElement.classList.remove("stockstrade-mode", "forextrade-mode");
+
+  // 3) Закрываем все страницы/секции и показываем главную
+  hideAllPages?.();         // прячет cabinet/deposit/openstockstrade/openforextrade :contentReference[oaicite:5]{index=5}
+  showHomeSections?.();     // если у тебя есть (обратная hideHomeSections)
   setFooterVisible?.(true);
 
-  // убрать спец-режимы
-  document.body.classList.remove(
-    "stockstrade-mode",
-    "forextrade-mode"
-  );
-  document.documentElement.classList.remove(
-    "stockstrade-mode",
-    "forextrade-mode"
-  );
+  // 4) На главную
+  openHomePage?.();
+  history.replaceState(null, "", "#home");
 
-  // 3. Закрыть trade страницы
-  const stockTrade = document.getElementById("openstockstradepage");
-  const forexTrade = document.getElementById("openforextradepage");
-  if (stockTrade) stockTrade.style.display = "none";
-  if (forexTrade) forexTrade.style.display = "none";
-
-  // 4. Показать главную / авторизацию
-  showAuth?.();        // если есть окно логина
-  showHomeSections?.(); // если есть
-
-  // 5. Закрыть user-menu (если открыто)
-  document.querySelectorAll(".user-dropdown.open")
+  // 5) Закрыть user-menu (если используешь open класс)
+  document.querySelectorAll(".user-dropdown.open, .user-menu.open")
     .forEach(x => x.classList.remove("open"));
-
-  // 6. URL
-  history.replaceState(null, "", "/");
 }
+
 
 </script>
 

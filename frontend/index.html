@@ -11352,42 +11352,44 @@ function updateStockDom(state) {
 let __STOCKS_TICKER__ = null;
 let __STOCKS_TICK_COUNT__ = 0;
 
-async function tickRealStocks(){
+function tickRealStocks(){
   if (!window.stockState) return;
 
-  // соберём символы, которые реально используешь
-  const symbols = Object.keys(window.stockState); // или Object.values(stockmap).map(x=>x.symbol)
-  if (!symbols.length) return;
+  Object.values(window.stockState).forEach(st => {
+    if (!st || typeof st.price !== "number") return;
 
-  // ⚠️ ВАЖНО: это должен быть ТВОЙ backend endpoint (иначе CORS/ключи/лимиты)
-  const resp = await fetch(`/api/stocks/quotes?symbols=${encodeURIComponent(symbols.join(","))}`);
-  const data = await resp.json();
-  // ожидаем формат: { AAPL: { price: 189.12, volume: 12345 }, MSFT: {...} }
+    const drift = 1 + (Math.random() - 0.5) * 0.007; // +-0.35%
+    st.price = Math.max(0.5, st.price * drift);
 
-  for (const sym of symbols){
-    const q = data[sym];
-    if (!q || !Number.isFinite(+q.price)) continue;
+    if (typeof st.volume === "number") {
+      st.volume = Math.max(0, st.volume * (0.96 + Math.random() * 0.08));
+    }
 
-    const st = window.stockState[sym];
-    st.price = +q.price;
-    if (Number.isFinite(+q.volume)) st.volume = +q.volume;
-
-    // поддерживаем history для sparkline (у тебя так же сделано в synthetic)
     if (!Array.isArray(st.history)) st.history = [];
     st.history.push(st.price);
     if (st.history.length > STOCK_HISTORY_POINTS) st.history.shift();
 
-    updateStockDom(st); // у тебя уже есть
-  }
+    updateStockDom(st); // обновит строки stocks page (price/change/spark)
+  });
 
-  // обновить stockstrade UI выбранной акции — это у тебя уже предусмотрено в тикере
+  // обновить верхнюю панель stockstrade
   if (window.STOCKS_TRADE_SELECTED && window.setSelectedStockTrade) {
     window.setSelectedStockTrade(window.STOCKS_TRADE_SELECTED);
   }
 
-  // и чтобы последняя свеча подтянулась к новой цене:
+  // если открыт dropdown на stockstrade — обновить список
+  if (window.__stocksTradeRenderList) {
+    const root = document.getElementById("openstockstradepage");
+    const dd = root?.querySelector(".pair-dd");
+    if (dd && dd.style.display === "block") {
+      window.__stocksTradeRenderList();
+    }
+  }
+
+  // чтобы последняя свеча подтянулась к новой цене (если надо)
   window.__syncSelectedStockPriceToChart?.();
 }
+
 
 
 function startStocksTicker(){

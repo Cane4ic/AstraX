@@ -5802,6 +5802,24 @@ body.forextrade-mode{
   margin-top: 0 !important;
 }
 
+.user-divider{
+  height: 1px;
+  margin: 6px 4px;
+  background: rgba(255,255,255,.08);
+}
+
+.user-logout{
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: #ff6b6b;
+}
+
+.user-logout:hover{
+  background: rgba(255,107,107,.12);
+}
 
 
 
@@ -5924,12 +5942,19 @@ body.forextrade-mode{
   </button>
 
   <div class="user-menu">
-    <div class="user-card">
-      <a class="user-item" href="#profile">Profile</a>
-      <a class="user-item" href="#identification">Identification</a>
-      <a class="user-item" href="#security">Security</a>
-    </div>
+  <div class="user-card">
+    <a class="user-item" href="#profile">Profile</a>
+    <a class="user-item" href="#identification">Identification</a>
+    <a class="user-item" href="#security">Security</a>
+
+    <div class="user-divider"></div>
+
+    <!-- LOG OUT -->
+    <button class="user-item user-logout" type="button" onclick="logoutUser()">
+      Log Out
+    </button>
   </div>
+</div>
 </div>
 </div>
 
@@ -10518,6 +10543,7 @@ async function fetchStockCandles(sym, tf){
 
 
 function openstockstradepage() {
+  cleanupStockTrade();
   hideAuth();
   exitSpotMode();
   hideAllPages();
@@ -12072,6 +12098,7 @@ window.addEventListener("load", () => {
 
 
 function hideAllPages() {
+  cleanupStockTrade();
   [
     "about-page","news-page","blog-page",
     "chat-page","feedback-page","fees-page",
@@ -12996,6 +13023,21 @@ function renderOrderBook(bidsRaw, asksRaw){
   bidsEl.innerHTML = buildOBHtml(bids, "bid");
 }
 
+function cleanupStockTrade() {
+  // stop bridge interval
+  try { if (window.__bridgeTimer) { clearInterval(window.__bridgeTimer); window.__bridgeTimer = null; } } catch(e){}
+
+  // close kline websocket (у тебя есть closeKlineWS())
+  try { closeKlineWS(); } catch(e){}
+
+  // stop sim timers if exist
+  try { stopBridgeToLive?.(); } catch(e){}
+  try { stopChartSimTimer?.(); } catch(e){}
+  try { stopChartSim?.(); } catch(e){}
+
+  // IMPORTANT: bump request id so old async fetch results are ignored
+  try { window.__chartReqId = (window.__chartReqId || 0) + 1; } catch(e){}
+}
 
 function buildOBHtml(levels, side){
   let cum = 0;
@@ -15739,20 +15781,47 @@ function openStockspPage(){
 })();
 </script>
 
-<!-- <script>
-function openForexTradePage(pairKey){
-  hideAllPages();
-  document.body.className = '';
-  document.getElementById('forex-trade-page').style.display = 'block';
-  window.scrollTo(0,0);
+<script>
+  function logoutUser() {
+  // 1. Очистить данные авторизации
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("user");
+  localStorage.removeItem("session");
+  // если есть ещё ключи — добавишь сюда
 
-  // выбрать пару по умолчанию, если не передали
-  window.FX_SELECTED = pairKey || window.FX_SELECTED || 'EUR/USD';
+  // 2. Сбросить UI
+  hideAllPages?.();
+  setFooterVisible?.(true);
 
-  fxSelectPair(window.FX_SELECTED); // функция из шага 3
+  // убрать спец-режимы
+  document.body.classList.remove(
+    "stockstrade-mode",
+    "forextrade-mode"
+  );
+  document.documentElement.classList.remove(
+    "stockstrade-mode",
+    "forextrade-mode"
+  );
+
+  // 3. Закрыть trade страницы
+  const stockTrade = document.getElementById("openstockstradepage");
+  const forexTrade = document.getElementById("openforextradepage");
+  if (stockTrade) stockTrade.style.display = "none";
+  if (forexTrade) forexTrade.style.display = "none";
+
+  // 4. Показать главную / авторизацию
+  showAuth?.();        // если есть окно логина
+  showHomeSections?.(); // если есть
+
+  // 5. Закрыть user-menu (если открыто)
+  document.querySelectorAll(".user-dropdown.open")
+    .forEach(x => x.classList.remove("open"));
+
+  // 6. URL
+  history.replaceState(null, "", "/");
 }
 
-</script> -->
+</script>
 
 
 

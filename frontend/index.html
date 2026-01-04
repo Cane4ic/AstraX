@@ -5938,46 +5938,66 @@ body.forextrade-mode{
 }
 #openforextradepage .pair-dd{ z-index: 999999 !important; }
 
-.modal.hidden{ display:none; }
-.modal{ position:fixed; inset:0; z-index:9999; }
-.modal-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); }
-.modal-card{
-  position:relative;
-  width:min(420px, 92vw);
-  margin:10vh auto;
-  background:#0c0f14;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.6);
-  overflow:hidden;
+.tx-modal-backdrop{
+  position: fixed; inset: 0;
+  display:none;
+  align-items:center; justify-content:center;
+  padding: 20px;
+  z-index: 9999;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(10px);
 }
-.modal-head{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:14px 16px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
-.modal-title{ font-weight:700; }
-.modal-x{
-  background:transparent; border:0; color:#fff; font-size:22px; cursor:pointer;
-}
-.modal-body{ padding:14px 16px 16px; }
-.modal-label{ display:block; opacity:.8; font-size:12px; margin:10px 0 6px; }
-.modal-input{
-  width:100%;
-  padding:10px 12px;
-  background:#0b0e13;
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:10px;
+.tx-modal-backdrop.open{ display:flex; }
+
+.tx-modal{
+  width: min(520px, 96vw);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: linear-gradient(180deg, rgba(18,22,30,.92), rgba(10,12,18,.92));
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
   color:#fff;
+  padding: 18px;
 }
-.modal-actions{ display:flex; gap:10px; margin-top:14px; justify-content:flex-end; }
-.modal-error{ color:#ff6b6b; font-size:12px; margin-top:10px; min-height:16px; }
-.btn-primary, .btn-secondary{
-  padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.10);
+
+.tx-modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 14px; }
+.tx-modal-title{ font-weight:800; font-size:18px; }
+.tx-modal-x{
+  border:0; background: rgba(255,255,255,.06);
+  color:#fff; width:38px; height:38px;
+  border-radius: 12px; cursor:pointer; font-size:22px;
+}
+.tx-modal-x:hover{ background: rgba(255,255,255,.10); }
+
+.tx-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom: 12px; }
+.tx-field label{ display:block; font-size:12px; opacity:.75; margin-bottom: 6px; }
+.tx-field select, .tx-field input{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  outline:none;
+}
+
+.tx-row{ display:flex; align-items:center; justify-content:space-between; margin: 10px 0 14px; font-size:12px; opacity:.8; }
+
+.tx-actions{ display:flex; gap:10px; justify-content:flex-end; }
+.tx-btn{
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  border-radius: 12px;
+  padding: 10px 14px;
   cursor:pointer;
+  font-weight:800;
 }
-.btn-primary{ background:#1a2a42; }
-.btn-secondary{ background:transparent; }
+.tx-btn:hover{ background: rgba(255,255,255,.10); }
+.tx-btn.primary{ background: linear-gradient(135deg, #1b6dff, #005bff); border-color: transparent; }
+.tx-btn.primary:hover{ filter: brightness(1.05); }
+
+.tx-error{ color:#ff7b7b; font-size:12px; min-height: 16px; }
+
 
 
 </style>
@@ -7989,7 +8009,7 @@ body.forextrade-mode{
       <div class="fund-actions">
         <button class="fund-btn primary">Deposit</button>
         <button class="fund-btn">Withdraw</button>
-        <button class="fund-btn">Transfer</button>
+        <button type="button" data-transfer-open data-from="spot">Transfer</button>
         <button class="fund-btn">Convert</button>
       </div>
     </div>
@@ -8028,7 +8048,7 @@ body.forextrade-mode{
       </div>
 
       <div class="fund-actions">
-        <button class="fund-btn">Transfer</button>
+        <button type="button" data-transfer-open data-from="forex">Transfer</button>
       </div>
     </div>
 
@@ -8063,7 +8083,7 @@ body.forextrade-mode{
       </div>
 
       <div class="fund-actions">
-        <button class="fund-btn">Transfer</button>
+        <button type="button" data-transfer-open data-from="stocks">Transfer</button>
       </div>
     </div>
 
@@ -16321,160 +16341,147 @@ function openStockspPage(){
 </script>
 
 <script>
-  // ===== DEMO BALANCES =====
-const BAL_KEY = "demo_balances_v1";
-const ACCOUNTS = ["spot", "forex", "stocks"];
+  const BAL_KEY = "demo_balances_v1";
+const ACCOUNTS = ["spot","forex","stocks"];
 
-function loadBalances(){
-  try{
-    const raw = localStorage.getItem(BAL_KEY);
-    if(raw){
-      const b = JSON.parse(raw);
-      // минимальная валидация
-      for(const a of ACCOUNTS) if(!Number.isFinite(+b[a])) b[a] = 0;
-      return b;
-    }
-  }catch(e){}
-  // первый запуск: 1000 в Spot
-  const init = { spot: 1000, forex: 0, stocks: 0 };
+function loadB(){
+  try{ const b = JSON.parse(localStorage.getItem(BAL_KEY)||""); if(b) return b; }catch(e){}
+  const init = {spot:1000, forex:0, stocks:0};
   localStorage.setItem(BAL_KEY, JSON.stringify(init));
   return init;
 }
+function saveB(b){ localStorage.setItem(BAL_KEY, JSON.stringify(b)); }
+function fmt2(x){ return (Math.round((+x||0)*100)/100).toFixed(2); }
+function total(b){ return ACCOUNTS.reduce((s,a)=>s+(+b[a]||0),0); }
 
-function saveBalances(b){
-  localStorage.setItem(BAL_KEY, JSON.stringify(b));
-}
-
-function totalBalances(b){
-  return ACCOUNTS.reduce((s,a)=> s + (+b[a] || 0), 0);
-}
-
-function fmt2(x){
-  return (Math.round((+x || 0) * 100) / 100).toFixed(2);
-}
-
-function renderBalances(){
-  const b = loadBalances();
-  // обновляем каждый блок
+function renderB(){
+  const b = loadB();
   document.querySelectorAll(".fund-amt[data-acct]").forEach(el=>{
-    const acct = el.dataset.acct;
-    if(acct === "overview"){
-      el.textContent = fmt2(totalBalances(b));
-    }else if(ACCOUNTS.includes(acct)){
-      el.textContent = fmt2(b[acct]);
-    }
+    const a = el.dataset.acct;
+    if(a==="overview") el.textContent = fmt2(total(b));
+    else if(ACCOUNTS.includes(a)) el.textContent = fmt2(b[a]);
   });
 }
 
-// ===== TRANSFER UI =====
-function openTransferModal(){
-  const m = document.getElementById("transferModal");
-  if(!m) return;
-  m.classList.remove("hidden");
-  document.getElementById("trErr").textContent = "";
-  document.getElementById("trAmt").value = "";
+function openTx(from){
+  const m = document.getElementById("tx-modal");
+  m.classList.add("open");
+  m.setAttribute("aria-hidden","false");
+  document.getElementById("tx-error").textContent = "";
+  document.getElementById("tx-amt").value = "";
+  if(from) document.getElementById("tx-from").value = from;
+  updateAvail();
+}
+function closeTx(){
+  const m = document.getElementById("tx-modal");
+  m.classList.remove("open");
+  m.setAttribute("aria-hidden","true");
 }
 
-function closeTransferModal(){
-  const m = document.getElementById("transferModal");
-  if(!m) return;
-  m.classList.add("hidden");
+function updateAvail(){
+  const b = loadB();
+  const from = document.getElementById("tx-from").value;
+  document.getElementById("tx-avail").textContent = fmt2(b[from]||0);
 }
 
-function doTransfer(from, to, amt){
-  const b = loadBalances();
-  const n = +amt;
-  if(!ACCOUNTS.includes(from) || !ACCOUNTS.includes(to)) return "Bad account";
-  if(from === to) return "Choose different accounts";
-  if(!Number.isFinite(n) || n <= 0) return "Enter amount > 0";
-  if((+b[from] || 0) < n) return "Insufficient balance";
-  b[from] = (+b[from] || 0) - n;
-  b[to]   = (+b[to]   || 0) + n;
-  saveBalances(b);
-  renderBalances();
-  return "";
+function doTx(){
+  const from = document.getElementById("tx-from").value;
+  const to   = document.getElementById("tx-to").value;
+  const amt  = Number(String(document.getElementById("tx-amt").value).replace(",", "."));
+  const err  = document.getElementById("tx-error");
+
+  if(from===to){ err.textContent="Choose different accounts."; return; }
+  if(!Number.isFinite(amt) || amt<=0){ err.textContent="Enter a valid amount."; return; }
+
+  const b = loadB();
+  if((b[from]||0) + 1e-9 < amt){ err.textContent="Insufficient balance."; return; }
+
+  b[from] = (b[from]||0) - amt;
+  b[to]   = (b[to]||0) + amt;
+
+  saveB(b);
+  renderB();
+  closeTx();
 }
 
-function wireTransfer(){
-  // 1) Любая кнопка с текстом "Transfer" открывает модалку
-  document.querySelectorAll("button, a").forEach(el=>{
-    const t = (el.textContent || "").trim().toLowerCase();
-    if(t === "transfer"){
-      el.addEventListener("click", (e)=>{
-        e.preventDefault();
-        openTransferModal();
-      });
-    }
+document.addEventListener("DOMContentLoaded", ()=>{
+  renderB();
+
+  // Открытие — ТОЛЬКО по data-transfer-open
+  document.querySelectorAll("[data-transfer-open]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      openTx(btn.getAttribute("data-from") || "spot");
+    });
   });
 
-  // 2) Закрытие по backdrop/крестику/Cancel
-  const m = document.getElementById("transferModal");
-  if(m){
-    m.addEventListener("click", (e)=>{
-      const close = e.target && e.target.getAttribute && e.target.getAttribute("data-close");
-      if(close) closeTransferModal();
-    });
-  }
-  const cancel = document.getElementById("trCancel");
-  if(cancel) cancel.addEventListener("click", closeTransferModal);
+  // Закрытие
+  document.getElementById("tx-close").addEventListener("click", closeTx);
+  document.getElementById("tx-cancel").addEventListener("click", closeTx);
 
-  // 3) Submit transfer
-  const submit = document.getElementById("trSubmit");
-  if(submit){
-    submit.addEventListener("click", ()=>{
-      const from = document.getElementById("trFrom").value;
-      const to   = document.getElementById("trTo").value;
-      const amt  = document.getElementById("trAmt").value;
-      const err  = doTransfer(from, to, amt);
-      const errEl = document.getElementById("trErr");
-      if(err){
-        errEl.textContent = err;
-      }else{
-        errEl.textContent = "";
-        closeTransferModal();
-      }
-    });
-  }
-}
+  // Клик по фону — закрыть
+  document.getElementById("tx-modal").addEventListener("click", (e)=>{
+    if(e.target && e.target.id === "tx-modal") closeTx();
+  });
 
-// Инициализация
-renderBalances();
-wireTransfer();
+  // Обновление available при смене From
+  document.getElementById("tx-from").addEventListener("change", updateAvail);
+
+  // Max
+  document.getElementById("tx-max").addEventListener("click", ()=>{
+    const b = loadB();
+    const from = document.getElementById("tx-from").value;
+    document.getElementById("tx-amt").value = fmt2(b[from]||0);
+  });
+
+  // Transfer
+  document.getElementById("tx-send").addEventListener("click", doTx);
+});
+
 
 </script>
 
-<div id="transferModal" class="modal hidden">
-  <div class="modal-backdrop" data-close="1"></div>
-  <div class="modal-card">
-    <div class="modal-head">
-      <div class="modal-title">Transfer</div>
-      <button class="modal-x" type="button" data-close="1">×</button>
+<div id="tx-modal" class="tx-modal-backdrop" aria-hidden="true">
+  <div class="tx-modal" role="dialog" aria-modal="true">
+    <div class="tx-modal-head">
+      <div class="tx-modal-title">Transfer</div>
+      <button id="tx-close" class="tx-modal-x" type="button">×</button>
     </div>
 
-    <div class="modal-body">
-      <label class="modal-label">From</label>
-      <select id="trFrom" class="modal-input">
-        <option value="spot">Spot</option>
-        <option value="forex">Forex</option>
-        <option value="stocks">Stocks</option>
-      </select>
-
-      <label class="modal-label">To</label>
-      <select id="trTo" class="modal-input">
-        <option value="forex">Forex</option>
-        <option value="stocks">Stocks</option>
-        <option value="spot">Spot</option>
-      </select>
-
-      <label class="modal-label">Amount (USDT)</label>
-      <input id="trAmt" class="modal-input" inputmode="decimal" placeholder="0.00" />
-
-      <div id="trErr" class="modal-error"></div>
-
-      <div class="modal-actions">
-        <button id="trCancel" class="btn-secondary" type="button" data-close="1">Cancel</button>
-        <button id="trSubmit" class="btn-primary" type="button">Transfer</button>
+    <div class="tx-grid">
+      <div class="tx-field">
+        <label>From</label>
+        <select id="tx-from">
+          <option value="spot">Spot</option>
+          <option value="forex">Forex</option>
+          <option value="stocks">Stocks</option>
+        </select>
       </div>
+
+      <div class="tx-field">
+        <label>To</label>
+        <select id="tx-to">
+          <option value="spot">Spot</option>
+          <option value="forex">Forex</option>
+          <option value="stocks">Stocks</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tx-field">
+      <label>Amount (USDT)</label>
+      <input id="tx-amt" inputmode="decimal" placeholder="0.00" />
+    </div>
+
+    <div class="tx-row">
+      <div>Available: <span id="tx-avail">0.00</span> USDT</div>
+      <button id="tx-max" class="tx-btn" type="button">Max</button>
+    </div>
+
+    <div id="tx-error" class="tx-error"></div>
+
+    <div class="tx-actions">
+      <button id="tx-cancel" class="tx-btn" type="button">Cancel</button>
+      <button id="tx-send" class="tx-btn primary" type="button">Transfer</button>
     </div>
   </div>
 </div>

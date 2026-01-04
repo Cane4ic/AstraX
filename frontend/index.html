@@ -1046,7 +1046,7 @@ margin-bottom: 100px;
   .market-row .action-btn { order: 7; width: 100%; }
 }
 
-/* ===== ABOUT PAGE (AstraX) ===== */
+/* ===== ABOUT PAGE (ArsteX) ===== */
 .about-wrap{
   max-width: 1200px;
   margin: 0 auto;
@@ -5821,7 +5821,163 @@ body.forextrade-mode{
   background: rgba(255,107,107,.12);
 }
 
+/* FORCE disable old forex pills */
+#openforextradepage .pair-dd-item{
+  all: unset !important;
+  display: none !important;
+}
 
+/* Forex dropdown = Stocks style */
+#openforextradepage .pair-item{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+
+  padding:14px 16px;
+  margin-bottom:8px;
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+
+  color:#fff;
+  cursor:pointer;
+}
+
+#openforextradepage .pair-item:hover{
+  background: rgba(255,255,255,0.08);
+}
+
+#openforextradepage .pair-item .sym{
+  font-weight:800;
+}
+
+#openforextradepage .pair-item .nm{
+  font-size:12px;
+  opacity:.6;
+}
+
+/* FIX: dropdown не должен обрезаться */
+#openforextradepage { overflow: visible !important; }
+#openforextradepage .spot-layout { overflow: visible !important; }
+#openforextradepage .spot-pair,
+#openforextradepage .pairbar,
+#openforextradepage .pair-select-wrap { overflow: visible !important; }
+
+/* чтобы dropdown был поверх всего */
+#openforextradepage .pair-dd { z-index: 99999 !important; }
+
+/* FIX: открыть dropdown даже если в HTML есть style="display:none" */
+#openforextradepage .spot-pair.open .pair-dd{
+  display: block !important;
+}
+#openforextradepage .pair-dd{
+  display: none !important;
+}
+
+#openforextradepage .pair-dd-list{
+  max-height: calc(50vh - 150px);
+  overflow: auto;
+  padding: 6px;
+}
+#openforextradepage .pair-dd{ max-height:60vh; overflow:hidden; }
+#openforextradepage .pair-dd-list::-webkit-scrollbar{ width:8px; }
+#openforextradepage .pair-dd-list::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.12);
+  border-radius: 999px;
+}
+
+/* === Forex dropdown: как StocksTrade (плоский список, пилюля только на hover) === */
+#openforextradepage .pair-dd-list .pair-item{
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+
+/* чуть “плотнее”, как список */
+#openforextradepage .pair-dd-list{
+  padding: 0 !important;
+}
+
+/* пилюля только при наведении */
+#openforextradepage .pair-dd-list .pair-item:hover{
+  background: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  border-radius: 14px !important;
+}
+
+/* активный (если хочешь подсветку выбранного) */
+#openforextradepage .pair-dd-list .pair-item.active{
+  background: rgba(255,255,255,0.05) !important;
+  border-color: rgba(255,255,255,0.10) !important;
+  border-radius: 14px !important;
+}
+
+
+/* ===== FORCE OPEN forex dropdown (перебивает всё) ===== */
+
+/* 1) по умолчанию скрыт */
+#openforextradepage .pair-dd{
+  display: none !important;
+}
+
+/* 2) показываем ТОЛЬКО когда .spot-pair имеет .open */
+#openforextradepage .spot-pair.open .pair-dd{
+  display: block !important;
+}
+
+/* 3) чтобы не обрезало и было поверх */
+#openforextradepage,
+#openforextradepage .spot-layout,
+#openforextradepage .spot-pair,
+#openforextradepage .pairbar,
+#openforextradepage .pair-select-wrap{
+  overflow: visible !important;
+}
+#openforextradepage .pair-dd{ z-index: 999999 !important; }
+
+.modal.hidden{ display:none; }
+.modal{ position:fixed; inset:0; z-index:9999; }
+.modal-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.55); }
+.modal-card{
+  position:relative;
+  width:min(420px, 92vw);
+  margin:10vh auto;
+  background:#0c0f14;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  overflow:hidden;
+}
+.modal-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.modal-title{ font-weight:700; }
+.modal-x{
+  background:transparent; border:0; color:#fff; font-size:22px; cursor:pointer;
+}
+.modal-body{ padding:14px 16px 16px; }
+.modal-label{ display:block; opacity:.8; font-size:12px; margin:10px 0 6px; }
+.modal-input{
+  width:100%;
+  padding:10px 12px;
+  background:#0b0e13;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:10px;
+  color:#fff;
+}
+.modal-actions{ display:flex; gap:10px; margin-top:14px; justify-content:flex-end; }
+.modal-error{ color:#ff6b6b; font-size:12px; margin-top:10px; min-height:16px; }
+.btn-primary, .btn-secondary{
+  padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.10);
+  cursor:pointer;
+}
+.btn-primary{ background:#1a2a42; }
+.btn-secondary{ background:transparent; }
 
 
 </style>
@@ -5923,14 +6079,7 @@ body.forextrade-mode{
   </div>
 </div>
 
-  <button class="top-icon-btn" type="button" aria-label="Notifications">
-    <span class="top-badge">2</span>
-    <!-- простая иконка колокола -->
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
+  
 
   <div class="user-dropdown">
   <button class="top-icon-btn user-trigger" type="button" aria-label="User menu">
@@ -5967,11 +6116,11 @@ body.forextrade-mode{
   <div class="hero-content">
     <h1 class="hero-title">
       Buy & trade on the<br />
-      AstraX crypto exchange
+      ArsteX crypto exchange
     </h1>
 
     <p class="hero-subtitle">
-      AstraX makes trading easy, fast & reliable. With 24/7 support,
+      ArsteX makes trading easy, fast & reliable. With 24/7 support,
       staking and bank-grade security & insurance. Since 2020
     </p>
 
@@ -6309,7 +6458,7 @@ body.forextrade-mode{
         </div>
         <h3 class="step-heading">1. Register</h3>
         <p class="step-text">
-          Create your AstraX account in a few clicks and verify your identity.
+          Create your ArsteX account in a few clicks and verify your identity.
         </p>
       </div>
 
@@ -6349,13 +6498,13 @@ body.forextrade-mode{
         <button class="faq-head" type="button">
           <span class="faq-index">1</span>
           <span class="faq-question">
-            Why is AstraX the best exchange for crypto traders?
+            Why is ArsteX the best exchange for crypto traders?
           </span>
           <span class="faq-icon">+</span>
         </button>
         <div class="faq-body">
           <p>
-            AstraX combines deep liquidity, low trading fees and fast order
+            ArsteX combines deep liquidity, low trading fees and fast order
             execution. We offer both spot and derivatives markets, 24/7 support
             and bank-grade security for your funds.
           </p>
@@ -6367,7 +6516,7 @@ body.forextrade-mode{
         <button class="faq-head" type="button">
           <span class="faq-index">2</span>
           <span class="faq-question">
-            What products does AstraX provide?
+            What products does ArsteX provide?
           </span>
           <span class="faq-icon">+</span>
         </button>
@@ -6385,7 +6534,7 @@ body.forextrade-mode{
         <button class="faq-head" type="button">
           <span class="faq-index">3</span>
           <span class="faq-question">
-            How to buy Bitcoin and other cryptocurrencies on AstraX?
+            How to buy Bitcoin and other cryptocurrencies on ArsteX?
           </span>
           <span class="faq-icon">+</span>
         </button>
@@ -6409,7 +6558,7 @@ body.forextrade-mode{
         </button>
         <div class="faq-body">
           <p>
-            Use the Markets page on AstraX: real-time prices, 24h change,
+            Use the Markets page on ArsteX: real-time prices, 24h change,
             sparklines and market-cap data for top assets. You can also add
             favourites and quickly switch between crypto and forex.
           </p>
@@ -6421,7 +6570,7 @@ body.forextrade-mode{
         <button class="faq-head" type="button">
           <span class="faq-index">5</span>
           <span class="faq-question">
-            How to start trading cryptocurrencies on AstraX?
+            How to start trading cryptocurrencies on ArsteX?
           </span>
           <span class="faq-icon">+</span>
         </button>
@@ -6647,7 +6796,7 @@ body.forextrade-mode{
         <div class="val" id="fx-24h-change">0.00%</div>
       </div>
       <div class="stat">
-        <div class="label">24h High</div>
+        <div class="label"></div>
         <div class="val" id="fx-24h-high">—</div>
       </div>
       <div class="stat">
@@ -6978,13 +7127,13 @@ body.forextrade-mode{
 <section id="about-page" style="display:none; padding-top:120px;">
   <div class="about-wrap">
 
-  <!-- 1) About AstraX (по центру) -->
+  <!-- 1) About ArsteX (по центру) -->
   <section class="about-hero">
-    <h1 class="about-title">About AstraX</h1>
+    <h1 class="about-title">About ArsteX</h1>
 
     <p class="about-hero-text">
-      Founded in 2020, AstraX is a leading crypto exchange, serving a global community of over 20 million users.
-      With a comprehensive suite of and services, including  spot trading, futures, forex, and stocks trading, AstraX caters
+      Founded in 2020, ArsteX is a leading crypto exchange, serving a global community of over 20 million users.
+      With a comprehensive suite of and services, including  spot trading, futures, forex, and stocks trading, ArsteX caters
       to the evolving needs of users across all experience levels, from beginners to professionals.
     </p>
 
@@ -7007,11 +7156,11 @@ body.forextrade-mode{
     <div class="about-left">
       <h2 class="about-h2">Shield Fund<span class="dot">.</span></h2>
       <p class="about-p">
-        AstraX Shield Fund is a safety net exceeding $150 million, established to safeguard users against unexpected incidents, including technical vulnerabilities,
+        ArsteX Shield Fund is a safety net exceeding $150 million, established to safeguard users against unexpected incidents, including technical vulnerabilities,
         security risks, or malicious cyber threats on the platform.
       </p>
       <p class="about-p">
-        Fully self-funded and always active, it reflects AstraX’s long-term commitment to transparency, safety, and putting users first across its trading ecosystem.
+        Fully self-funded and always active, it reflects ArsteX’s long-term commitment to transparency, safety, and putting users first across its trading ecosystem.
       </p>
     </div>
     <div class="about-right"></div>
@@ -7044,9 +7193,9 @@ body.forextrade-mode{
     </div>
   </section>
 
-  <!-- 5) AstraX Values -->
+  <!-- 5) ArsteX Values -->
   <section class="about-block about-center">
-    <h2 class="about-h2-center">AstraX Values<span class="dot">.</span></h2>
+    <h2 class="about-h2-center">ArsteX Values<span class="dot">.</span></h2>
 
     <div class="values-grid">
       <div class="value-item">
@@ -7097,7 +7246,7 @@ body.forextrade-mode{
       <h2 class="about-h2">24/7 Customer<br/>Service</h2>
       <p class="about-p">
         Our customer service executives are always ready and glad to answer any questions. Please feel free to contact our customer support at
-        <span class="about-link">support@astrax.com</span>. For immediate assistance, you can start a conversation via the live chat widget.
+        <span class="about-link">support@ArsteX.com</span>. For immediate assistance, you can start a conversation via the live chat widget.
       </p>
     </div>
 
@@ -7119,7 +7268,7 @@ body.forextrade-mode{
     <section class="about-hero">
       <h1 class="about-title">News</h1>
       <p class="about-hero-text">
-        Latest AstraX updates, product announcements and platform news.
+        Latest ArsteX updates, product announcements and platform news.
       </p>
     </section>
 
@@ -7142,7 +7291,7 @@ body.forextrade-mode{
     <section class="about-hero">
       <h1 class="about-title">Blog</h1>
       <p class="about-hero-text">
-        Trading education, guides and insights from AstraX.
+        Trading education, guides and insights from ArsteX.
       </p>
     </section>
 
@@ -7276,7 +7425,7 @@ body.forextrade-mode{
   <div class="about-wrap">
     <section class="about-hero">
       <h1 class="about-title">Customer Agreement</h1>
-      <p class="about-hero-text">Terms of service for using AstraX.</p>
+      <p class="about-hero-text">Terms of service for using ArsteX.</p>
     </section>
     <section class="about-block about-center" style="margin-top:60px;">
       <div class="about-cards" style="grid-template-columns: 1fr;">
@@ -7324,7 +7473,7 @@ body.forextrade-mode{
 
   <h2>WHAT PERSONAL DATA WE COLLECT</h2>
   <p>
-    <b>AstraX</b> collects, processes, and stores Personal Data collected from you
+    <b>ArsteX</b> collects, processes, and stores Personal Data collected from you
     via your use of the Service or where you have given your consent. This
     Personal Data may include contact details, copies of identification
     documentation provided by you or derived from publicly accessible databases,
@@ -7334,12 +7483,12 @@ body.forextrade-mode{
 
   <p>
     Operating within certain regulated jurisdictions around the world,
-    <b>AstraX</b> collects, stores, and processes your Personal Data in accordance
+    <b>ArsteX</b> collects, stores, and processes your Personal Data in accordance
     with applicable regulations and aims for the highest standards of compliance.
   </p>
 
   <p>
-    We collect information provided during the <b>AstraX</b> onboarding process,
+    We collect information provided during the <b>ArsteX</b> onboarding process,
     including completed, incomplete, or abandoned registrations. We also
     collect Personal Data through customer support communications and marketing
     subscriptions.
@@ -7374,12 +7523,12 @@ body.forextrade-mode{
   <p>
     By using the Services, you consent to the transfer of Personal Data outside
     your jurisdiction. If you decline such consent, you will no longer be able
-    to use the <b>AstraX</b> platform, except for withdrawing your digital assets.
+    to use the <b>ArsteX</b> platform, except for withdrawing your digital assets.
   </p>
 
   <h2>HOW WE USE YOUR PERSONAL DATA</h2>
   <p>
-    <b>AstraX</b> uses Personal Data to administer, improve, and personalize the
+    <b>ArsteX</b> uses Personal Data to administer, improve, and personalize the
     Services, communicate with users, and ensure regulatory compliance.
   </p>
 
@@ -7395,7 +7544,7 @@ body.forextrade-mode{
 
   <h2>HOW WE STORE YOUR PERSONAL DATA</h2>
   <p>
-    <b>AstraX</b> implements physical, electronic, and administrative safeguards
+    <b>ArsteX</b> implements physical, electronic, and administrative safeguards
     to protect Personal Data, including encryption, access controls, and staff
     training.
   </p>
@@ -7408,7 +7557,7 @@ body.forextrade-mode{
   <h2>ACCESS, CORRECTION, AND DELETION OF YOUR PERSONAL DATA</h2>
   <p>
     You may request access to, correction of, or deletion of your Personal Data
-    by contacting <b>support@astrax.com</b> with the subject “DATA INQUIRY”.
+    by contacting <b>support@ArsteX.com</b> with the subject “DATA INQUIRY”.
   </p>
 
   <p>
@@ -7419,9 +7568,9 @@ body.forextrade-mode{
 
   <h2>MARKETING</h2>
   <p>
-    <b>AstraX</b> may send marketing communications related to products and
+    <b>ArsteX</b> may send marketing communications related to products and
     services. You may opt out at any time by contacting
-    <b>support@astrax.com</b>.
+    <b>support@ArsteX.com</b>.
   </p>
 
   <h2>COOKIE USAGE</h2>
@@ -7430,10 +7579,10 @@ body.forextrade-mode{
     regulatory compliance. Disabling cookies may limit platform functionality.
   </p>
 
-  <h2>CONTACTING ASTRAX ABOUT PRIVACY</h2>
+  <h2>CONTACTING ArsteX ABOUT PRIVACY</h2>
   <p>
     If you have questions regarding this Privacy Policy, please contact
-    <b>support@astrax.com</b> with the subject “PRIVACY REQUEST”.
+    <b>support@ArsteX.com</b> with the subject “PRIVACY REQUEST”.
   </p>
 
   <h2>CHANGES TO OUR PRIVACY POLICY</h2>
@@ -7477,7 +7626,7 @@ body.forextrade-mode{
   </p>
   <p>
     As a trading platform, we believe that all digital assets available on
-    <b>AstraX</b> are an innovative alternative asset class; therefore, digital
+    <b>ArsteX</b> are an innovative alternative asset class; therefore, digital
     assets should not be called currency or money.
   </p>
 
@@ -7500,7 +7649,7 @@ body.forextrade-mode{
     law.
   </p>
   <p>
-    Furthermore, <b>AstraX</b> does not accept certain customers. To maintain a
+    Furthermore, <b>ArsteX</b> does not accept certain customers. To maintain a
     strong reputation and ensure a compliant marketplace, we do not accept users
     from certain jurisdictions.
   </p>
@@ -7531,7 +7680,7 @@ body.forextrade-mode{
 
   <h3>6.1 Disclaimer of Warranties</h3>
   <p>
-    All services provided via the <b>AstraX</b> platform shall be collectively
+    All services provided via the <b>ArsteX</b> platform shall be collectively
     referred to as the “Services”.
   </p>
   <p>
@@ -7539,17 +7688,17 @@ body.forextrade-mode{
     AND “AS AVAILABLE” BASIS.
   </p>
   <p>
-    <b>ASTRAX</b> DISCLAIMS ALL WARRANTIES, INCLUDING IMPLIED WARRANTIES OF
+    <b>ArsteX</b> DISCLAIMS ALL WARRANTIES, INCLUDING IMPLIED WARRANTIES OF
     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
   </p>
 
   <h3>6.2 Disclaimer of Damages and Limitation of Liability</h3>
   <p>
-    TO THE MAXIMUM EXTENT PERMITTED BY LAW, <b>ASTRAX</b> SHALL NOT BE LIABLE FOR ANY
+    TO THE MAXIMUM EXTENT PERMITTED BY LAW, <b>ArsteX</b> SHALL NOT BE LIABLE FOR ANY
     INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES.
   </p>
   <p>
-    TOTAL LIABILITY SHALL NOT EXCEED THE FEES PAID BY YOU TO <b>ASTRAX</b> DURING
+    TOTAL LIABILITY SHALL NOT EXCEED THE FEES PAID BY YOU TO <b>ArsteX</b> DURING
     THE TWELVE (12) MONTHS PRECEDING THE CLAIM.
   </p>
           </div>
@@ -7575,7 +7724,7 @@ body.forextrade-mode{
   <h3>1.1 Trading Risk</h3>
   <p>
     You use the Services at your own risk, including but not limited to Spot and
-    Derivatives services provided by <b>AstraX</b>. There can be no assurance that the
+    Derivatives services provided by <b>ArsteX</b>. There can be no assurance that the
     use of the Services will generate a positive return or profit, that significant
     losses will not be incurred, or that your objectives will be achieved.
   </p>
@@ -7629,12 +7778,12 @@ body.forextrade-mode{
   <p>
     You are responsible for ensuring that the correct address is used for any
     deposit, withdrawal, or transfer and that the digital asset is supported by
-    <b>AstraX</b>. Any error may result in a total and irreversible loss of assets.
+    <b>ArsteX</b>. Any error may result in a total and irreversible loss of assets.
   </p>
 
   <p>
     Digital assets will only be credited to your account after sufficient block
-    confirmations, according to <b>AstraX</b> policies. <b>AstraX</b> reserves the
+    confirmations, according to <b>ArsteX</b> policies. <b>ArsteX</b> reserves the
     right to determine whether any transfer will be credited.
   </p>
 
@@ -7647,13 +7796,13 @@ body.forextrade-mode{
 
   <p>
     Blockchain protocols may undergo changes such as forks, rollbacks, or attacks.
-    <b>AstraX</b> does not guarantee support for such events, which may result in
+    <b>ArsteX</b> does not guarantee support for such events, which may result in
     partial or total loss of assets.
   </p>
 
   <h3>1.5 Information Accuracy Risk</h3>
   <p>
-    While <b>AstraX</b> endeavours to provide accurate and up-to-date information,
+    While <b>ArsteX</b> endeavours to provide accurate and up-to-date information,
     such information may not always be complete, current, or accurately
     translated.
   </p>
@@ -7664,7 +7813,7 @@ body.forextrade-mode{
   <p>
     The regulatory framework governing digital assets is evolving and remains
     uncertain. Future regulatory changes may adversely affect digital assets or
-    the Services provided by <b>AstraX</b>.
+    the Services provided by <b>ArsteX</b>.
   </p>
 
   <p>
@@ -7674,7 +7823,7 @@ body.forextrade-mode{
 
   <p>
     You are solely responsible for ensuring compliance with all applicable local
-    laws and regulations. <b>AstraX</b> does not provide legal, regulatory, or tax
+    laws and regulations. <b>ArsteX</b> does not provide legal, regulatory, or tax
     advice.
   </p>
 
@@ -7682,7 +7831,7 @@ body.forextrade-mode{
 
   <h3>3.1 Risks Related to Cybersecurity</h3>
   <p>
-    Malicious actors may attempt to compromise the <b>AstraX</b> Trading Platform
+    Malicious actors may attempt to compromise the <b>ArsteX</b> Trading Platform
     through cyberattacks such as malware, denial-of-service attacks, account
     takeovers, or fraudulent transactions.
   </p>
@@ -7700,7 +7849,7 @@ body.forextrade-mode{
 
   <h3>3.2 Platform IT Maintenance Risk</h3>
   <p>
-    <b>AstraX</b> may conduct scheduled or unscheduled maintenance, which may
+    <b>ArsteX</b> may conduct scheduled or unscheduled maintenance, which may
     result in temporary downtime and restricted access to the Trading Platform.
   </p>
 
@@ -7711,12 +7860,12 @@ body.forextrade-mode{
   </p>
 
   <p>
-    <b>AstraX</b> is not liable for delays or trading limitations caused by network
+    <b>ArsteX</b> is not liable for delays or trading limitations caused by network
     issues, mobile connectivity, or third-party service providers.
   </p>
 
   <p>
-    Users are responsible for maintaining updated versions of <b>AstraX</b>
+    Users are responsible for maintaining updated versions of <b>ArsteX</b>
     applications. Use on modified or unsupported operating systems may result in
     security or performance risks.
   </p>
@@ -7791,7 +7940,7 @@ body.forextrade-mode{
       <div class="fund-label">Total Assets</div>
 
       <div class="fund-value">
-        0.00 <span class="fund-unit">USDT</span>
+        <span class="fund-amt" data-acct="overview">0.00</span>
       </div>
 
       <div class="fund-sub">≈ $0.00</div>
@@ -7804,7 +7953,6 @@ body.forextrade-mode{
         <button class="fund-btn primary">Deposit</button>
         <button class="fund-btn">Withdraw</button>
         <button class="fund-btn">Transfer</button>
-        <button class="fund-btn">Convert</button>
       </div>
     </div>
 
@@ -7829,8 +7977,8 @@ body.forextrade-mode{
       <div class="fund-label">Total Assets</div>
 
       <div class="fund-value">
-        0.00 <span class="fund-unit">USDT</span>
-      </div>
+  <span class="fund-amt" data-acct="spot">0.00</span> <span class="fund-unit">USDT</span>
+</div>
 
       <div class="fund-sub">≈ $0.00</div>
 
@@ -7870,7 +8018,7 @@ body.forextrade-mode{
       <div class="fund-label">Total Assets</div>
 
       <div class="fund-value">
-        0.00 <span class="fund-unit">USDT</span>
+        <span class="fund-amt" data-acct="forex">0.00</span> <span class="fund-unit">USD</span>
       </div>
 
       <div class="fund-sub">≈ $0.00</div>
@@ -7905,7 +8053,7 @@ body.forextrade-mode{
       <div class="fund-label">Total Assets</div>
 
       <div class="fund-value">
-        0.00 <span class="fund-unit">USDT</span>
+        <span class="fund-amt" data-acct="stocks">0.00</span> <span class="fund-unit">USD</span>
       </div>
 
       <div class="fund-sub">≈ $0.00</div>
@@ -8735,21 +8883,20 @@ body.forextrade-mode{
           </button>
 
           <!-- dropdown (пока чисто дизайн) -->
-          <div class="pair-dd" style="display:none;">
+          <div class="pair-dd">
             <div class="pair-dd-head">
               <div class="pair-search-wrap">
                 <input class="pair-search" placeholder="Search forex pair" />
               </div>
               <div class="pair-tabs">
-                <button class="pair-tab is-active" type="button">Majors</button>
-                <button class="pair-tab" type="button">Minors</button>
+                <button class="pair-tab" type="button">Favorites</button>
+                <button class="pair-tab is-active" type="button">Pairs</button>
               </div>
             </div>
 
             <div class="pair-dd-cols">
               <div>Pair</div>
               <div class="t-right">Last</div>
-              <div class="t-right">Change</div>
             </div>
 
             <div class="pair-dd-list"></div>
@@ -8757,9 +8904,7 @@ body.forextrade-mode{
         </div>
 
         <div class="spot-stats">
-          <div class="spot-stat"><div class="last-price">0.0000</div></div>
-          <div class="spot-stat"><div class="label">24h Change</div><div class="change">0.00%</div></div>
-          <div class="spot-stat"><div class="label">Volume</div><div class="volume">0</div></div>
+          <div class="last-price" id="fx-last-price">0.0000</div>
         </div>
       </div>
     </div>
@@ -8773,11 +8918,6 @@ body.forextrade-mode{
         <div class="trade-bs-toggle">
           <button class="bs-btn active" type="button">Buy</button>
           <button class="bs-btn" type="button">Sell</button>
-        </div>
-
-        <div class="trade-types">
-          <button class="type-btn active" type="button">Limit</button>
-          <button class="type-btn" type="button">Market</button>
         </div>
 
         <div class="trade-available">
@@ -8819,11 +8959,6 @@ body.forextrade-mode{
           <div class="trade-field-label">Total <span class="muted">(USD)</span></div>
           <input class="trade-input" type="number" step="0.01" placeholder="0.00" />
         </div>
-
-        <label class="trade-tpsl-toggle">
-          <input type="checkbox" />
-          <span>TP / SL</span>
-        </label>
 
         <button class="trade-submit buy" type="button">Buy EUR</button>
       </div>
@@ -9256,12 +9391,28 @@ const forexExoticMap = {
   eurcnh: { base: "EUR", quote: "CNH" }
 };
 
+
+
 // общий объект для расчётов и обновления цен
 const forexMap = {
   ...forexMajorsMap,
   ...forexCrossesMap,
   ...forexExoticMap
 };
+
+// ✅ export forexMap + build list for forextrade dropdown
+window.forexMap = forexMap;
+
+window.FOREX_PAIRS = Object.entries(forexMap).map(([sym, v]) => `${v.base}/${v.quote}`);
+
+// label ("USD/JPY") -> symbol key ("usdjpy")
+window.__fxLabelToSymbol = Object.fromEntries(
+  Object.entries(forexMap).map(([sym, v]) => [`${v.base}/${v.quote}`, sym])
+);
+
+// latest rates cache for forextrade
+window.__forexRates = window.__forexRates || {};
+
 
 function renderForexRows() {
   const container = document.getElementById("forex-rows");
@@ -9355,10 +9506,18 @@ function applyForex(symbol, price) {
   const rows = document.querySelectorAll(`[data-forex="${symbol}"]`);
   if (!rows.length) return;
 
-  const { quote } = forexMap[symbol] || {};
-  const decimals = (quote || "").toUpperCase() === "JPY" ? 3 : 5;
+    const p = forexMap[symbol] || {};
+  const base  = String(p.base || "").toUpperCase();
+  const quote = String(p.quote || "").toUpperCase();
+
+  const decimals = (quote === "JPY") ? 3 : 5;
   const basePrice = price;
 
+  // ✅ cache for forextrade (does not affect forex rendering)
+  window.__forexRates = window.__forexRates || {};
+  if (base && quote) {
+    window.__forexRates[`${base}/${quote}`] = price;
+  }
   rows.forEach(row => {
     // цена
     row.querySelector(".price").textContent = price.toFixed(decimals);
@@ -9698,7 +9857,7 @@ if (riskPage) riskPage.style.display = "none";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-const FAV_KEY = "astrax_favorites_v1";
+const FAV_KEY = "ArsteX_favorites_v1";
 let ACTIVE_TAB = "usdt"; // по умолчанию USDT
 
 function loadFavs(){
@@ -10012,7 +10171,7 @@ if (aboutPage) aboutPage.style.display = "none";
 // ===================== STOCKS TRADE: dropdown + list (как spot) =====================
 (function(){
 
-  const FAV_KEY = "astrax_stock_favs_v1";
+  const FAV_KEY = "ArsteX_stock_favs_v1";
 
   function getFavs(){
     try { return JSON.parse(localStorage.getItem(FAV_KEY) || "[]"); } catch { return []; }
@@ -10655,6 +10814,10 @@ function openforextradepage() {
   window.scrollTo({ top: 0, behavior: "auto" });
   history.replaceState(null, "", "#openforextradepage");
   setTopbarForexTheme();
+  initForexTradeUI();
+const first = window.__fx_trade_selected || window.FOREX_PAIRS?.[0];
+if (first && window.setForexTradePair) window.setForexTradePair(first);
+if (window.startForexTradeTicker) window.startForexTradeTicker();
 }
 
 
@@ -11125,7 +11288,7 @@ const stockmap = {
 
 const stockState = {};
 const STOCK_HISTORY_POINTS = 40;
-const STOCK_STORAGE_KEY = "astrax_stock_state_v1"; // <-- добавили ключ
+const STOCK_STORAGE_KEY = "ArsteX_stock_state_v1"; // <-- добавили ключ
 window.stockmap = stockmap;
 window.stockState = stockState;
 
@@ -11636,7 +11799,7 @@ function initStocksPagination() {
 
 document.addEventListener("DOMContentLoaded", () => {
   renderCryptoRows();
-  renderForexRows();
+  renderAllForexRows();
 
   loadCryptoOnce();
   loadForexOnce();
@@ -12026,7 +12189,7 @@ document.getElementById("reset-confirm-btn")?.addEventListener("click", async ()
   openLoginPage();
 });
 
-const AUTH_KEY = "astrax_logged_in";
+const AUTH_KEY = "ArsteX_logged_in";
 
 function isLoggedIn(){
   return localStorage.getItem(AUTH_KEY) === "1";
@@ -12592,14 +12755,14 @@ document.documentElement.classList.remove("stocks-trade-mode");
 let PAIRS = [];
 let PAIRS_SET = new Set();
 
-const PAIRS_CACHE_KEY = "astrax_pairs_usdt_v1";
+const PAIRS_CACHE_KEY = "ArsteX_pairs_usdt_v1";
 const PAIRS_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 
 function rebuildPairsSet() {
   PAIRS_SET = new Set(PAIRS.map(p => p.key));
 }
 
-const CG_TOP_CACHE_KEY = "astrax_cg_top100_v1";
+const CG_TOP_CACHE_KEY = "ArsteX_cg_top100_v1";
 const CG_TOP_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 
 function isJunkBase(base) {
@@ -13300,10 +13463,10 @@ if (savedSim && Array.isArray(savedSim.candles) && savedSim.candles.length){
 
     // If simulation was active before refresh, restore it (UI + muted live feed)
     try{
-      const simOn = localStorage.getItem("astrax_ui_sim_on_v1");
+      const simOn = localStorage.getItem("ArsteX_ui_sim_on_v1");
       if ((savedSim.mode === "sim") && (simOn !== "0")) {
         // defer actual sim start until chart is rendered, otherwise we can end up muted without a running timer
-        __resumeSimDir = Number(savedSim.dir || localStorage.getItem("astrax_ui_sim_dir_v1") || 0) || +1;
+        __resumeSimDir = Number(savedSim.dir || localStorage.getItem("ArsteX_ui_sim_dir_v1") || 0) || +1;
 
         // pre-highlight sim buttons (actual start happens after setCandles)
         document.querySelectorAll('#chart-draw-tools .tool-btn[data-tool="sim-up"], #chart-draw-tools .tool-btn[data-tool="sim-down"]')
@@ -13666,7 +13829,7 @@ window.CHART_SIM = CHART_SIM;
 // ===================== SIM PERSISTENCE =====================
 // Synthetic candles must survive reload / TF change / pair change.
 // We store per (symbol, interval) in localStorage.
-const SIM_STORE_PREFIX = "astrax_sim_history_v1";
+const SIM_STORE_PREFIX = "ArsteX_sim_history_v1";
 
 const SIM_PERSIST = {
   baseLiveT: null,       // timestamp (ms) of last REAL candle when simulation started
@@ -13680,11 +13843,11 @@ const SIM_PERSIST = {
     try{
       // v25: one-shot guard after user clears synthetic candles
       try{
-        const g = sessionStorage.getItem("astrax_clear_sim_once");
+        const g = sessionStorage.getItem("ArsteX_clear_sim_once");
         if(g){
           const want = `${symbol}|${interval}`;
           if(g === want){
-            sessionStorage.removeItem("astrax_clear_sim_once");
+            sessionStorage.removeItem("ArsteX_clear_sim_once");
             return null;
           }
         }
@@ -13768,7 +13931,7 @@ function beginReturnToLive() {
   if (CHART_SIM.mode === "off") return;
 
   CHART_SIM.mode = "return";
-  try{ localStorage.setItem("astrax_ui_sim_on_v1","0"); }catch(e){}
+  try{ localStorage.setItem("ArsteX_ui_sim_on_v1","0"); }catch(e){}
 
   CHART_SIM.dir = 0;
 
@@ -13820,7 +13983,7 @@ function startChartSim(dir) {
   CHART_SIM.dir = dir;
 
   
-  try{ localStorage.setItem("astrax_ui_sim_dir_v1", String(dir)); localStorage.setItem("astrax_ui_sim_on_v1","1"); }catch(e){}
+  try{ localStorage.setItem("ArsteX_ui_sim_dir_v1", String(dir)); localStorage.setItem("ArsteX_ui_sim_on_v1","1"); }catch(e){}
 // chart muted от live-обновлений, но мы продолжаем слушать WS в фоне
   LIVE_FEED.muted = true;
 
@@ -13961,7 +14124,7 @@ function startChartSim(dir) {
           // просто возвращаемся к live-потоку и размьючиваем.
           stopChartSimTimer();
           CHART_SIM.mode = "off";
-      try{ localStorage.setItem("astrax_ui_sim_on_v1","0"); }catch(e){}
+      try{ localStorage.setItem("ArsteX_ui_sim_on_v1","0"); }catch(e){}
 
           CHART_SIM.dir = 0;
           CHART_SIM.target = null;
@@ -14077,6 +14240,332 @@ ACTIVE_TAB = "usdt";
 //   renderPair(window.SPOT_SELECTED);
 // }, 1200);
 
+// ===== FOREX TRADE: pairs (reuse same dropdown UI) =====
+(function(){
+  let FX_TRADE_SELECTED = null;
+  let fxLiveTimer = null;
+
+  // Собираем пары как на странице forex (у тебя forexMap уже существует там, где рендерится forex)
+  function getFxPairs(){
+    // forexMap ожидается в глобале (как в твоей forex странице)
+    const m = window.forexMap || {};
+    // формат: [{key:"EUR/USD", base:"EUR", quote:"USD", name:"EUR"}]
+    return Object.keys(m).map(k => {
+      const [base, quote] = k.split("/");
+      return { key:k, base, quote, name: base };
+    });
+  }
+
+  function fxRoot(){ return document.getElementById("openforextradepage"); }
+
+  function fxEls(){
+  const root = document.getElementById("openforextradepage");
+  if(!root) return {};
+  return {
+    root,
+    btn: root.querySelector(".pair-select"),         // ✅ твоя кнопка
+    dd: root.querySelector(".pair-dd"),
+    list: root.querySelector(".pair-dd-list"),
+    search: root.querySelector(".pair-search"),      // ✅ твой input
+    sym: root.querySelector(".forex-pair-symbol"),   // ✅ твой символ
+    name: root.querySelector(".forex-pair-name"),    // ✅ твоё имя
+    last: root.querySelector("#fx-last-price") || root.querySelector(".spot-stats .last-price") || null
+  };
+}
+
+
+  // --- FX state (как SPOT_PAIRS, только для forex) ---
+window.FX_PAIRS = window.FX_PAIRS || {}; // key -> { price, prev, changePct }
+
+function ensureFxState(key){
+  const k = normalizeFxKey(key);
+  if(!window.FX_PAIRS[k]){
+    window.FX_PAIRS[k] = { price: NaN, prev: NaN, changePct: 0 };
+  }
+  return window.FX_PAIRS[k];
+}
+
+function renderFxTradeList(filterText=""){
+  const { list, root } = fxEls();
+  if(!list) return;
+
+  const pairs = getFxPairs();
+  const q = (filterText||"").trim().toLowerCase();
+
+  list.innerHTML = "";
+
+  const items = pairs.filter(p =>
+    !q ||
+    p.key.toLowerCase().includes(q) ||
+    (p.base||"").toLowerCase().includes(q) ||
+    (p.quote||"").toLowerCase().includes(q)
+  );
+
+  items.forEach(p => {
+    const st = ensureFxState(p.key);
+    if (normalizeFxKey(p.key) === normalizeFxKey(FX_TRADE_SELECTED)) {
+  return;
+}
+
+    const priceStr = Number.isFinite(st.price) ? formatFx(st.price) : "";
+    const chg = Number(st.changePct || 0);
+
+    const row = document.createElement("div");
+    row.className = "pair-item";
+    row.dataset.fxKey = normalizeFxKey(p.key);
+
+    row.innerHTML = `
+  <div class="pair-left">
+    <div class="pair-star">★</div>
+    <div class="pair-asset">
+      <div class="pair-sym">${normalizeFxKey(p.key)}</div>
+      <div class="pair-vol">FOREX</div>
+    </div>
+  </div>
+
+  <div class="pair-price t-right">${priceStr}</div>
+    
+  </div>
+`;
+
+
+    row.addEventListener("click", () => {
+      renderFxTradePair(p.key);
+      root?.querySelector(".spot-pair")?.classList.remove("open"); // закрыть
+    });
+
+    list.appendChild(row);
+  });
+}
+
+
+
+  function renderFxTradePair(key){
+  const { sym, name } = fxEls();
+
+  const norm = normalizeFxKey(key);
+  FX_TRADE_SELECTED = norm;
+
+  if(sym) sym.textContent = norm;
+  if(name){
+    const [b,q] = norm.split("/");
+    name.textContent = `${b} / ${q}`;
+  }
+
+  window.__fx_trade_selected = norm;
+  updateFxPriceNow();
+}
+
+function fxPairBox(){
+  const root = document.getElementById("openforextradepage");
+  return root ? root.querySelector(".spot-pair") : null;
+}
+
+function openFxDd(){
+  const box = fxPairBox();
+  if(box) box.classList.add("open");
+}
+
+function closeFxDd(){
+  const box = fxPairBox();
+  if(box) box.classList.remove("open");
+}
+
+  function initForexTradeUI(){
+  const root = document.getElementById("openforextradepage");
+  if(!root) return;
+
+  const pairWrap = root.querySelector(".spot-pair");
+  const { btn, dd, search } = fxEls();
+  const list = root.querySelector(".pair-dd-list");
+  if(!btn || !dd || !list || !pairWrap) return;
+
+  function openDD(){
+  pairWrap.classList.add("open");
+  if(search) search.value = "";
+  updateFxListPrices();     // <—
+  renderFxTradeList("");
+}
+  function closeDD(){
+    pairWrap.classList.remove("open");
+  }
+  function toggleDD(){
+    pairWrap.classList.contains("open") ? closeDD() : openDD();
+  }
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleDD();
+  });
+
+  dd.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("click", closeDD);
+
+  if(search){
+    search.addEventListener("input", () => {
+      renderFxTradeList(search.value || "");
+    });
+  }
+
+  renderFxTradeList("");
+}
+
+
+
+
+
+  // ===== “Оживление данных” =====
+  // Идея: берём базовую цену из forex страницы (если ты уже грузишь котировки там),
+  // а между обновлениями делаем маленький “тик” (рандомный дрейф), чтобы выглядело живым.
+  let __fxLast = null;
+
+  function getFxBaseRate(pairKey){
+    // если у тебя forex страница уже хранит актуальные цены где-то в window, подцепи сюда.
+    // например: window.__forexRates["EUR/USD"] = 1.0865
+    const m = window.__forexRates || window.__FOREX_RATES || null;
+    if(m && m[pairKey] != null) return Number(m[pairKey]) || null;
+
+    // fallback: если нет стора — не ломаемся
+    return null;
+  }
+
+  function formatFx(v){
+    if(!Number.isFinite(v)) return "--";
+    // forex часто 5 знаков, но можно подстроить:
+    return (v >= 10) ? v.toFixed(3) : v.toFixed(5);
+  }
+
+  function updateFxPriceNow(){
+    const { last } = fxEls();
+    if(!last) return;
+
+    const base = getFxBaseRate(FX_TRADE_SELECTED);
+    let v = base;
+
+    // если base нет — продолжаем “жить” от предыдущего значения
+    if(!Number.isFinite(v)){
+      v = Number.isFinite(__fxLast) ? __fxLast : 1 + Math.random()*0.2;
+    }
+
+    // микротик
+    const drift = (Math.random() - 0.5) * v * 0.00015; // ~1.5 bps
+    v = v + drift;
+
+    // подсветка up/down
+    if(Number.isFinite(__fxLast)){
+      last.classList.toggle("up", v > __fxLast);
+      last.classList.toggle("down", v < __fxLast);
+    }
+    __fxLast = v;
+
+    last.textContent = formatFx(v);
+    // === update 24h stats (forextrade) ===
+const st = ensureFxState(FX_TRADE_SELECTED);
+
+// change% считаем от предыдущей цены (упрощенно)
+const prev = Number.isFinite(st.prev) ? st.prev : v;
+st.prev = v;
+st.price = v;
+// синхронизируем цену выбранной пары в открытом дропдауне (блок 2)
+const box = fxPairBox();
+if (box && box.classList.contains("open")) {
+  const sel = normalizeFxKey(FX_TRADE_SELECTED);
+  const priceEl = document.querySelector(`.pair-item[data-fx-key="${sel}"] .pair-price`);
+  if (priceEl) priceEl.textContent = formatFx(v);
+}
+
+st.changePct = prev ? ((v - prev) / prev) * 100 : 0;
+
+// hi/low (упрощенно)
+st.high = Number.isFinite(st.high) ? Math.max(st.high, v) : v;
+st.low  = Number.isFinite(st.low)  ? Math.min(st.low,  v) : v;
+
+// volume (если реального нет — можно держать 0 или рандом для теста)
+st.volume = Number.isFinite(st.volume) ? st.volume : 0;
+
+const root = document.getElementById("openforextradepage");
+const elChg = root?.querySelector("#fx-24h-change");
+const elHi  = root?.querySelector("#fx-24h-high");
+const elLo  = root?.querySelector("#fx-24h-low");
+const elVol = root?.querySelector("#fx-24h-volume");
+
+if(elChg) elChg.textContent = `${st.changePct >= 0 ? "+" : ""}${st.changePct.toFixed(2)}%`;
+if(elHi)  elHi.textContent  = formatFx(st.high);
+if(elLo)  elLo.textContent  = formatFx(st.low);
+if(elVol) elVol.textContent = String(st.volume);
+
+  }
+
+  function startForexTradeLive(){
+  stopForexTradeLive();
+
+  updateFxPriceNow();
+  updateFxListPrices();   // <<< добавили
+
+  fxLiveTimer = setInterval(() => {
+    updateFxPriceNow();
+    updateFxListPrices(); // <<< добавили
+  }, 900);
+}
+
+  function stopForexTradeLive(){
+    if(fxLiveTimer){ clearInterval(fxLiveTimer); fxLiveTimer = null; }
+  }
+
+function updateFxListPrices(){
+  const pairs = getFxPairs();
+
+  pairs.forEach(p => {
+  const st = ensureFxState(p.key);
+
+  // ✅ ВАЖНО: выбранную пару НЕ пересчитываем тут,
+  // чтобы она 1:1 совпадала с ценой сверху (updateFxPriceNow)
+  if (normalizeFxKey(p.key) === normalizeFxKey(FX_TRADE_SELECTED)) {
+    return;
+  }
+
+  // берём базу из стора (если есть)
+  let v = getFxBaseRate(p.key);
+
+  // если базы нет — продолжаем от прошлого (или стартуем)
+  if(!Number.isFinite(v)){
+    v = Number.isFinite(st.price) ? st.price : (1 + Math.random()*0.2);
+  }
+
+    // микротик
+    const drift = (Math.random() - 0.5) * v * 0.00015;
+    v = v + drift;
+
+    // change%
+    if(Number.isFinite(st.price)){
+      const prev = st.price;
+      st.price = v;
+      st.changePct = ((v - prev) / prev) * 100;
+    } else {
+      st.price = v;
+      st.changePct = 0;
+    }
+  });
+
+  // если дропдаун открыт — перерисовать список, чтобы цифры обновились
+  const { root, search } = fxEls();
+  const opened = root?.querySelector(".spot-pair")?.classList.contains("open");
+  if (opened) {
+  renderFxTradeList(search?.value || "");
+}
+}
+
+  // экспортируем наружу
+  window.initForexTradeUI = initForexTradeUI;
+  window.startForexTradeLive = startForexTradeLive;
+  window.stopForexTradeLive = stopForexTradeLive;
+  // ✅ make callable from outside (openforextradepage)
+window.setForexTradePair = renderFxTradePair;
+window.startForexTradeTicker = startForexTradeLive;
+window.stopForexTradeTicker = stopForexTradeLive;
+})();
+
 function waitForChart(ms = 2000) {
   return new Promise((resolve, reject) => {
     const t0 = Date.now();
@@ -14084,6 +14573,7 @@ function waitForChart(ms = 2000) {
       if (window.AX_CHART?.setCandles) return resolve();
       if (Date.now() - t0 > ms) return reject(new Error("AX_CHART not ready"));
       requestAnimationFrame(tick);
+
     })();
   });
 }
@@ -14097,7 +14587,7 @@ document.addEventListener("click", (e) => {
 
   const tf = btn.dataset.tf;
   
-  try{ localStorage.setItem("astrax_ui_chart_tf_v1", tf); }catch(e){}
+  try{ localStorage.setItem("ArsteX_ui_chart_tf_v1", tf); }catch(e){}
 // сюда потом добавишь перерисовку графика / запрос данных
   if (window.AX_ACTIVE_CHART_SOURCE === "stocks") {
     if (typeof rebuildStockChartForSelectedSymbol === "function") rebuildStockChartForSelectedSymbol(tf);
@@ -14107,11 +14597,28 @@ document.addEventListener("click", (e) => {
 });
 
 
+function normalizeFxKey(key){
+  if(!key) return key;
+  key = String(key).trim();
+
+  // если уже EUR/USD — просто в upper
+  if(key.includes("/")) return key.toUpperCase();
+
+  // если eurusd -> EUR/USD (берём первые 3 и последние 3)
+  const k = key.replace(/\s+/g,"").toUpperCase();
+  if(k.length === 6) return k.slice(0,3) + "/" + k.slice(3);
+
+  return k; // fallback
+}
+
+
+
+
 
 // --- restore TF button state after reload ---
 document.addEventListener("DOMContentLoaded", () => {
   try{
-    const savedTf = localStorage.getItem("astrax_ui_chart_tf_v1");
+    const savedTf = localStorage.getItem("ArsteX_ui_chart_tf_v1");
     if (savedTf){
       const btn = document.querySelector(`.chart-btn[data-tf="${savedTf}"]`);
       if (btn) {
@@ -14744,7 +15251,7 @@ drawLastPrice(w, h, last, prev, min, max);
       ACTIVE_TOOL = tool;
 
       
-      try{ localStorage.setItem("astrax_ui_draw_tool_v1", tool); }catch(e){}
+      try{ localStorage.setItem("ArsteX_ui_draw_tool_v1", tool); }catch(e){}
 console.log("Active tool:", ACTIVE_TOOL);
     });
   }
@@ -14753,7 +15260,7 @@ console.log("Active tool:", ACTIVE_TOOL);
 // --- restore selected drawing tool after reload ---
 document.addEventListener("DOMContentLoaded", () => {
   try{
-    const savedTool = localStorage.getItem("astrax_ui_draw_tool_v1");
+    const savedTool = localStorage.getItem("ArsteX_ui_draw_tool_v1");
     if (!savedTool) return;
     const drawToolsEl = document.getElementById("chart-draw-tools");
     if (!drawToolsEl) return;
@@ -14854,10 +15361,10 @@ function openStockspPage(){
 
     <!-- Левая колонка: логотип + соцсети + копирайт -->
     <div class="footer-brand">
-      <div class="footer-logo">AstraX</div>
+      <div class="footer-logo">ArsteX</div>
 
       <div class="footer-copy">
-        © 2020–2025 AstraX. All rights reserved.
+        © 2020–2025 ArsteX. All rights reserved.
       </div>
     </div>
 
@@ -15066,16 +15573,16 @@ function openStockspPage(){
           // delete only this pair+tf synthetic history
           localStorage.removeItem(`${SIM_STORE_PREFIX}:${symbol}:${tf}`);
           // one-shot: ensure we don't merge synthetic on next load even if something lingers
-          try{ sessionStorage.setItem("astrax_clear_sim_once", `${symbol}|${tf}`); }catch(_){}
+          try{ sessionStorage.setItem("ArsteX_clear_sim_once", `${symbol}|${tf}`); }catch(_){}
         }
       }
     }catch(_){}
 
     // disable sim flags
-    try{ localStorage.setItem("astrax_ui_sim_on_v1","0"); }catch(_){}
-    try{ localStorage.removeItem("astrax_ui_sim_dir_v1"); }catch(_){}
-    try{ localStorage.removeItem("astrax_ui_sim_pair_v1"); }catch(_){}
-    try{ localStorage.removeItem("astrax_ui_sim_tf_v1"); }catch(_){}
+    try{ localStorage.setItem("ArsteX_ui_sim_on_v1","0"); }catch(_){}
+    try{ localStorage.removeItem("ArsteX_ui_sim_dir_v1"); }catch(_){}
+    try{ localStorage.removeItem("ArsteX_ui_sim_pair_v1"); }catch(_){}
+    try{ localStorage.removeItem("ArsteX_ui_sim_tf_v1"); }catch(_){}
 
     // reset runtime sim state
     try{ if(typeof CHART_SIM !== "undefined") CHART_SIM.on = false; }catch(_){}
@@ -15131,7 +15638,7 @@ function openStockspPage(){
 
 
 <script>
-/* ===== AstraX Spot: unified trading logic (cleaned) =====
+/* ===== ArsteX Spot: unified trading logic (cleaned) =====
    Features:
    - Wallet reset each refresh: 1000 USDT / 0 BTC
    - Limit orders -> Open Orders with reserved balance
@@ -15142,8 +15649,8 @@ function openStockspPage(){
    - Pair-aware labels & histories
 */
 (function(){
-  if (window.__astraxSpotUnifiedV1) return;
-  window.__astraxSpotUnifiedV1 = true;
+  if (window.__ArsteXSpotUnifiedV1) return;
+  window.__ArsteXSpotUnifiedV1 = true;
 
   const LS_OPEN   = "spot_orders";          // open orders
   const LS_TRADES = "spot_trades";          // fills (market + limit fills)
@@ -15813,7 +16320,164 @@ function openStockspPage(){
 
 </script>
 
+<script>
+  // ===== DEMO BALANCES =====
+const BAL_KEY = "demo_balances_v1";
+const ACCOUNTS = ["spot", "forex", "stocks"];
 
+function loadBalances(){
+  try{
+    const raw = localStorage.getItem(BAL_KEY);
+    if(raw){
+      const b = JSON.parse(raw);
+      // минимальная валидация
+      for(const a of ACCOUNTS) if(!Number.isFinite(+b[a])) b[a] = 0;
+      return b;
+    }
+  }catch(e){}
+  // первый запуск: 1000 в Spot
+  const init = { spot: 1000, forex: 0, stocks: 0 };
+  localStorage.setItem(BAL_KEY, JSON.stringify(init));
+  return init;
+}
+
+function saveBalances(b){
+  localStorage.setItem(BAL_KEY, JSON.stringify(b));
+}
+
+function totalBalances(b){
+  return ACCOUNTS.reduce((s,a)=> s + (+b[a] || 0), 0);
+}
+
+function fmt2(x){
+  return (Math.round((+x || 0) * 100) / 100).toFixed(2);
+}
+
+function renderBalances(){
+  const b = loadBalances();
+  // обновляем каждый блок
+  document.querySelectorAll(".fund-amt[data-acct]").forEach(el=>{
+    const acct = el.dataset.acct;
+    if(acct === "overview"){
+      el.textContent = fmt2(totalBalances(b));
+    }else if(ACCOUNTS.includes(acct)){
+      el.textContent = fmt2(b[acct]);
+    }
+  });
+}
+
+// ===== TRANSFER UI =====
+function openTransferModal(){
+  const m = document.getElementById("transferModal");
+  if(!m) return;
+  m.classList.remove("hidden");
+  document.getElementById("trErr").textContent = "";
+  document.getElementById("trAmt").value = "";
+}
+
+function closeTransferModal(){
+  const m = document.getElementById("transferModal");
+  if(!m) return;
+  m.classList.add("hidden");
+}
+
+function doTransfer(from, to, amt){
+  const b = loadBalances();
+  const n = +amt;
+  if(!ACCOUNTS.includes(from) || !ACCOUNTS.includes(to)) return "Bad account";
+  if(from === to) return "Choose different accounts";
+  if(!Number.isFinite(n) || n <= 0) return "Enter amount > 0";
+  if((+b[from] || 0) < n) return "Insufficient balance";
+  b[from] = (+b[from] || 0) - n;
+  b[to]   = (+b[to]   || 0) + n;
+  saveBalances(b);
+  renderBalances();
+  return "";
+}
+
+function wireTransfer(){
+  // 1) Любая кнопка с текстом "Transfer" открывает модалку
+  document.querySelectorAll("button, a").forEach(el=>{
+    const t = (el.textContent || "").trim().toLowerCase();
+    if(t === "transfer"){
+      el.addEventListener("click", (e)=>{
+        e.preventDefault();
+        openTransferModal();
+      });
+    }
+  });
+
+  // 2) Закрытие по backdrop/крестику/Cancel
+  const m = document.getElementById("transferModal");
+  if(m){
+    m.addEventListener("click", (e)=>{
+      const close = e.target && e.target.getAttribute && e.target.getAttribute("data-close");
+      if(close) closeTransferModal();
+    });
+  }
+  const cancel = document.getElementById("trCancel");
+  if(cancel) cancel.addEventListener("click", closeTransferModal);
+
+  // 3) Submit transfer
+  const submit = document.getElementById("trSubmit");
+  if(submit){
+    submit.addEventListener("click", ()=>{
+      const from = document.getElementById("trFrom").value;
+      const to   = document.getElementById("trTo").value;
+      const amt  = document.getElementById("trAmt").value;
+      const err  = doTransfer(from, to, amt);
+      const errEl = document.getElementById("trErr");
+      if(err){
+        errEl.textContent = err;
+      }else{
+        errEl.textContent = "";
+        closeTransferModal();
+      }
+    });
+  }
+}
+
+// Инициализация
+renderBalances();
+wireTransfer();
+
+</script>
+
+<div id="transferModal" class="modal hidden">
+  <div class="modal-backdrop" data-close="1"></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title">Transfer</div>
+      <button class="modal-x" type="button" data-close="1">×</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="modal-label">From</label>
+      <select id="trFrom" class="modal-input">
+        <option value="spot">Spot</option>
+        <option value="forex">Forex</option>
+        <option value="stocks">Stocks</option>
+      </select>
+
+      <label class="modal-label">To</label>
+      <select id="trTo" class="modal-input">
+        <option value="forex">Forex</option>
+        <option value="stocks">Stocks</option>
+        <option value="spot">Spot</option>
+      </select>
+
+      <label class="modal-label">Amount (USDT)</label>
+      <input id="trAmt" class="modal-input" inputmode="decimal" placeholder="0.00" />
+
+      <div id="trErr" class="modal-error"></div>
+
+      <div class="modal-actions">
+        <button id="trCancel" class="btn-secondary" type="button" data-close="1">Cancel</button>
+        <button id="trSubmit" class="btn-primary" type="button">Transfer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 </body>

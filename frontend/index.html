@@ -6072,9 +6072,11 @@ body.forextrade-mode{
       <div class="assets-total">
         <div class="assets-total-title">Total Assets</div>
         <div class="assets-total-value">
-          <span class="big">0.00</span> <span class="unit">USDT</span>
-        </div>
-        <div class="assets-total-sub">≈ $0.00</div>
+  <span class="big fund-amt" data-acct="overview">0.00</span> <span class="unit">USDT</span>
+</div>
+<div class="assets-total-sub">
+  ≈ $<span class="fund-usd-amt" data-usd-for="overview">0.00</span>
+</div>
         <div class="assets-note">*Data updates may be delayed</div>
 
         <div class="assets-actions">
@@ -7963,7 +7965,7 @@ body.forextrade-mode{
         <span class="fund-amt" data-acct="overview">0.00</span>
       </div>
 
-      <div class="fund-sub">≈ $0.00</div>
+      <div class="fund-sub">≈ $<span class="fund-usd-amt" data-usd-for="overview">0.00</span></div>
 
       <div class="fund-pnl">
         Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
@@ -8000,7 +8002,7 @@ body.forextrade-mode{
   <span class="fund-amt" data-acct="spot">0.00</span> <span class="fund-unit">USDT</span>
 </div>
 
-      <div class="fund-sub">≈ $0.00</div>
+      <div class="fund-sub">≈ $<span class="fund-usd-amt" data-usd-for="spot">0.00</span></div>
 
       <div class="fund-pnl">
         Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
@@ -8041,7 +8043,7 @@ body.forextrade-mode{
         <span class="fund-amt" data-acct="forex">0.00</span> <span class="fund-unit">USD</span>
       </div>
 
-      <div class="fund-sub">≈ $0.00</div>
+      <div class="fund-sub">≈ $<span class="fund-usd-amt" data-usd-for="forex">0.00</span></div>
 
       <div class="fund-pnl">
         Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
@@ -8076,7 +8078,7 @@ body.forextrade-mode{
         <span class="fund-amt" data-acct="stocks">0.00</span> <span class="fund-unit">USD</span>
       </div>
 
-      <div class="fund-sub">≈ $0.00</div>
+      <div class="fund-sub">≈ $<span class="fund-usd-amt" data-usd-for="stocks">0.00</span></div>
 
       <div class="fund-pnl">
         Today's PnL <span class="fund-pnl-up">+$0.00 (+0.00%)</span>
@@ -16354,12 +16356,22 @@ function saveB(b){ localStorage.setItem(BAL_KEY, JSON.stringify(b)); }
 function fmt2(x){ return (Math.round((+x||0)*100)/100).toFixed(2); }
 function total(b){ return ACCOUNTS.reduce((s,a)=>s+(+b[a]||0),0); }
 
-function renderB(){
-  const b = loadB();
+function renderBalances(){
+  const b = loadBalances(); // {spot, forex, stocks}
+  const ov = (b.spot||0) + (b.forex||0) + (b.stocks||0);
+
+  // USDT
   document.querySelectorAll(".fund-amt[data-acct]").forEach(el=>{
-    const a = el.dataset.acct;
-    if(a==="overview") el.textContent = fmt2(total(b));
-    else if(ACCOUNTS.includes(a)) el.textContent = fmt2(b[a]);
+    const acct = el.dataset.acct;
+    if(acct === "overview") el.textContent = fmt2(ov);
+    else el.textContent = fmt2(b[acct] || 0);
+  });
+
+  // ≈ USD (для демо считаем 1 USDT = 1 USD)
+  document.querySelectorAll(".fund-usd-amt[data-usd-for]").forEach(el=>{
+    const a = el.dataset.usdFor;
+    const v = (a === "overview") ? ov : (b[a] || 0);
+    el.textContent = fmt2(v);
   });
 }
 

@@ -6088,14 +6088,14 @@ body.forextrade-mode{
       <div class="assets-section">
         <div class="assets-section-title">Accounts</div>
 
-        <a class="assets-item" href="#" onclick="return false;">Spot Account</a>
-        <a class="assets-item" href="#" onclick="return false;">Forex Account</a>
-        <a class="assets-item" href="#" onclick="return false;">Stocks Account</a>
+        <a class="assets-item" href="#" data-nav="spot">Spot Account</a>
+<a class="assets-item" href="#" data-nav="forex">Forex Account</a>
+<a class="assets-item" href="#" data-nav="stocks">Stocks Account</a>
       </div>
 
       <div class="assets-section">
         <div class="assets-section-title">Records</div>
-        <a class="assets-item" href="#" onclick="return false;">Asset Records</a>
+        <a class="assets-item" href="#" data-nav="records">Asset Records</a>
       </div>
     </div>
   </div>
@@ -8421,19 +8421,7 @@ body.forextrade-mode{
   <!-- 2-й прямоугольник: сюда переедут tools -->
   <div class="chart-head-right" id="chart-top-tools">
     <div id="chart-draw-tools" class="chart-draw-tools">
-  <button class="tool-btn active" data-tool="cursor" title="Cursor">✛</button>
-  <button class="tool-btn" data-tool="line" title="Line">／</button>
-  <button class="tool-btn" data-tool="hline" title="Horizontal">—</button>
-  <button class="tool-btn" data-tool="vline" title="Vertical">│</button>
-
-  <div class="tool-sep"></div>
-
-  <button class="tool-btn" data-tool="text" title="Text">T</button>
-  <button class="tool-btn" data-tool="emoji" title="Emoji">☺</button>
-
-  <div class="tool-sep"></div>
-
-  <button class="tool-btn" data-tool="ruler" title="Ruler">📏</button>
+  
 <button id="clear-sim-btn" class="draw-btn"
         title="Clear synthetic candles"
         style="margin-top:6px;border-color:#7a2a2a;color:#ff6b6b;">
@@ -16449,6 +16437,31 @@ document.addEventListener("DOMContentLoaded", ()=>{
   document.getElementById("tx-send").addEventListener("click", doTx);
 });
 
+
+</script>
+
+<script>
+  function clickLeftMenu(labelText){
+  // ищем в левом меню элемент с таким текстом и кликаем
+  const items = Array.from(document.querySelectorAll("a, button, div"))
+    .filter(el => (el.textContent || "").trim() === labelText);
+
+  // предпочтительно кликаем тот, что в сайдбаре (обычно ближе к nav)
+  const target = items.find(el => el.closest("nav") || el.closest(".sidebar") || el.closest(".menu")) || items[0];
+  if (target) target.click();
+}
+
+document.addEventListener("click", (e) => {
+  const a = e.target.closest(".assets-item[data-nav]");
+  if(!a) return;
+  e.preventDefault();
+
+  const v = a.dataset.nav;
+  if(v === "spot")   clickLeftMenu("Spot Account");
+  if(v === "forex")  clickLeftMenu("Forex Account");
+  if(v === "stocks") clickLeftMenu("Stocks Account");
+  if(v === "records")clickLeftMenu("Asset Records");
+});
 
 </script>
 

@@ -16356,8 +16356,8 @@ function saveB(b){ localStorage.setItem(BAL_KEY, JSON.stringify(b)); }
 function fmt2(x){ return (Math.round((+x||0)*100)/100).toFixed(2); }
 function total(b){ return ACCOUNTS.reduce((s,a)=>s+(+b[a]||0),0); }
 
-function renderBalances(){
-  const b = loadBalances(); // {spot, forex, stocks}
+function renderB(){
+  const b = loadB(); // {spot, forex, stocks}
   const ov = (b.spot||0) + (b.forex||0) + (b.stocks||0);
 
   // USDT

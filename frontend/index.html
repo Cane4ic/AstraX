@@ -9052,8 +9052,8 @@ body.forextrade-mode{
         <div class="trade-available">
           <div class="trade-available-label">Available</div>
           <div class="trade-available-val">
-            <span class="avail-amt">0</span>
-            <span class="avail-ccy">USDT</span>
+            <span class="avail-amt" id="stocksAvailAmt">0</span>
+            <span class="avail-ccy" id="stocksAvailCcy">USD</span>
             <button class="avail-swap" type="button" title="Switch quote/base">⇅</button>
           </div>
         </div>
@@ -16129,18 +16129,43 @@ function openStockspPage(){
   }
 
   function updateAvailableUI(){
-    const pair = getCurrentPair();
-    const { base, quote } = baseQuote(pair);
-    const s = side();
-    const avail = availableFor(s);
+  const pair = getCurrentPair();
+  const { base, quote } = baseQuote(pair);
+  const s = side();
+  const avail = availableFor(s);
 
-    const valEl = document.querySelector(".trade-available-val") || document.getElementById("tradeAvailAmt");
-    const symEl = document.querySelector(".trade-available-sym") || document.getElementById("tradeAvailCcy");
+  // ❗ ТОЛЬКО конкретные элементы формы Spot
+  const valEl = document.getElementById("tradeAvailAmt");
+  const symEl = document.getElementById("tradeAvailCcy");
 
-    if(valEl) valEl.textContent = (s==="buy" ? avail.toFixed(2) : avail.toFixed(6));
-    if(symEl) symEl.textContent = (s==="buy" ? quote : base);
-  }
+  if(!valEl || !symEl) return;
+
+  valEl.textContent = s === "buy"
+    ? avail.toFixed(2)
+    : avail.toFixed(6);
+
+  symEl.textContent = s === "buy" ? quote : base;
+}
   window.updateAvailableUI = updateAvailableUI;
+
+function updateStocksAvailableUI(){
+  const b = loadB();
+  const v = document.getElementById("stocksAvailAmt");
+  const s = document.getElementById("stocksAvailCcy");
+  if(!v || !s) return;
+  v.textContent = b.stocks.toFixed(2);
+  s.textContent = "USD";
+}
+
+function updateFxAvailableUI(){
+  const b = loadB();
+  const v = document.getElementById("fxAvailVal");
+  const s = document.getElementById("fxAvailSym");
+  if(!v || !s) return;
+  v.textContent = b.forex.toFixed(2);
+  s.textContent = "USD";
+}
+
 
   function renderOpenOrders(){
     const panel = document.querySelector('.orders-panel[data-panel="open"]');
@@ -16690,6 +16715,10 @@ function renderB(){
     const v = (a === "overview") ? ov : (b[a] || 0);
     el.textContent = fmt2(v);
   });
+    // ✅ ДОБАВЬ ЭТО:
+  updateAvailableUI();         // spot
+  updateStocksAvailableUI();   // stocks
+  updateFxAvailableUI();       // forex
 }
 
 function openTx(from){

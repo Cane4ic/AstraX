@@ -5998,29 +5998,43 @@ body.forextrade-mode{
 
 .tx-error{ color:#ff7b7b; font-size:12px; min-height: 16px; }
 
+/* ================= ADMIN UI (layout like screenshot) ================= */
 .admin-page{
   min-height: calc(100vh - 70px);
   padding: 18px;
 }
 
-.admin-wrap{
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 18px;
+.admin-shell{
   width: 100%;
-  max-width: 1400px;
+  max-width: 1700px;
   margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: 260px 320px 1fr; /* (1) rail, menu, right */
+  gap: 18px;
+  align-items: stretch;
 }
 
-.admin-left{
+/* shared card look */
+.admin-card{
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
+  backdrop-filter: blur(6px);
+}
+
+/* (1) left big rail */
+.admin-left-rail-card{
+  min-height: 680px;
+}
+
+/* left menu */
+.admin-left-menu-card{
+  min-height: 680px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  min-height: 640px;
 }
 
 .admin-left-btn{
@@ -6029,7 +6043,7 @@ body.forextrade-mode{
   border: 1px solid rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.92);
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   text-align: left;
   padding: 0 14px;
@@ -6040,43 +6054,49 @@ body.forextrade-mode{
   border-color: rgba(26,44,255,0.55);
 }
 
-.admin-left-placeholder{
-  margin-top: 6px;
+.admin-left-menu-fill{
   flex: 1;
   border-radius: 14px;
   border: 1px dashed rgba(255,255,255,0.10);
   background: rgba(255,255,255,0.02);
 }
 
+/* right side: two rows (top search + big details) */
 .admin-right{
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 18px;
-  min-height: 640px;
+  min-height: 680px;
 }
 
-.admin-top{
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
+/* (2) top bar full width */
+.admin-topbar{
   padding: 14px;
 }
 
-.admin-search-title,
-.admin-big-title{
-  font-weight: 800;
+.admin-topbar-inner{
+  /* центрируем сам блок поиска внутри широкой панели как на скрине */
+  max-width: 460px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.admin-topbar-title{
+  font-weight: 900;
   color: rgba(255,255,255,0.92);
   margin-bottom: 10px;
 }
 
-.admin-search-row{
+.admin-topbar-row{
   display:flex;
   gap: 10px;
   align-items:center;
+  justify-content: center;
 }
 
 .admin-input{
   flex: 1;
+  min-width: 260px;
   height: 42px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.10);
@@ -6092,13 +6112,17 @@ body.forextrade-mode{
   border-radius: 12px;
   border: 0;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 900;
 }
 
+/* results appear below search, still inside (2) panel */
 .admin-results{
   margin-top: 12px;
   display: grid;
   gap: 8px;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .admin-result-item{
@@ -6110,12 +6134,16 @@ body.forextrade-mode{
 }
 .admin-result-item:hover{ background: rgba(255,255,255,0.07); }
 
-.admin-big{
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
+/* (3) big details */
+.admin-details-card{
   padding: 16px;
   overflow: auto;
+}
+
+.admin-details-title{
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 10px;
 }
 
 .admin-details{
@@ -6124,10 +6152,14 @@ body.forextrade-mode{
   font-size: 14px;
 }
 
-/* Mobile */
+/* responsive */
+@media (max-width: 1200px){
+  .admin-shell{ grid-template-columns: 240px 280px 1fr; }
+}
 @media (max-width: 980px){
-  .admin-wrap{ grid-template-columns: 1fr; }
-  .admin-left{ min-height: auto; }
+  .admin-shell{ grid-template-columns: 1fr; }
+  .admin-left-rail-card,
+  .admin-left-menu-card,
   .admin-right{ min-height: auto; }
 }
 
@@ -9135,42 +9167,50 @@ body.forextrade-mode{
 
 <!-- ===== ADMIN PAGE ===== -->
 <section id="admin-page" class="admin-page" style="display:none;">
-  <div class="admin-wrap">
+  <div class="admin-shell">
 
-    <!-- LEFT (1) -->
-    <aside class="admin-left">
-      <button class="admin-left-btn is-active" id="admin-nav-admin">Admin</button>
-      <button class="admin-left-btn" id="admin-nav-back">Back to cabinet</button>
-
-      <!-- (3) placeholder, как на рисунке слева -->
-      <div class="admin-left-placeholder"></div>
+    <!-- (1) LEFT BIG BLOCK -->
+    <aside class="admin-left-rail">
+      <div class="admin-card admin-left-rail-card">
+        <!-- сюда потом можно вставить список пользователей / фильтры -->
+      </div>
     </aside>
 
-    <!-- RIGHT -->
+    <!-- LEFT MENU -->
+    <aside class="admin-left-menu">
+      <div class="admin-card admin-left-menu-card">
+        <button class="admin-left-btn is-active" id="admin-nav-admin">Admin</button>
+        <button class="admin-left-btn" id="admin-nav-back">Back to cabinet</button>
+
+        <div class="admin-left-menu-fill"></div>
+      </div>
+    </aside>
+
+    <!-- RIGHT CONTENT -->
     <main class="admin-right">
 
-      <!-- TOP (2) -->
-      <div class="admin-top">
-        <div class="admin-search">
-          <div class="admin-search-title">Search user</div>
+      <!-- (2) TOP SEARCH BLOCK (FULL WIDTH) -->
+      <section class="admin-card admin-topbar">
+        <div class="admin-topbar-inner">
+          <div class="admin-topbar-title">Search user</div>
 
-          <div class="admin-search-row">
+          <div class="admin-topbar-row">
             <input id="adminSearchInput" class="admin-input" placeholder="Email or User ID" />
             <button id="adminSearchBtn" class="admin-btn">Search</button>
           </div>
-
-          <!-- сюда можно выводить найденных юзеров списком -->
-          <div id="adminSearchResults" class="admin-results"></div>
         </div>
-      </div>
 
-      <!-- BIG (3) -->
-      <div class="admin-big">
-        <div class="admin-big-title">User details</div>
+        <!-- результаты (после поиска) -->
+        <div id="adminSearchResults" class="admin-results"></div>
+      </section>
+
+      <!-- (3) BIG DETAILS BLOCK (FULL WIDTH) -->
+      <section class="admin-card admin-details-card">
+        <div class="admin-details-title">User details</div>
         <div id="adminUserDetails" class="admin-details">
           Select a user to see details here.
         </div>
-      </div>
+      </section>
 
     </main>
   </div>

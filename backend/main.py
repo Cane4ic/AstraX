@@ -4,6 +4,8 @@ import secrets
 import urllib.parse
 import time
 import requests
+from fastapi import Request, Response
+from jose import jwt, JWTError
 from fastapi.responses import RedirectResponse
 from email.message import EmailMessage
 from datetime import datetime, timedelta, timezone
@@ -28,6 +30,12 @@ EMAIL_PORT = int(os.getenv("SMTP_PORT", "465"))  # 465 для SSL
 EMAIL_USER = os.getenv("SMTP_USER")             # логин почты
 EMAIL_PASSWORD = os.getenv("SMTP_PASSWORD")     # пароль / app password
 EMAIL_FROM = os.getenv("SMTP_FROM") or EMAIL_USER
+
+ADMIN_JWT_SECRET = os.getenv("ADMIN_JWT_SECRET", "")
+ADMIN_COOKIE = "ax_admin"
+ADMIN_JWT_ALG = "HS256"
+ADMIN_EXPIRE_MIN = int(os.getenv("ADMIN_EXPIRE_MIN", "120"))
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "1") == "1"  # на проде 1, локально можно 0
 
 # таблицы создаются один раз при старте приложения
 Base.metadata.create_all(bind=engine)
@@ -168,6 +176,37 @@ def password_reset_confirm(body: PasswordResetConfirm, db: Session = Depends(get
 
 # ---------- зависимости ----------
 
+def _require_admin_secret():
+    if not ADMIN_JWT_SECRET or len(ADMIN_JWT_SECRET) < 32:
+        raise RuntimeError("ADMIN_JWT_SECRET is not set or too short (need 32+ chars)")
+
+def _admin_token(user_id: int) -> str:
+    _require_admin_secret()
+    now = datetime.now(timezone.utc)
+    exp = now + timedelta(minutes=ADMIN_EXPIRE_MIN)
+    payload = {"sub": str(user_id), "iat": int(now.timestamp()), "exp": int(exp.timestamp())}
+    return jwt.encode(payload, ADMIN_JWT_SECRET, algorithm=ADMIN_JWT_ALG)
+
+def _read_admin_user_id(token: str) -> int | None:
+    try:
+        payload = jwt.decode(token, ADMIN_JWT_SECRET, algorithms=[ADMIN_JWT_ALG])
+        return int(payload.get("sub"))
+    except (JWTError, TypeError, ValueError):
+        return None
+
+def require_admin(request: Request, db: Session = Depends(get_db)) -> User:
+    token = request.cookies.get(ADMIN_COOKIE)
+    if not token:
+        raise HTTPException(status_code=401, detail="Admin not authenticated")
+
+    user_id = _read_admin_user_id(token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid admin session")
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+    return user
 
 
 
@@ -238,6 +277,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
     return LoginResponse(ok=True, id=user.id, email=user.email)
 
+
 def send_verification_email(to_email: str, code: str):
   if not (EMAIL_HOST and EMAIL_USER and EMAIL_PASSWORD):
       # если не настроили SMTP — лучше не падать молча
@@ -256,6 +296,39 @@ def send_verification_email(to_email: str, code: str):
   with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT) as smtp:
       smtp.login(EMAIL_USER, EMAIL_PASSWORD)
       smtp.send_message(msg)
+
+@app.post("/api/admin/login", response_model=LoginResponse)
+def admin_login(body: LoginRequest, response: Response, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == body.email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Неверный email или пароль")
+
+    if not pwd_context.verify(body.password[:72], user.password_hash):
+        raise HTTPException(status_code=401, detail="Неверный email или пароль")
+
+    if not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Нет доступа")
+
+    token = _admin_token(user.id)
+    response.set_cookie(
+        key=ADMIN_COOKIE,
+        value=token,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite="lax",
+        max_age=ADMIN_EXPIRE_MIN * 60,
+        path="/",
+    )
+    return LoginResponse(ok=True, id=user.id, email=user.email)
+
+@app.post("/api/admin/logout", response_model=OkResponse)
+def admin_logout(response: Response):
+    response.delete_cookie(ADMIN_COOKIE, path="/")
+    return OkResponse(ok=True, message="Admin logged out")
+
+@app.get("/api/admin/ping")
+def admin_ping(admin: User = Depends(require_admin)):
+    return {"ok": True, "admin": admin.email}
 
 
 FINNHUB_KEY = os.getenv("FINNHUB_KEY", "")

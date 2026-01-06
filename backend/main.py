@@ -4,6 +4,8 @@ import secrets
 import urllib.parse
 import time
 import requests
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
 from fastapi import Request, Response
 from jose import jwt, JWTError
 from fastapi.responses import RedirectResponse
@@ -36,6 +38,27 @@ ADMIN_COOKIE = "ax_admin"
 ADMIN_JWT_ALG = "HS256"
 ADMIN_EXPIRE_MIN = int(os.getenv("ADMIN_EXPIRE_MIN", "120"))
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "1") == "1"  # на проде 1, локально можно 0
+
+ADMIN_USER = os.getenv("ADMIN_USER", "")
+ADMIN_PASS = os.getenv("ADMIN_PASS", "")
+
+security = HTTPBasic()
+
+def require_admin_fixed(credentials: HTTPBasicCredentials = Depends(security)):
+    # Чтобы браузер показывал окно логина
+    if not ADMIN_USER or not ADMIN_PASS:
+        raise HTTPException(status_code=500, detail="Admin credentials not configured")
+
+    ok_user = secrets.compare_digest(credentials.username, ADMIN_USER)
+    ok_pass = secrets.compare_digest(credentials.password, ADMIN_PASS)
+
+    if not (ok_user and ok_pass):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid admin credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return True
 
 # таблицы создаются один раз при старте приложения
 Base.metadata.create_all(bind=engine)
@@ -173,7 +196,9 @@ def password_reset_confirm(body: PasswordResetConfirm, db: Session = Depends(get
 
     return OkResponse(ok=True, message="Пароль изменён")
 
-
+@app.get("/api/admin/ping")
+def admin_ping(_: bool = Depends(require_admin)):
+    return {"ok": True}
 # ---------- зависимости ----------
 
 def _require_admin_secret():

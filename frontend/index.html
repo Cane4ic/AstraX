@@ -5998,7 +5998,138 @@ body.forextrade-mode{
 
 .tx-error{ color:#ff7b7b; font-size:12px; min-height: 16px; }
 
+.admin-page{
+  min-height: calc(100vh - 70px);
+  padding: 18px;
+}
 
+.admin-wrap{
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 18px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-left{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 640px;
+}
+
+.admin-left-btn{
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.92);
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  padding: 0 14px;
+}
+.admin-left-btn:hover{ background: rgba(255,255,255,0.09); }
+.admin-left-btn.is-active{
+  background: rgba(26,44,255,0.30);
+  border-color: rgba(26,44,255,0.55);
+}
+
+.admin-left-placeholder{
+  margin-top: 6px;
+  flex: 1;
+  border-radius: 14px;
+  border: 1px dashed rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.02);
+}
+
+.admin-right{
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 18px;
+  min-height: 640px;
+}
+
+.admin-top{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.admin-search-title,
+.admin-big-title{
+  font-weight: 800;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 10px;
+}
+
+.admin-search-row{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+}
+
+.admin-input{
+  flex: 1;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  padding: 0 12px;
+  outline: none;
+}
+
+.admin-btn{
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.admin-results{
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-result-item{
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.admin-result-item:hover{ background: rgba(255,255,255,0.07); }
+
+.admin-big{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 16px;
+  overflow: auto;
+}
+
+.admin-details{
+  color: rgba(255,255,255,0.75);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 980px){
+  .admin-wrap{ grid-template-columns: 1fr; }
+  .admin-left{ min-height: auto; }
+  .admin-right{ min-height: auto; }
+}
 
 </style>
 </head>
@@ -9003,38 +9134,45 @@ body.forextrade-mode{
 </section>
 
 <!-- ===== ADMIN PAGE ===== -->
-<section id="admin-page" class="cabinet-page" style="display:none;">
-  <div class="cabinet-inner">
-    <div class="cabinet-layout">
-      <aside class="cabinet-sidebar">
-        <nav class="cabinet-nav">
-          <a href="#admin" class="active">Admin</a>
-          <a href="#cabinet">Back to cabinet</a>
-        </nav>
-      </aside>
+<section id="admin-page" class="admin-page" style="display:none;">
+  <div class="admin-wrap">
 
-      <main class="cabinet-main">
-        <h2 style="margin:0 0 12px;">Admin panel</h2>
+    <!-- LEFT (1) -->
+    <aside class="admin-left">
+      <button class="admin-left-btn is-active" id="admin-nav-admin">Admin</button>
+      <button class="admin-left-btn" id="admin-nav-back">Back to cabinet</button>
 
-        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
-          <div style="padding:12px; border:1px solid rgba(255,255,255,.1); border-radius:12px; min-width:220px;">
-            <div style="opacity:.7; font-size:12px;">Status</div>
-            <div id="admin-status" style="font-size:14px; margin-top:6px;">Checking…</div>
+      <!-- (3) placeholder, как на рисунке слева -->
+      <div class="admin-left-placeholder"></div>
+    </aside>
+
+    <!-- RIGHT -->
+    <main class="admin-right">
+
+      <!-- TOP (2) -->
+      <div class="admin-top">
+        <div class="admin-search">
+          <div class="admin-search-title">Search user</div>
+
+          <div class="admin-search-row">
+            <input id="adminSearchInput" class="admin-input" placeholder="Email or User ID" />
+            <button id="adminSearchBtn" class="admin-btn">Search</button>
           </div>
 
-          <button id="admin-refresh-btn" style="height:40px; padding:0 14px; border-radius:12px; border:0; cursor:pointer;">
-            Refresh
-          </button>
+          <!-- сюда можно выводить найденных юзеров списком -->
+          <div id="adminSearchResults" class="admin-results"></div>
         </div>
+      </div>
 
-        <div style="padding:12px; border:1px solid rgba(255,255,255,.1); border-radius:12px;">
-          <div style="opacity:.7; font-size:12px; margin-bottom:8px;">Admin actions (placeholder)</div>
-          <div style="font-size:13px; opacity:.85;">
-            Тут позже добавим: список пользователей, бан/разбан, заявки, и т.д.
-          </div>
+      <!-- BIG (3) -->
+      <div class="admin-big">
+        <div class="admin-big-title">User details</div>
+        <div id="adminUserDetails" class="admin-details">
+          Select a user to see details here.
         </div>
-      </main>
-    </div>
+      </div>
+
+    </main>
   </div>
 </section>
 
@@ -16547,6 +16685,23 @@ document.addEventListener("click", (e) => {
     alert("Нет доступа");
   }
 }
+
+</script>
+
+<script>
+  document.addEventListener("click", (e) => {
+  const back = e.target.closest("#admin-nav-back");
+  if (back) {
+    location.hash = "cabinet";
+    return;
+  }
+
+  const adminBtn = e.target.closest("#admin-nav-admin");
+  if (adminBtn) {
+    location.hash = "cabinet/#admin";
+    return;
+  }
+});
 
 </script>
 

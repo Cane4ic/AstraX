@@ -9183,46 +9183,41 @@ body.forextrade-mode{
 <section id="admin-page" class="admin-page" style="display:none;">
   <div class="admin-shell">
 
-    
+  <!-- ===== BLOCK 1 (LEFT) ===== -->
+  <aside class="admin-left-rail">
+    <div class="admin-card admin-left-rail-card">
 
-    <!-- LEFT MENU -->
-    <aside class="admin-left-menu">
-      <div class="admin-card admin-left-menu-card">
-        <button class="admin-left-btn is-active" id="admin-nav-admin">Admin</button>
-        <button class="admin-left-btn" id="admin-nav-back">Back to cabinet</button>
+      <button class="admin-left-btn is-active">Admin</button>
+      <button class="admin-left-btn">Back to cabinet</button>
 
-        <div class="admin-left-menu-fill"></div>
+      <div class="admin-left-menu-fill"></div>
+    </div>
+  </aside>
+
+  <!-- ===== BLOCK 2 + 3 (RIGHT) ===== -->
+  <main class="admin-right">
+
+    <!-- BLOCK 2 -->
+    <section class="admin-card admin-topbar">
+      <div class="admin-topbar-inner">
+        <div class="admin-topbar-title">Search user</div>
+        <div class="admin-topbar-row">
+          <input class="admin-input" placeholder="Email or User ID">
+          <button class="admin-btn">Search</button>
+        </div>
       </div>
-    </aside>
+    </section>
 
-    <!-- RIGHT CONTENT -->
-    <main class="admin-right">
+    <!-- BLOCK 3 -->
+    <section class="admin-card admin-details-card">
+      <div class="admin-details-title">User details</div>
+      <div class="admin-details">
+        Select a user to see details here.
+      </div>
+    </section>
 
-      <!-- (2) TOP SEARCH BLOCK (FULL WIDTH) -->
-      <section class="admin-card admin-topbar">
-        <div class="admin-topbar-inner">
-          <div class="admin-topbar-title">Search user</div>
-
-          <div class="admin-topbar-row">
-            <input id="adminSearchInput" class="admin-input" placeholder="Email or User ID" />
-            <button id="adminSearchBtn" class="admin-btn">Search</button>
-          </div>
-        </div>
-
-        <!-- результаты (после поиска) -->
-        <div id="adminSearchResults" class="admin-results"></div>
-      </section>
-
-      <!-- (3) BIG DETAILS BLOCK (FULL WIDTH) -->
-      <section class="admin-card admin-details-card">
-        <div class="admin-details-title">User details</div>
-        <div id="adminUserDetails" class="admin-details">
-          Select a user to see details here.
-        </div>
-      </section>
-
-    </main>
-  </div>
+  </main>
+</div>
 </section>
 
 

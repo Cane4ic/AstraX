@@ -12103,6 +12103,12 @@ function openResetConfirmPage() {
     setLoggedIn(true);
 openCabinetPage(); // или твоя функция кабинета
 
+ fetch("/api/admin/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  }).catch(() => {});
+
   } catch (err) {
     console.error(err);
     alert("Ошибка подключения к серверу");

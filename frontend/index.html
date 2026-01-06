@@ -6225,6 +6225,23 @@ body.forextrade-mode{
   overflow: auto !important;
 }
 
+/* ===== ADMIN OVERRIDES (no topbar + full width right side) ===== */
+body.admin-mode .topbar-wrapper{
+  display:none !important;
+}
+
+/* admin page should take full viewport (topbar is hidden) */
+body.admin-mode .admin-page{
+  min-height: 100vh;
+}
+
+/* stretch admin layout to full width */
+body.admin-mode .admin-shell{
+  max-width: none;
+  margin: 0;
+  min-height: calc(100vh - 36px); /* 18px top+bottom padding in .admin-page */
+}
+
 </style>
 </head>
 <body>
@@ -16844,6 +16861,36 @@ document.addEventListener("click", (e) => {
   </div>
 </div>
 
+
+<script>
+/* ===== Admin mode: hide global topbar + keep admin layout full height ===== */
+(function(){
+  function syncAdminMode(){
+    var admin = document.getElementById('admin-page');
+    if(!admin) return;
+    var on = false;
+    try{
+      on = window.getComputedStyle(admin).display !== 'none';
+    }catch(e){
+      on = admin.style && admin.style.display !== 'none';
+    }
+    document.body.classList.toggle('admin-mode', !!on);
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    syncAdminMode();
+    var admin = document.getElementById('admin-page');
+    if(admin && window.MutationObserver){
+      var obs = new MutationObserver(function(){ syncAdminMode(); });
+      obs.observe(admin, { attributes:true, attributeFilter:['style','class'] });
+    }
+  });
+
+  window.addEventListener('hashchange', function(){
+    setTimeout(syncAdminMode, 0);
+  });
+})();
+</script>
 
 </body>
 </html>

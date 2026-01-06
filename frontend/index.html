@@ -5999,23 +5999,29 @@ body.forextrade-mode{
 .tx-error{ color:#ff7b7b; font-size:12px; min-height: 16px; }
 
 /* ================= ADMIN UI (layout like screenshot) ================= */
+/* ================= ADMIN UI (3 blocks) ================= */
+
 .admin-page{
   min-height: calc(100vh - 70px);
   padding: 18px;
 }
 
+/* 2 колонки: (1) left block | (2+3) right block */
 .admin-shell{
   width: 100%;
   max-width: 1700px;
   margin: 0 auto;
 
   display: grid;
-  grid-template-columns: 260px 320px 1fr; /* (1) rail, menu, right */
+  grid-template-columns: 320px 1fr;
   gap: 18px;
   align-items: stretch;
+
+  /* чтобы правая часть с 1fr реально растягивалась */
+  min-height: calc(100vh - 70px - 36px); /* 70 topbar + 18*2 padding */
 }
 
-/* shared card look */
+/* общий вид карточек */
 .admin-card{
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
@@ -6023,20 +6029,18 @@ body.forextrade-mode{
   backdrop-filter: blur(6px);
 }
 
-/* (1) left big rail */
+/* (1) левый большой блок */
 .admin-left-rail-card{
+  height: 100%;
   min-height: 680px;
-}
 
-/* left menu */
-.admin-left-menu-card{
-  min-height: 680px;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* кнопки слева */
 .admin-left-btn{
   height: 46px;
   border-radius: 12px;
@@ -6054,6 +6058,7 @@ body.forextrade-mode{
   border-color: rgba(26,44,255,0.55);
 }
 
+/* заполнитель внутри левого блока */
 .admin-left-menu-fill{
   flex: 1;
   border-radius: 14px;
@@ -6061,46 +6066,44 @@ body.forextrade-mode{
   background: rgba(255,255,255,0.02);
 }
 
-/* right side: two rows (top search + big details) */
+/* правая часть: (2) сверху поиск, (3) снизу инфа */
 .admin-right{
+  height: 100%;
+  min-height: 0;
+
   display: grid;
   grid-template-rows: 120px 1fr;
   gap: 18px;
-  min-height: 680px;
 }
 
-/* (2) top bar full width */
+/* (2) верхний блок поиска */
 .admin-topbar{
-  padding: 14px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .admin-topbar-inner{
   width: 100%;
 }
 
-.admin-topbar{
-  display: flex;
-  align-items: center;
-  padding: 16px 24px;
-}
-
 .admin-topbar-title{
   font-weight: 900;
   color: rgba(255,255,255,0.92);
   margin-bottom: 10px;
-  text-align: left;
 }
 
 .admin-topbar-row{
-  display:flex;
+  display: grid;
+  grid-template-columns: 1fr 110px;
   gap: 10px;
-  align-items:center;
-  justify-content: flex-start;
+  align-items: center;
 }
 
 .admin-input{
-  flex: 1;
-  min-width: 260px;
+  width: 100%;
+  min-width: 0;
   height: 42px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.10);
@@ -6119,14 +6122,14 @@ body.forextrade-mode{
   font-weight: 900;
 }
 
-/* results appear below search, still inside (2) panel */
+/* результаты поиска — на всю ширину блока 2 */
 .admin-results{
   margin-top: 12px;
   display: grid;
   gap: 8px;
-  max-width: 860px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .admin-result-item{
@@ -6138,8 +6141,11 @@ body.forextrade-mode{
 }
 .admin-result-item:hover{ background: rgba(255,255,255,0.07); }
 
-/* (3) big details */
+/* (3) нижний большой блок информации */
 .admin-details-card{
+  min-height: 0;
+  overflow: auto;
+
   display: flex;
   flex-direction: column;
   padding: 20px 24px;
@@ -6152,22 +6158,24 @@ body.forextrade-mode{
 }
 
 .admin-details{
+  flex: 1;
+  width: 100%;
   color: rgba(255,255,255,0.75);
   line-height: 1.5;
   font-size: 14px;
-  width: 100%;
 }
 
 /* responsive */
 @media (max-width: 1200px){
-  .admin-shell{ grid-template-columns: 240px 280px 1fr; }
+  .admin-shell{ grid-template-columns: 300px 1fr; }
 }
+
 @media (max-width: 980px){
   .admin-shell{ grid-template-columns: 1fr; }
-  .admin-left-rail-card,
-  .admin-left-menu-card,
-  .admin-right{ min-height: auto; }
+  .admin-left-rail-card{ min-height: auto; }
+  .admin-right{ grid-template-rows: auto 1fr; }
 }
+
 
 </style>
 </head>
@@ -9175,12 +9183,7 @@ body.forextrade-mode{
 <section id="admin-page" class="admin-page" style="display:none;">
   <div class="admin-shell">
 
-    <!-- (1) LEFT BIG BLOCK -->
-    <aside class="admin-left-rail">
-      <div class="admin-card admin-left-rail-card">
-        <!-- сюда потом можно вставить список пользователей / фильтры -->
-      </div>
-    </aside>
+    
 
     <!-- LEFT MENU -->
     <aside class="admin-left-menu">

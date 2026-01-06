@@ -6242,6 +6242,21 @@ body.admin-mode .admin-shell{
   min-height: calc(100vh - 36px); /* 18px top+bottom padding in .admin-page */
 }
 
+/* Admin: search card stays on top (compact + centered), details card fills available width */
+body.admin-mode .admin-right{
+  grid-template-rows: auto 1fr;
+}
+
+body.admin-mode .admin-topbar{
+  max-width: 560px;
+  justify-self: center;
+}
+
+body.admin-mode .admin-details-card{
+  width: 100%;
+  justify-self: stretch;
+}
+
 </style>
 </head>
 <body>

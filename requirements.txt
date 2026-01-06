@@ -6,3 +6,4 @@ passlib
 pydantic==2.8.2
 email-validator==2.1.0
 requests
+python-jose[cryptography]

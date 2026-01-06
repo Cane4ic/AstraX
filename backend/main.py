@@ -197,7 +197,7 @@ def password_reset_confirm(body: PasswordResetConfirm, db: Session = Depends(get
     return OkResponse(ok=True, message="Пароль изменён")
 
 @app.get("/api/admin/ping")
-def admin_ping(_: bool = Depends(require_admin)):
+def admin_ping(_: bool = Depends(require_admin_fixed)):
     return {"ok": True}
 # ---------- зависимости ----------
 
@@ -352,7 +352,7 @@ def admin_logout(response: Response):
     return OkResponse(ok=True, message="Admin logged out")
 
 @app.get("/api/admin/ping")
-def admin_ping(admin: User = Depends(require_admin)):
+def admin_ping(admin: User = Depends(require_admin_fixed)):
     return {"ok": True, "admin": admin.email}
 
 

@@ -6175,7 +6175,55 @@ body.forextrade-mode{
   .admin-left-rail-card{ min-height: auto; }
   .admin-right{ grid-template-rows: auto 1fr; }
 }
+/* Make right cards full-width content */
+.admin-topbar{
+  display: block !important;
+  padding: 16px 24px !important;
+}
 
+.admin-topbar-inner{
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+/* Search row stretches */
+.admin-topbar-row{
+  display: grid !important;
+  grid-template-columns: 1fr 110px !important;
+  gap: 10px !important;
+  justify-content: stretch !important;
+}
+
+.admin-input{
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Details content stretches */
+.admin-details-card{
+  width: 100% !important;
+}
+
+.admin-details{
+  width: 100% !important;
+  flex: 1 !important;
+}
+
+.admin-shell{
+  min-height: calc(100vh - 70px - 36px) !important;
+}
+
+.admin-right{
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.admin-details-card{
+  min-height: 0 !important;
+  overflow: auto !important;
+}
 
 </style>
 </head>
@@ -12991,6 +13039,7 @@ function openAdminPage(){
 
   location.hash = "admin";
   window.scrollTo({top:0, behavior:"smooth"});
+  document.body.classList.add("cabinet-mode");
 }
 
 async function openAdminSafely(){

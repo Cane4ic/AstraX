@@ -9002,7 +9002,41 @@ body.forextrade-mode{
   </div>
 </section>
 
+<!-- ===== ADMIN PAGE ===== -->
+<section id="admin-page" class="cabinet-page" style="display:none;">
+  <div class="cabinet-inner">
+    <div class="cabinet-layout">
+      <aside class="cabinet-sidebar">
+        <nav class="cabinet-nav">
+          <a href="#admin" class="active">Admin</a>
+          <a href="#cabinet">Back to cabinet</a>
+        </nav>
+      </aside>
 
+      <main class="cabinet-main">
+        <h2 style="margin:0 0 12px;">Admin panel</h2>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px;">
+          <div style="padding:12px; border:1px solid rgba(255,255,255,.1); border-radius:12px; min-width:220px;">
+            <div style="opacity:.7; font-size:12px;">Status</div>
+            <div id="admin-status" style="font-size:14px; margin-top:6px;">Checking…</div>
+          </div>
+
+          <button id="admin-refresh-btn" style="height:40px; padding:0 14px; border-radius:12px; border:0; cursor:pointer;">
+            Refresh
+          </button>
+        </div>
+
+        <div style="padding:12px; border:1px solid rgba(255,255,255,.1); border-radius:12px;">
+          <div style="opacity:.7; font-size:12px; margin-bottom:8px;">Admin actions (placeholder)</div>
+          <div style="font-size:13px; opacity:.85;">
+            Тут позже добавим: список пользователей, бан/разбан, заявки, и т.д.
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
 
 
 
@@ -12270,6 +12304,7 @@ window.addEventListener("load", () => {
     case "#deposit":    openDepositPage(); break;
 
     case "#cabinet":    openCabinetPage(); break;
+    case "#admin":      openAdminSafely(); break;
 
     default:
       openHomePage();
@@ -12287,7 +12322,7 @@ function hideAllPages() {
     "crypto-page","forex-page","stocks-page",
     "signup-page","login-page","reset-email-page","reset-confirm-page",
     "chat-page","feedback-page","cabinet-page","fees-page", "deposit-page",
-    "openstockstradepage", "openforextradepage"
+    "openstockstradepage", "openforextradepage", "admin-page"
   ].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = "none";
@@ -12758,7 +12793,39 @@ document.documentElement.classList.remove("stocks-trade-mode");
   }, true);
 })();
 
+function openAdminPage(){
+  hideAuth?.();
+  hideAllPages?.();
+  hideHomeSections?.();
+  exitSpotMode?.();
+  resetTopbarTheme?.();
 
+  const el = document.getElementById("admin-page");
+  if (el) el.style.display = "block";
+
+  // маленький UI-статус
+  const st = document.getElementById("admin-status");
+  if (st) st.textContent = "Admin access granted";
+
+  location.hash = "admin";
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+async function openAdminSafely(){
+  try{
+    const r = await fetch("/api/admin/ping");
+    if (r.ok) {
+      openAdminPage();
+    } else {
+      alert("Нет доступа");
+      // можно вернуть в кабинет:
+      openCabinetPage?.();
+    }
+  }catch(e){
+    console.error(e);
+    alert("Ошибка сети");
+  }
+}
 
 
 // if (location.hash === '#spot') {
@@ -16468,6 +16535,18 @@ document.addEventListener("click", (e) => {
   if(v === "stocks") clickLeftMenu("Stocks Account");
   if(v === "records")clickLeftMenu("Asset Records");
 });
+
+</script>
+
+<script>
+  async function openAdminSafely(){
+  const r = await fetch("/api/admin/ping");
+  if (r.ok) {
+    openAdminPage();
+  } else {
+    alert("Нет доступа");
+  }
+}
 
 </script>
 

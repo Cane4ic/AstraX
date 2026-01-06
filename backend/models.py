@@ -14,3 +14,4 @@ class User(Base):
     is_verified = Column(Boolean, nullable=False, server_default="0")
     reset_code = Column(String(6), nullable=True)
     reset_expires_at = Column(DateTime(timezone=True), nullable=True)
+    is_admin = Column(Boolean, nullable=False, server_default="0")

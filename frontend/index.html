@@ -6064,7 +6064,7 @@ body.forextrade-mode{
 /* right side: two rows (top search + big details) */
 .admin-right{
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 120px 1fr;
   gap: 18px;
   min-height: 680px;
 }
@@ -6075,23 +6075,27 @@ body.forextrade-mode{
 }
 
 .admin-topbar-inner{
-  /* центрируем сам блок поиска внутри широкой панели как на скрине */
-  max-width: 460px;
-  margin: 0 auto;
-  text-align: center;
+  width: 100%;
+}
+
+.admin-topbar{
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
 }
 
 .admin-topbar-title{
   font-weight: 900;
   color: rgba(255,255,255,0.92);
   margin-bottom: 10px;
+  text-align: left;
 }
 
 .admin-topbar-row{
   display:flex;
   gap: 10px;
   align-items:center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .admin-input{
@@ -6136,8 +6140,9 @@ body.forextrade-mode{
 
 /* (3) big details */
 .admin-details-card{
-  padding: 16px;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px;
 }
 
 .admin-details-title{
@@ -6150,6 +6155,7 @@ body.forextrade-mode{
   color: rgba(255,255,255,0.75);
   line-height: 1.5;
   font-size: 14px;
+  width: 100%;
 }
 
 /* responsive */

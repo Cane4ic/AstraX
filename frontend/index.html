@@ -6225,37 +6225,24 @@ body.forextrade-mode{
   overflow: auto !important;
 }
 
-/* ===== ADMIN OVERRIDES (no topbar + full width right side) ===== */
-body.admin-mode .topbar-wrapper{
-  display:none !important;
-}
 
-/* admin page should take full viewport (topbar is hidden) */
-body.admin-mode .admin-page{
-  min-height: 100vh;
+/* ===== Account balance pill (trade pages) ===== */
+.account-balance-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.25);
+  backdrop-filter: blur(6px);
+  font-weight:800;
+  font-size:12px;
+  color:#fff;
+  white-space:nowrap;
 }
-
-/* stretch admin layout to full width */
-body.admin-mode .admin-shell{
-  max-width: none;
-  margin: 0;
-  min-height: calc(100vh - 36px); /* 18px top+bottom padding in .admin-page */
-}
-
-/* Admin: search card stays on top (compact + centered), details card fills available width */
-body.admin-mode .admin-right{
-  grid-template-rows: auto 1fr;
-}
-
-body.admin-mode .admin-topbar{
-  max-width: 560px;
-  justify-self: center;
-}
-
-body.admin-mode .admin-details-card{
-  width: 100%;
-  justify-self: stretch;
-}
+.account-balance-pill .unit{ opacity:.75; font-weight:800; }
+.account-balance-pill .amt{ font-variant-numeric: tabular-nums; }
 
 </style>
 </head>
@@ -7082,7 +7069,9 @@ body.admin-mode .admin-details-card{
         <div class="label">24h Low</div>
         <div class="val" id="fx-24h-low">—</div>
       </div>
-    </div>
+    
+    <div class="account-balance-pill" title="Forex balance"><span class="amt fund-amt" data-acct="forex">0.00</span><span class="unit">USDT</span></div>
+</div>
   </div>
 
   <div class="spot-layout">
@@ -8652,7 +8641,9 @@ body.admin-mode .admin-details-card{
         <div class="label">24h Low</div>
         <div class="low" id="spot-24h-low">—</div>
       </div>
-    </div>
+    
+    <div class="account-balance-pill" title="Spot balance"><span class="amt fund-amt" data-acct="spot">0.00</span><span class="unit">USDT</span></div>
+</div>
 
   </div>
 </div>
@@ -9036,6 +9027,8 @@ body.admin-mode .admin-details-card{
             <div class="volume">0</div>
           </div>
         </div>
+
+        <div class="account-balance-pill" title="Stocks balance"><span class="amt fund-amt" data-acct="stocks">0.00</span><span class="unit">USD</span></div>
 
       </div>
     </div>
@@ -16876,36 +16869,6 @@ document.addEventListener("click", (e) => {
   </div>
 </div>
 
-
-<script>
-/* ===== Admin mode: hide global topbar + keep admin layout full height ===== */
-(function(){
-  function syncAdminMode(){
-    var admin = document.getElementById('admin-page');
-    if(!admin) return;
-    var on = false;
-    try{
-      on = window.getComputedStyle(admin).display !== 'none';
-    }catch(e){
-      on = admin.style && admin.style.display !== 'none';
-    }
-    document.body.classList.toggle('admin-mode', !!on);
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    syncAdminMode();
-    var admin = document.getElementById('admin-page');
-    if(admin && window.MutationObserver){
-      var obs = new MutationObserver(function(){ syncAdminMode(); });
-      obs.observe(admin, { attributes:true, attributeFilter:['style','class'] });
-    }
-  });
-
-  window.addEventListener('hashchange', function(){
-    setTimeout(syncAdminMode, 0);
-  });
-})();
-</script>
 
 </body>
 </html>

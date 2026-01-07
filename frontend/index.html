@@ -15994,6 +15994,15 @@ function openStockspPage(){
       .reduce((s,o)=> s + (Number(o.amount)||0), 0);
   }
 
+  function cashSpot(){
+  try {
+    const b = JSON.parse(localStorage.getItem("demo_balances_v1") || "null") || {};
+    return Number(b.spot || 0);
+  } catch(e){
+    return 0;
+  }
+}
+
   function availableFor(sideNow){
     const pair = getCurrentPair();
     const { base, quote } = baseQuote(pair);
@@ -16003,9 +16012,9 @@ function openStockspPage(){
       const res = reservedBase(orders, base);
       return Math.max(0, (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) - res);
     }else{
-      const res = reservedQuoteUSDT(orders);
-      return Math.max(0, (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) - res);
-    }
+  const res = reservedQuoteUSDT(orders);
+  return Math.max(0, cashSpot() - res);
+}
   }
 
   function updateLabels(){
@@ -16587,6 +16596,18 @@ function renderB(){
     const v = (a === "overview") ? ov : (b[a] || 0);
     el.textContent = fmt2(v);
   });
+}
+
+// ✅ ВОТ СЮДА (сразу после renderB)
+function cashSpot(){
+  const b = loadB();
+  return Number(b.spot || 0);
+}
+function setCashSpot(v){
+  const b = loadB();
+  b.spot = Math.max(0, Number(v || 0));
+  saveB(b);
+  renderB();
 }
 
 function openTx(from){

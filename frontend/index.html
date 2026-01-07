@@ -16527,17 +16527,53 @@ function loadWallet(){
   return init;
 }
 function getLastPriceFor(asset){
+  const A = String(asset||"").trim().toUpperCase();
+  if(!A) return 0;
+
+  // 1) Try per-asset key (accept both JSON-stringified numbers and plain strings)
   try{
-    const v = JSON.parse(localStorage.getItem(`spot_last_price_${asset}`)||"");
-    const n = Number(v);
-    if(Number.isFinite(n) && n>0) return n;
+    const raw = localStorage.getItem(`spot_last_price_${A}`);
+    if(raw != null && raw !== ""){
+      const n = Number(raw);
+      if(Number.isFinite(n) && n>0) return n;
+      // maybe JSON encoded
+      const j = JSON.parse(raw);
+      const nj = Number(j);
+      if(Number.isFinite(nj) && nj>0) return nj;
+    }
   }catch(e){}
-  // fallback to single last price key
+
+  // 2) Fallback: global last price key
+  let n2 = 0;
   try{
-    const v = JSON.parse(localStorage.getItem("spot_last_price")||"");
-    const n = Number(v);
-    if(Number.isFinite(n) && n>0) return n;
+    const raw2 = localStorage.getItem("spot_last_price");
+    if(raw2 != null && raw2 !== ""){
+      n2 = Number(raw2);
+      if(!(Number.isFinite(n2) && n2>0)){
+        const j2 = JSON.parse(raw2);
+        n2 = Number(j2);
+      }
+    }
   }catch(e){}
+
+  if(Number.isFinite(n2) && n2>0){
+    // If the current selected pair's base matches this asset, cache it to per-asset key
+    try{
+      let pair = (typeof window.SPOT_SELECTED === "string" && window.SPOT_SELECTED.trim()) ? window.SPOT_SELECTED.trim() : "";
+      if(!pair){
+        const el = document.getElementById("spot-pair-symbol");
+        pair = el ? (el.textContent||"").trim() : "";
+      }
+      if(pair){
+        const base = String(pair.split("/")[0]||"").trim().toUpperCase();
+        if(base && base === A){
+          localStorage.setItem(`spot_last_price_${A}`, String(n2));
+        }
+      }
+    }catch(e){}
+    return n2;
+  }
+
   return 0;
 }
 function spotTotalAssets(balances){

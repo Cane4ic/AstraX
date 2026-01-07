@@ -8589,7 +8589,7 @@ body.forextrade-mode{
 </div>
 
     <div class="chart-stage" id="chart-root">
-  <canvas id="ax-chart"></canvas>
+  <div id="tv-chart" style="width:100%;height:600px;"></div>
   
       
 
@@ -16497,33 +16497,7 @@ function openStockspPage(){
   else boot();
 
 })();
-</script>  // 1) Сбрасываем авторизацию (это главное в твоей системе)
-  setLoggedIn(false); // обновит UI через applyAuthUI()
-
-  // 2) Выйти из спец-режимов (trade/кабинет и т.п.)
-  exitTradeModes?.(); // снимает forex-trade-mode / stocks-trade-mode 
-  document.body.classList.remove("cabinet-mode"); // кабинет включается в openCabinetPage 
-
-  // если ты где-то используешь другие классы (ты писал про stockstrade-mode/forextrade-mode) — убери тоже:
-  document.body.classList.remove("stockstrade-mode", "forextrade-mode");
-  document.documentElement.classList.remove("stockstrade-mode", "forextrade-mode");
-
-  // 3) Закрываем все страницы/секции и показываем главную
-  hideAllPages?.();         // прячет cabinet/deposit/openstockstrade/openforextrade 
-  showHomeSections?.();     // если у тебя есть (обратная hideHomeSections)
-  setFooterVisible?.(true);
-
-  // 4) На главную
-  openHomePage?.();
-  history.replaceState(null, "", "#home");
-
-  // 5) Закрыть user-menu (если используешь open класс)
-  document.querySelectorAll(".user-dropdown.open, .user-menu.open")
-    .forEach(x => x.classList.remove("open"));
-}
-
-
-</script>
+</script>  
 
 <script>
   const BAL_KEY = "demo_balances_v1";
@@ -16735,6 +16709,42 @@ document.addEventListener("click", (e) => {
   </div>
 </div>
 
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+
+<script>
+let tvWidget = null;
+function renderTVForSpot(pairKey, tf){
+  const el = document.getElementById("tv-chart");
+  if (!el || !window.TradingView) return;
+  el.innerHTML = "";
+  const symbol = "BINANCE:" + pairKey.replace("/", "");
+  const tfMap = {"1m":"1","5m":"5","15m":"15","1h":"60","4h":"240","1d":"D"};
+  tvWidget = new TradingView.widget({
+    container_id: "tv-chart",
+    symbol: symbol,
+    interval: tfMap[tf] || "15",
+    autosize: true,
+    theme: "dark",
+    locale: "en",
+    allow_symbol_change: false
+  });
+}
+</script>
+
+
+<script>
+function waitForTradingView(cb){
+  let tries = 0;
+  const t = setInterval(() => {
+    if (window.TradingView && TradingView.widget) {
+      clearInterval(t);
+      cb();
+    }
+    if (++tries > 50) clearInterval(t);
+  }, 100);
+}
+</script>
 
 </body>
 </html>

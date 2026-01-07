@@ -15874,7 +15874,6 @@ function openStockspPage(){
 
 
 <script>
-/* ===== ArsteX Spot: unifie<script>
 /* ===== Spot Trading Logic (rewritten) =====
    Single source of truth for trading balance:
    - Spot account USDT balance is stored in localStorage[demo_balances_v1].spot
@@ -16488,7 +16487,15 @@ function openStockspPage(){
     document.addEventListener("spot:pairChanged", ()=>{ renderAll(); });
     document.addEventListener("spot:lastPrice", (e)=>{
       const p = num(e?.detail?.price);
-      if(p>0) writeJSON("spot_last_price", p);
+      if(p>0) {
+        writeJSON("spot_last_price", p);
+        // also keep per-asset last price for portfolio valuation
+        try{
+          const pair = getCurrentPair();
+          const {base} = parsePair(pair);
+          if(base) writeJSON(`spot_last_price_${base}`, p);
+        }catch(_){ }
+      }
       tryFillLimits();
     });
   }
@@ -16497,32 +16504,6 @@ function openStockspPage(){
   else boot();
 
 })();
-</script>  // 1) Сбрасываем авторизацию (это главное в твоей системе)
-  setLoggedIn(false); // обновит UI через applyAuthUI()
-
-  // 2) Выйти из спец-режимов (trade/кабинет и т.п.)
-  exitTradeModes?.(); // снимает forex-trade-mode / stocks-trade-mode 
-  document.body.classList.remove("cabinet-mode"); // кабинет включается в openCabinetPage 
-
-  // если ты где-то используешь другие классы (ты писал про stockstrade-mode/forextrade-mode) — убери тоже:
-  document.body.classList.remove("stockstrade-mode", "forextrade-mode");
-  document.documentElement.classList.remove("stockstrade-mode", "forextrade-mode");
-
-  // 3) Закрываем все страницы/секции и показываем главную
-  hideAllPages?.();         // прячет cabinet/deposit/openstockstrade/openforextrade 
-  showHomeSections?.();     // если у тебя есть (обратная hideHomeSections)
-  setFooterVisible?.(true);
-
-  // 4) На главную
-  openHomePage?.();
-  history.replaceState(null, "", "#home");
-
-  // 5) Закрыть user-menu (если используешь open класс)
-  document.querySelectorAll(".user-dropdown.open, .user-menu.open")
-    .forEach(x => x.classList.remove("open"));
-}
-
-
 </script>
 
 <script>
@@ -16537,23 +16518,60 @@ function loadB(){
 }
 function saveB(b){ localStorage.setItem(BAL_KEY, JSON.stringify(b)); }
 function fmt2(x){ return (Math.round((+x||0)*100)/100).toFixed(2); }
+
+// --- Spot portfolio valuation (USDT + coins * last price) ---
+const WAL_KEY = "spot_wallet_v1";
+function loadWallet(){
+  try{ const w = JSON.parse(localStorage.getItem(WAL_KEY)||""); if(w && typeof w==="object") return w; }catch(e){}
+  const init = {}; localStorage.setItem(WAL_KEY, JSON.stringify(init));
+  return init;
+}
+function getLastPriceFor(asset){
+  try{
+    const v = JSON.parse(localStorage.getItem(`spot_last_price_${asset}`)||"");
+    const n = Number(v);
+    if(Number.isFinite(n) && n>0) return n;
+  }catch(e){}
+  // fallback to single last price key
+  try{
+    const v = JSON.parse(localStorage.getItem("spot_last_price")||"");
+    const n = Number(v);
+    if(Number.isFinite(n) && n>0) return n;
+  }catch(e){}
+  return 0;
+}
+function spotTotalAssets(balances){
+  const usdt = (+balances.spot||0);
+  const w = loadWallet();
+  let total = usdt;
+  Object.keys(w||{}).forEach(sym=>{
+    const qty = (+w[sym]||0);
+    if(!qty) return;
+    const price = getLastPriceFor(String(sym).toUpperCase());
+    if(price>0) total += qty * price;
+  });
+  return total;
+}
+
 function total(b){ return ACCOUNTS.reduce((s,a)=>s+(+b[a]||0),0); }
 
 function renderB(){
   const b = loadB(); // {spot, forex, stocks}
-  const ov = (b.spot||0) + (b.forex||0) + (b.stocks||0);
+  const spotTot = spotTotalAssets(b);
+  const ov = (spotTot||0) + (b.forex||0) + (b.stocks||0);
 
   // USDT
   document.querySelectorAll(".fund-amt[data-acct]").forEach(el=>{
     const acct = el.dataset.acct;
     if(acct === "overview") el.textContent = fmt2(ov);
+    else if(acct === "spot") el.textContent = fmt2(spotTot||0);
     else el.textContent = fmt2(b[acct] || 0);
   });
 
   // ≈ USD (для демо считаем 1 USDT = 1 USD)
   document.querySelectorAll(".fund-usd-amt[data-usd-for]").forEach(el=>{
     const a = el.dataset.usdFor;
-    const v = (a === "overview") ? ov : (b[a] || 0);
+    const v = (a === "overview") ? ov : (a === "spot" ? (spotTot||0) : (b[a] || 0));
     el.textContent = fmt2(v);
   });
 }

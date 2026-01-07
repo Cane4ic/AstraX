@@ -12353,7 +12353,7 @@ document.getElementById("reset-get-code")?.addEventListener("click", async () =>
     body: JSON.stringify({ email: resetEmailMemory })
   });
 
-  // читаем detail/message нормально (у тебя в signup пока alert всегда общий :contentReference[oaicite:4]{index=4})
+  // читаем detail/message нормально (у тебя в signup пока alert всегда общий )
   let data = null;
   try { data = await res.json(); } catch {}
 
@@ -15874,45 +15874,34 @@ function openStockspPage(){
 
 
 <script>
-/* ===== ArsteX Spot: unified trading logic (cleaned) =====
-   Features:
-   - Wallet reset each refresh: 1000 USDT / 0 BTC
-   - Limit orders -> Open Orders with reserved balance
-   - Cancel order -> Order History (cancelled)
-   - Auto-fill limit when price crosses
-   - Market orders -> instant fill + Trade History + Order History (filled)
-   - Last price button, percent slider, locale-safe numbers
-   - Pair-aware labels & histories
+/* ===== ArsteX Spot: unifie<script>
+/* ===== Spot Trading Logic (rewritten) =====
+   Single source of truth for trading balance:
+   - Spot account USDT balance is stored in localStorage[demo_balances_v1].spot
+   - Trading Available uses Spot account balance (and updates it after trades)
+   - BTC/ETH/etc holdings are tracked in localStorage[spot_wallet_v1] for selling
+   - Open Orders / Order History / Trade History are persisted
 */
 (function(){
-  if (window.__ArsteXSpotUnifiedV1) return;
-  window.__ArsteXSpotUnifiedV1 = true;
+  if (window.__SpotTradingRewrittenV1) return;
+  window.__SpotTradingRewrittenV1 = true;
 
+  const BAL_KEY   = "demo_balances_v1";
+  const WAL_KEY   = "spot_wallet_v1";
   const LS_OPEN   = "spot_orders";          // open orders
   const LS_TRADES = "spot_trades";          // fills (market + limit fills)
   const LS_HIST   = "spot_order_history";   // order history (filled/cancelled)
 
-  // Reset wallet each refresh (test mode)
-  window.__WALLET__ = (function(){
-    try{
-      const b = JSON.parse(localStorage.getItem("demo_balances_v1") || "null") || {};
-      const usdt = Number(b.spot || 0);
-      return { USDT: usdt, BTC: 0 };
-    }catch(e){
-      return { USDT: 0, BTC: 0 };
-    }
-  })();
-
-  const $  = (s, r=document)=> r.querySelector(s);
-  const $$ = (s, r=document)=> Array.from((r||document).querySelectorAll(s));
-
-  const num = (v)=>{
-    if(v===null || v===undefined) return NaN;
-    // allow: "88 000,12", "88000.12", etc.
-    return parseFloat(String(v).trim().replace(/\s+/g,'').replace(',', '.').replace(/[^0-9.\-]/g,''));
+  // ---------- helpers ----------
+  const $$ = (sel, root=document)=>Array.from(root.querySelectorAll(sel));
+  const num = (v)=>{ const x = Number(String(v??"").replace(",", ".")); return Number.isFinite(x)?x:0; };
+  const fmt2 = (x)=> (Math.round((+x||0)*100)/100).toFixed(2);
+  const fmt8 = (x)=> {
+    const n = (+x||0);
+    // keep up to 8 decimals, trim trailing zeros
+    return (Math.round(n*1e8)/1e8).toFixed(8).replace(/\.?0+$/,'');
   };
-
-  const nowId = ()=> (Date.now() + Math.floor(Math.random()*100000)).toString(16);
+  const nowId = ()=> String(Date.now()) + "-" + Math.random().toString(16).slice(2,8);
 
   function readJSON(key, fallback){
     try{
@@ -15922,20 +15911,13 @@ function openStockspPage(){
   }
   function writeJSON(key, val){
     try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
-  
-  // Sync engine USDT balance -> top menu spot balance (demo_balances_v1.spot)
-  function syncSpotBalanceToMenu(){
-    try{
-      const usdt = Number(window.__WALLET__?.USDT ?? 0);
-      const k = "demo_balances_v1";
-      const b = JSON.parse(localStorage.getItem(k) || "null") || {};
-      b.spot = usdt;
-      localStorage.setItem(k, JSON.stringify(b));
-      if (typeof window.renderB === "function") window.renderB();
-    }catch(e){}
   }
 
-}
+  function baseQuote(pair){
+    const p = String(pair||"BTC/USDT").trim();
+    const parts = p.split("/");
+    return { base: (parts[0]||"BTC").trim().toUpperCase(), quote: (parts[1]||"USDT").trim().toUpperCase() };
+  }
 
   function getCurrentPair(){
     const v = (typeof window.SPOT_SELECTED === "string" && window.SPOT_SELECTED.trim()) ? window.SPOT_SELECTED.trim() : "";
@@ -15944,121 +15926,148 @@ function openStockspPage(){
     const t = el ? (el.textContent||"").trim() : "";
     return t || "BTC/USDT";
   }
-  function baseQuote(pair){
-    const p = String(pair||"BTC/USDT").split("/");
-    return { base: p[0]||"BTC", quote: p[1]||"USDT" };
-  }
-
-  function side(){
-    const b = document.querySelector(".bs-btn.active") || document.querySelector(".trade-bs-toggle .bs-btn.active");
-    const ds = b ? (b.getAttribute("data-side") || b.dataset.side || "") : "";
-    if(ds) return ds.toLowerCase()==="sell" ? "sell" : "buy";
-    const txt = (b?.textContent || "buy").toLowerCase();
-    return txt.includes("sell") ? "sell" : "buy";
-  }
-  function otype(){
-    const b = document.querySelector(".type-btn.active");
-    const dt = b ? (b.getAttribute("data-otype") || b.dataset.otype || "") : "";
-    if(dt) return dt.toLowerCase().includes("market") ? "market" : "limit";
-    const txt = (b?.textContent || "limit").toLowerCase();
-    return txt.includes("market") ? "market" : "limit";
-  }
 
   function readLastPrice(){
-    const el = document.querySelector("#spot-last-price, .price-tag, .last-price, .mid-price, .ob-mid-price, .ob-mid .price, [data-last-price]");
-    if(el){
-      const v = num(el.textContent);
-      if(Number.isFinite(v) && v>0) return v;
+    // try several common places
+    const cand = [
+      document.getElementById("spot-last-price"),
+      document.getElementById("lastPrice"),
+      document.querySelector("[data-last-price]"),
+      document.querySelector(".spot-last-price"),
+      document.querySelector(".pair-last-price"),
+    ].filter(Boolean)[0];
+
+    if(cand){
+      const raw = (cand.getAttribute("data-last-price") || cand.textContent || "").replace(/[^\d.,-]/g,"").trim();
+      const p = num(raw);
+      return p>0 ? p : 0;
     }
-    const inp = document.getElementById("tradePrice");
-    const v2 = inp ? num(inp.value) : NaN;
-    if(Number.isFinite(v2) && v2>0) return v2;
-    return 0;
+    // fallback: keep last price in storage if some other script writes it
+    const p = num(readJSON("spot_last_price", 0));
+    return p>0 ? p : 0;
   }
 
-  function openOrders(){
-    const arr = readJSON(LS_OPEN, []);
-    return Array.isArray(arr) ? arr : [];
+  // ---------- balances (USDT) ----------
+  function readBalances(){
+    const b = readJSON(BAL_KEY, null) || {};
+    // ensure keys exist
+    const out = { spot: num(b.spot), forex: num(b.forex), stocks: num(b.stocks) };
+    // persist normalization (prevents NaN strings)
+    writeJSON(BAL_KEY, out);
+    return out;
   }
-  function setOpenOrders(arr){
-    writeJSON(LS_OPEN, Array.isArray(arr) ? arr : []);
-  }
-  function trades(){
-    const arr = readJSON(LS_TRADES, []);
-    return Array.isArray(arr) ? arr : [];
-  }
-  function setTrades(arr){
-    writeJSON(LS_TRADES, Array.isArray(arr) ? arr : []);
-  }
-  function hist(){
-    const arr = readJSON(LS_HIST, []);
-    return Array.isArray(arr) ? arr : [];
-  }
-  function pushHist(entry){
-    const h = hist();
-    h.unshift(entry);
-    writeJSON(LS_HIST, h.slice(0, 2000));
-  }
-  // Back-compat hooks used elsewhere in file
-  window.__spotReadOrderHistory = ()=> hist();
-  window.__spotPushOrderHistory = (e)=> { try{ pushHist(e); }catch(_){ } };
-
-  function reservedQuoteUSDT(orders){
-    return orders
-      .filter(o => String(o.side).toLowerCase()==="buy" && String(o.type).toLowerCase()==="limit")
-      .reduce((s,o)=> s + (Number(o.price)||0)*(Number(o.amount)||0), 0);
-  }
-  function reservedBase(orders, baseSym){
-    // reserve base for SELL limits
-    return orders
-      .filter(o => String(o.side).toLowerCase()==="sell" && String(o.type).toLowerCase()==="limit")
-      .reduce((s,o)=> s + (Number(o.amount)||0), 0);
+  function writeSpotUSDT(usdt){
+    const b = readBalances();
+    b.spot = Math.max(0, num(usdt));
+    writeJSON(BAL_KEY, b);
+    if (typeof window.renderB === "function") window.renderB();
   }
 
-  function availableFor(sideNow){
+  // ---------- spot wallet (assets for selling) ----------
+  function readWallet(){
+    const b = readBalances();
+    const w = readJSON(WAL_KEY, null) || {};
+    // USDT in wallet mirrors spot balance
+    const out = { ...w, USDT: num(b.spot) };
+    // normalize numeric fields
+    Object.keys(out).forEach(k=> out[k] = num(out[k]));
+    writeJSON(WAL_KEY, out);
+    return out;
+  }
+  function writeWallet(next){
+    const w = { ...(next||{}) };
+    Object.keys(w).forEach(k=> w[k] = num(w[k]));
+    // keep USDT mirrored
+    writeSpotUSDT(w.USDT);
+    writeJSON(WAL_KEY, w);
+  }
+
+  // ---------- orders / trades ----------
+  function openOrders(){ return Array.isArray(readJSON(LS_OPEN, [])) ? readJSON(LS_OPEN, []) : []; }
+  function setOpenOrders(arr){ writeJSON(LS_OPEN, Array.isArray(arr)?arr:[]); }
+
+  function trades(){ return Array.isArray(readJSON(LS_TRADES, [])) ? readJSON(LS_TRADES, []) : []; }
+  function setTrades(arr){ writeJSON(LS_TRADES, Array.isArray(arr)?arr:[]); }
+
+  function hist(){ return Array.isArray(readJSON(LS_HIST, [])) ? readJSON(LS_HIST, []) : []; }
+  function setHist(arr){ writeJSON(LS_HIST, Array.isArray(arr)?arr:[]); }
+
+  // ---------- UI state ----------
+  function side(){
+    const btn = document.querySelector(".bs-btn.active");
+    return (btn?.dataset?.side || "buy").toLowerCase();
+  }
+  function otype(){
+    const btn = document.querySelector(".type-btn.active");
+    return (btn?.dataset?.otype || "limit").toLowerCase();
+  }
+
+  // Reserved (so user can't place multiple limit orders exceeding balance)
+  function reservedQuoteUSDT(pair){
+    const { quote } = baseQuote(pair);
+    if(quote !== "USDT") return 0; // demo is USDT-quoted pairs
+    return openOrders()
+      .filter(o=> (o.pair||"")===pair && String(o.side||"buy").toLowerCase()==="buy" && String(o.type||"limit").toLowerCase()==="limit")
+      .reduce((s,o)=>{
+        const price = num(o.price);
+        const amt = num(o.amount);
+        const filled = num(o.filled);
+        const remaining = Math.max(0, amt - filled);
+        return s + price*remaining;
+      },0);
+  }
+  function reservedBase(pair){
+    const { base } = baseQuote(pair);
+    return openOrders()
+      .filter(o=> (o.pair||"")===pair && String(o.side||"sell").toLowerCase()==="sell" && String(o.type||"limit").toLowerCase()==="limit")
+      .reduce((s,o)=>{
+        const amt = num(o.amount);
+        const filled = num(o.filled);
+        const remaining = Math.max(0, amt - filled);
+        return s + remaining;
+      },0);
+  }
+
+  function availableFor(s){
     const pair = getCurrentPair();
     const { base, quote } = baseQuote(pair);
-    const orders = openOrders().filter(o => (o.pair||"") === pair);
+    const w = readWallet();
 
-    if(sideNow === "sell"){
-      const res = reservedBase(orders, base);
-      return Math.max(0, (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) - res);
-    }else{
-      const res = reservedQuoteUSDT(orders);
-      return Math.max(0, (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) - res);
+    if(s==="sell"){
+      const baseFree = Math.max(0, num(w[base]) - reservedBase(pair));
+      return baseFree;
     }
-  }
 
-  function updateLabels(){
-    const pair = getCurrentPair();
-    const { base, quote } = baseQuote(pair);
-
-    const amountMuted = document.querySelector('.trade-field.amount-field .trade-field-label .muted');
-    if(amountMuted) amountMuted.textContent = '(' + base + ')';
-
-    const priceMuted = document.querySelector('.trade-field.price-field .trade-field-label .muted');
-    if(priceMuted) priceMuted.textContent = '(' + quote + ')';
-
-    const totalMuted = document.querySelector('.trade-field.total-field .trade-field-label .muted');
-    if(totalMuted) totalMuted.textContent = '(' + quote + ')';
-
-    const submit = document.getElementById("tradeSubmit");
-    if(submit) submit.textContent = (side()==="sell" ? "Sell " : "Buy ") + base;
+    // buy
+    const usdtFree = Math.max(0, num(w[quote] ?? w.USDT) - reservedQuoteUSDT(pair));
+    return usdtFree;
   }
 
   function updateAvailableUI(){
     const pair = getCurrentPair();
     const { base, quote } = baseQuote(pair);
+
     const s = side();
     const avail = availableFor(s);
 
-    const valEl = document.querySelector(".trade-available-val") || document.getElementById("tradeAvailAmt");
-    const symEl = document.querySelector(".trade-available-sym") || document.getElementById("tradeAvailCcy");
+    const valEl = document.querySelector('.trade-available-val .account-balance-pill span[data-acct="spot"]');
+    const unitEl = document.querySelector('.trade-available-val .account-balance-pill .unit');
+    if(valEl) valEl.textContent = (s==="sell") ? fmt8(avail) : fmt2(avail);
+    if(unitEl) unitEl.textContent = (s==="sell") ? base : quote;
 
-    if(valEl) valEl.textContent = (s==="buy" ? avail.toFixed(2) : avail.toFixed(6));
-    if(symEl) symEl.textContent = (s==="buy" ? quote : base);
+    // also keep the trade submit button label in sync
+    const submit = document.getElementById("tradeSubmit");
+    if(submit) submit.textContent = (s==="sell") ? `Sell ${base}` : `Buy ${base}`;
   }
-  window.updateAvailableUI = updateAvailableUI;
+
+  // ---------- rendering (orders / history) ----------
+  function formatDate(ts){
+    try{
+      const d = new Date(Number(ts)||Date.now());
+      const p = (n)=>String(n).padStart(2,"0");
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+    }catch(e){ return ""; }
+  }
 
   function renderOpenOrders(){
     const panel = document.querySelector('.orders-panel[data-panel="open"]');
@@ -16079,43 +16088,78 @@ function openStockspPage(){
     }
     if(empty) empty.style.display = "none";
 
-    const fmtTime = (ts)=>{ try{return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});}catch(e){return "";} };
-
+    const head = panel.querySelector(".orders-head");
     orders.forEach(o=>{
       const row = document.createElement("div");
       row.className = "order-row";
       row.innerHTML = `
-        <div>${o.pair}</div>
-        <div>${fmtTime(o.ts||Date.now())}</div>
-        <div>${String(o.type||"limit").toUpperCase()}</div>
-        <div class="${String(o.side||"buy").toLowerCase()}">${String(o.side||"buy").toUpperCase()}</div>
-        <div>${Number(o.price||0).toFixed(2)}</div>
-        <div>${Number(o.amount||0).toFixed(6)}</div>
-        <div>${Number(o.filled||0).toFixed(6)}</div>
+        <div>${o.pair||""}</div>
+        <div>${formatDate(o.ts)}</div>
+        <div>${(o.type||"limit").toUpperCase()}</div>
+        <div class="${(o.side||"buy").toLowerCase()}">${(o.side||"buy").toUpperCase()}</div>
+        <div>${fmt2(o.price)}</div>
+        <div>${fmt8(o.amount)}</div>
+        <div>${fmt8(o.filled||0)}</div>
         <div>—</div>
-        <div class="right"><button class="order-cancel" type="button" data-id="${o.id}">✕</button></div>
+        <div class="right"><button class="order-cancel" data-cancel-id="${o.id}">Cancel</button></div>
       `;
-      panel.appendChild(row);
+      head?.insertAdjacentElement("afterend", row);
+    });
+
+    // cancel handlers
+    panel.querySelectorAll(".order-cancel").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-cancel-id");
+        cancelOrder(id);
+      });
     });
   }
-  window.renderOrders = renderOpenOrders;
+
+  function renderOrderHistory(){
+    const panel = document.querySelector('.orders-panel[data-panel="ordersHistory"]');
+    if(!panel) return;
+    const pair = getCurrentPair();
+    const list = hist().filter(o => (o.pair||"") === pair);
+
+    panel.querySelectorAll(".order-row").forEach(r => r.remove());
+    const empty = panel.querySelector(".orders-empty");
+    if(!list.length){
+      if(empty) empty.style.display = "grid";
+      return;
+    }
+    if(empty) empty.style.display = "none";
+
+    const head = panel.querySelector(".orders-head");
+    list.forEach(o=>{
+      const row = document.createElement("div");
+      row.className = "order-row";
+      const status = (o.status||"filled").toUpperCase();
+      row.innerHTML = `
+        <div>${o.pair||""}</div>
+        <div>${formatDate(o.ts)}</div>
+        <div>${(o.type||"limit").toUpperCase()}</div>
+        <div class="${(o.side||"buy").toLowerCase()}">${(o.side||"buy").toUpperCase()}</div>
+        <div>${fmt2(o.price||0)}</div>
+        <div>${fmt8(o.amount||0)}</div>
+        <div>${fmt8(o.filled||0)}</div>
+        <div>${status}</div>
+        <div class="right">—</div>
+      `;
+      head?.insertAdjacentElement("afterend", row);
+    });
+  }
 
   function renderTradeHistory(){
     const panel = document.querySelector('.orders-panel[data-panel="tradeHistory"]');
     if(!panel) return;
 
-    const table = panel.querySelector(".th-table");
-    if(!table) return;
-
-    table.querySelectorAll(".th-row").forEach(r=>r.remove());
-    const empty = table.querySelector(".th-empty");
-
     const pair = getCurrentPair();
     const list = trades().filter(t => (t.pair||"") === pair);
 
-    // optional date filter
-    const thStart = document.getElementById("thStart");
-    const thEnd   = document.getElementById("thEnd");
+    // optional filters (if present)
+    const thStart = panel.querySelector('input[name="thStart"], #thStart');
+    const thEnd   = panel.querySelector('input[name="thEnd"], #thEnd');
+
     let start = -Infinity, end = Infinity;
     if(thStart?.value){
       const s = Date.parse(thStart.value);
@@ -16125,124 +16169,130 @@ function openStockspPage(){
       const e = Date.parse(thEnd.value);
       if(Number.isFinite(e)) end = e + 24*60*60*1000 - 1;
     }
+
     const filtered = list.filter(t=>{
       const ts = Number(t.ts)||0;
       return ts>=start && ts<=end;
     });
 
-    if(!filtered.length){
-      if(empty) empty.style.display = "grid";
-    }else{
-      if(empty) empty.style.display = "none";
-    }
-
-    const fmt = (ts)=>{ try{return new Date(ts).toLocaleString([], {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'});}catch(e){return "";} };
-
-    let sum=0, buy=0, sell=0;
-    const head = table.querySelector(".th-head");
-
-    filtered.sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0)).forEach(t=>{
-      const s = String(t.side||"buy").toLowerCase();
-      const total = Number(t.total||0);
-      sum += total; if(s==="buy") buy += total; else sell += total;
-
-      const row = document.createElement("div");
-      row.className = "th-row";
-      row.innerHTML = `
-        <div>${t.pair}</div>
-        <div>${fmt(t.ts)}</div>
-        <div class="${s}">${s.toUpperCase()}</div>
-        <div>${Number(t.price||0).toFixed(2)}</div>
-        <div>${Number(t.amount||0).toFixed(6)}</div>
-        <div>${Number(total||0).toFixed(2)}</div>
-        <div>${t.role || "taker"}</div>
-        <div class="right">${Number(t.fee||0).toFixed(4)}</div>
-      `;
-      if(head && head.parentNode) head.parentNode.insertBefore(row, head.nextSibling);
-      else table.appendChild(row);
-    });
-
-    const sumVal = panel.querySelector(".th-sum-val");
-    const buyEl  = panel.querySelector(".th-buy");
-    const sellEl = panel.querySelector(".th-sell");
-    if(sumVal) sumVal.textContent = `${sum.toFixed(2)}`;
-    if(buyEl) buyEl.textContent = buy.toFixed(2);
-    if(sellEl) sellEl.textContent = sell.toFixed(2);
-  }
-  window.renderTradeHistory = renderTradeHistory;
-
-  function renderOrderHistory(){
-    const panel = document.querySelector('.orders-panel[data-panel="ordersHistory"]');
-    if(!panel) return;
-
-    panel.querySelectorAll(".order-row").forEach(r=>r.remove());
+    panel.querySelectorAll(".trade-row").forEach(r => r.remove());
     const empty = panel.querySelector(".orders-empty");
-
-    const pair = getCurrentPair();
-    const list = hist().filter(h => (h.pair||"") === pair);
-
-    if(!list.length){
+    if(!filtered.length){
       if(empty) empty.style.display = "grid";
       return;
     }
     if(empty) empty.style.display = "none";
 
-    const fmt = (ts)=>{ try{return new Date(ts).toLocaleString([], {year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'});}catch(e){return "";} };
-
-    list.sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0)).forEach(o=>{
-      const s = String(o.side||"buy").toLowerCase();
+    const head = panel.querySelector(".trade-head") || panel.querySelector(".orders-head");
+    filtered.forEach(t=>{
       const row = document.createElement("div");
-      row.className = "order-row";
+      row.className = "trade-row";
       row.innerHTML = `
-        <div>${o.pair}</div>
-        <div>${fmt(o.ts||Date.now())}</div>
-        <div>${String(o.type||"limit").toUpperCase()}</div>
-        <div class="${s}">${s.toUpperCase()}</div>
-        <div>${Number(o.price||0).toFixed(2)}</div>
-        <div>${Number(o.amount||0).toFixed(6)}</div>
-        <div>${Number(o.filled||0).toFixed(6)}</div>
-        <div>${String(o.status||"filled")}</div>
-        <div class="right">${Number(o.fee||0).toFixed(4)}</div>
+        <div>${t.pair||""}</div>
+        <div>${formatDate(t.ts)}</div>
+        <div class="${(t.side||"buy").toLowerCase()}">${(t.side||"buy").toUpperCase()}</div>
+        <div>${fmt2(t.price||0)}</div>
+        <div>${fmt8(t.amount||0)}</div>
+        <div>${fmt2(t.total||0)}</div>
+        <div>${(t.role||"taker").toUpperCase()}</div>
       `;
-      panel.appendChild(row);
+      head?.insertAdjacentElement("afterend", row);
     });
   }
-  window.renderOrderHistory = renderOrderHistory;
 
-  // Cancel open order
-  document.addEventListener("click", (e)=>{
-    const btn = e.target.closest(".order-cancel");
-    if(!btn) return;
-    const id = String(btn.getAttribute("data-id")||"");
-    const pair = getCurrentPair();
-
-    const all = openOrders();
-    const idx = all.findIndex(o => String(o.id)===id);
-    if(idx===-1) return;
-
-    const [ord] = all.splice(idx,1);
-    setOpenOrders(all);
-
-    pushHist({
-      id: ord.id,
-      pair: ord.pair || pair,
-      side: String(ord.side||"buy").toLowerCase(),
-      type: String(ord.type||"limit").toLowerCase(),
-      price: Number(ord.price)||0,
-      amount: Number(ord.amount)||0,
-      filled: Number(ord.filled||0),
-      status: "cancelled",
-      fee: 0,
-      ts: Date.now()
-    });
-
+  function renderAll(){
     renderOpenOrders();
     renderOrderHistory();
+    renderTradeHistory();
     updateAvailableUI();
-    document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-  });
+  }
 
-  // Inputs + button + slider
+  // ---------- order actions ----------
+  function pushTrade({pair, side, price, amount, total, role="taker", fee=0}){
+    const tr = trades();
+    tr.unshift({ id: nowId(), pair, side, price: Number(price), amount: Number(amount), total: Number(total), ts: Date.now(), role, fee });
+    setTrades(tr);
+  }
+
+  function pushHistory(order, status){
+    const h = hist();
+    h.unshift({ ...order, status, ts: Date.now() });
+    setHist(h);
+  }
+
+  function cancelOrder(id){
+    const all = openOrders();
+    const idx = all.findIndex(o => o.id === id);
+    if(idx<0) return;
+
+    const o = all[idx];
+    all.splice(idx,1);
+    setOpenOrders(all);
+
+    pushHistory(o, "cancelled");
+
+    renderAll();
+  }
+
+  // Limit auto-fill when price crosses (simple, per current pair)
+  function tryFillLimits(){
+    const last = readLastPrice();
+    if(!(last>0)) return;
+
+    const pair = getCurrentPair();
+    const { base, quote } = baseQuote(pair);
+
+    const all = openOrders();
+    if(!all.length) return;
+
+    const keep=[];
+    let changed=false;
+
+    let w = readWallet();
+
+    for(const o of all){
+      if((o.pair||"") !== pair){ keep.push(o); continue; }
+      if(String(o.type||"limit").toLowerCase()!=="limit"){ keep.push(o); continue; }
+
+      const s = String(o.side||"buy").toLowerCase();
+      const p = num(o.price);
+      const a = num(o.amount);
+      const filled = num(o.filled);
+      const remaining = Math.max(0, a - filled);
+
+      const canFill = remaining>0 && ((s==="buy" && last <= p) || (s==="sell" && last >= p));
+      if(!canFill){ keep.push(o); continue; }
+
+      const execAmt = remaining;
+      const cost = p * execAmt;
+
+      if(s==="buy"){
+        const availUSDT = Math.max(0, num(w[quote] ?? w.USDT));
+        if(cost > availUSDT + 1e-9){ keep.push(o); continue; } // not enough, skip
+        w[quote] = availUSDT - cost;
+        w[base]  = num(w[base]) + execAmt;
+      }else{
+        const availBase = Math.max(0, num(w[base]));
+        if(execAmt > availBase + 1e-12){ keep.push(o); continue; }
+        w[base]  = availBase - execAmt;
+        w[quote] = num(w[quote] ?? w.USDT) + cost;
+      }
+
+      // record
+      pushTrade({pair, side:s, price:p, amount:execAmt, total:cost, role:"maker", fee:0});
+      pushHistory({ ...o, filled: a }, "filled");
+
+      changed=true;
+    }
+
+    if(changed){
+      writeWallet(w);
+      setOpenOrders(keep);
+      renderAll();
+    }
+  }
+
+  // ---------- trade form wiring ----------
   function hookTradeForm(){
     const priceInput  = document.getElementById("tradePrice");
     const amountInput = document.getElementById("tradeAmount");
@@ -16252,37 +16302,30 @@ function openStockspPage(){
     const submitBtn   = document.getElementById("tradeSubmit");
     const card        = document.getElementById("tradeCard") || document.querySelector(".trade-panel");
 
-    if(!priceInput || !amountInput || !totalInput || !submitBtn) return;
+    if(!amountInput || !totalInput || !submitBtn) return;
 
     // sync Total<->Amount for limit (and generally)
     let lock=false;
     const syncFromAmount = ()=>{
       if(lock) return;
-      const p=num(priceInput.value); const a=num(amountInput.value);
-      if(!(p>0) || !(a>=0)) return;
-      lock=true; totalInput.value = (p*a).toFixed(2); lock=false;
+      lock=true;
+      const p=num(priceInput?.value); const a=num(amountInput.value);
+      totalInput.value = (p>0 && a>0) ? (p*a).toFixed(2) : "";
+      lock=false;
     };
     const syncFromTotal = ()=>{
       if(lock) return;
-      const p=num(priceInput.value); const t=num(totalInput.value);
-      if(!(p>0) || !(t>=0)) return;
-      lock=true; amountInput.value = (t/p).toFixed(6); lock=false;
+      lock=true;
+      const p=num(priceInput?.value); const t=num(totalInput.value);
+      amountInput.value = (p>0 && t>0) ? (t/p).toFixed(8) : "";
+      lock=false;
     };
 
-    priceInput.addEventListener("input", ()=>{ if(otype()==="limit") syncFromAmount(); });
     amountInput.addEventListener("input", ()=>{ if(otype()==="limit") syncFromAmount(); });
-    totalInput.addEventListener("input", ()=>{
-      if(otype()==="limit") syncFromTotal();
-      // market buy convenience: total -> amount (for execution)
-      if(otype()==="market" && side()==="buy"){
-        const p = readLastPrice();
-        const t = num(totalInput.value);
-        if(p>0 && t>0) amountInput.value = (t/p).toFixed(6);
-      }
-    });
+    totalInput.addEventListener("input", ()=>{ if(otype()==="limit") syncFromTotal(); });
 
     // last price button
-    if(lastBtn){
+    if(lastBtn && priceInput){
       lastBtn.addEventListener("click", ()=>{
         const p = readLastPrice();
         if(!(p>0)) return;
@@ -16298,60 +16341,56 @@ function openStockspPage(){
     // Market UI toggle: disable price input
     function applyMarketUI(){
       const isMarket = (otype()==="market");
-      if(card) card.classList.toggle("is-market", isMarket);
-      if(isMarket){
-        const p = readLastPrice();
-        if(p>0) priceInput.value = p.toFixed(2);
-        priceInput.setAttribute("disabled","disabled");
-        if(lastBtn) lastBtn.setAttribute("disabled","disabled");
-      }else{
-        priceInput.removeAttribute("disabled");
-        if(lastBtn) lastBtn.removeAttribute("disabled");
+      if(priceInput){
+        priceInput.disabled = isMarket;
+        priceInput.style.opacity = isMarket ? "0.6" : "";
       }
+      // recompute button label + available
+      updateAvailableUI();
     }
 
-    document.addEventListener("click", (e)=>{
-      if(e.target.closest(".type-btn") || e.target.closest(".bs-btn")){
-        setTimeout(()=>{ applyMarketUI(); updateLabels(); updateAvailableUI(); }, 0);
-      }
-    });
+    // click toggles
+    $$(".type-btn").forEach(b=> b.addEventListener("click", ()=>{
+      $$(".type-btn").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      applyMarketUI();
+    }));
 
-    // slider: uses available balance
-    if(slider){
-      slider.min="0"; slider.max="100"; slider.step="1";
-      const paint = ()=>{
-        const v = Math.max(0, Math.min(100, parseFloat(slider.value)||0));
-        slider.style.setProperty("--pct", v + "%");
-      };
-      const apply = ()=>{
-        const pct = (parseFloat(slider.value)||0)/100;
-        const s = side();
-        const avail = availableFor(s);
-        const isMarket = (otype()==="market");
-        const p = readLastPrice() || num(priceInput.value) || 0;
-        if(p>0 && !priceInput.value) priceInput.value = p.toFixed(2);
+    $$(".bs-btn").forEach(b=> b.addEventListener("click", ()=>{
+      $$(".bs-btn").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      updateAvailableUI();
+      if(slider) slider.value="0";
+    }));
 
-        if(isMarket){
-          if(s==="buy") totalInput.value = (avail * pct).toFixed(2);
-          else amountInput.value = (avail * pct).toFixed(6);
-        }else{
-          if(!(p>0)){
-            amountInput.value=""; totalInput.value="";
-          }else if(s==="buy"){
-            const usdt = avail * pct;
-            totalInput.value = usdt.toFixed(2);
-            amountInput.value = (usdt/p).toFixed(6);
-          }else{
-            const b = avail * pct;
-            amountInput.value = b.toFixed(6);
-            totalInput.value = (b*p).toFixed(2);
-          }
+    // slider percent (uses Available depending on side)
+    function applyPct(){
+      const pct = num(slider?.value);
+      const s = side();
+      const pair = getCurrentPair();
+      const { base } = baseQuote(pair);
+      const p = (otype()==="market") ? readLastPrice() : num(priceInput?.value);
+      const avail = availableFor(s);
+      if(!(pct>0)) return;
+
+      if(s==="buy"){
+        if(!(p>0)) return;
+        const useUSDT = avail * (pct/100);
+        const a = useUSDT / p;
+        amountInput.value = a.toFixed(8);
+        if(otype()==="limit") syncFromAmount();
+        else totalInput.value = useUSDT.toFixed(2);
+      }else{
+        const a = avail * (pct/100);
+        amountInput.value = a.toFixed(8);
+        if(otype()==="limit") syncFromAmount();
+        else{
+          if(p>0) totalInput.value = (a*p).toFixed(2);
         }
-        paint();
-      };
-      slider.addEventListener("input", apply);
-      document.addEventListener("spot:ordersChanged", ()=>{ if(slider.value!=="0") apply(); else paint(); });
-      paint();
+      }
+    }
+    if(slider){
+      slider.addEventListener("input", ()=>{ applyPct(); });
     }
 
     // submit
@@ -16364,16 +16403,11 @@ function openStockspPage(){
       const s = side();
       const t = otype();
 
-      const execPrice = (t==="market") ? readLastPrice() : num(priceInput.value);
+      const execPrice = (t==="market") ? readLastPrice() : num(priceInput?.value);
       if(!(execPrice>0)) return alert("Fill price");
 
-      let amt = num(amountInput.value);
-      const tot = num(totalInput.value);
-
-      if(!(amt>0)){
-        if(tot>0) amt = tot / execPrice;
-      }
-      if(!(amt>0)) return alert("Fill amount or total");
+      const amt = num(amountInput.value);
+      if(!(amt>0)) return alert("Fill amount");
 
       const avail = availableFor(s);
       const cost = execPrice * amt;
@@ -16381,6 +16415,7 @@ function openStockspPage(){
       if(s==="buy" && cost > avail + 1e-9) return alert("Not enough " + quote);
       if(s==="sell" && amt  > avail + 1e-12) return alert("Not enough " + base);
 
+      // LIMIT => store open order (reserved via availableFor)
       if(t==="limit"){
         const all = openOrders();
         all.push({
@@ -16395,175 +16430,86 @@ function openStockspPage(){
         });
         setOpenOrders(all);
 
-        renderOpenOrders();
-        updateAvailableUI();
-        document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+        renderAll();
         return;
       }
 
       // MARKET instant fill
+      const w = readWallet();
       if(s==="buy"){
-        window.__WALLET__[quote] = Math.max(0, Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0) - cost);
-        window.__WALLET__[base]  = (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) + amt;
+        w[quote] = Math.max(0, num(w[quote] ?? w.USDT) - cost);
+        w[base]  = num(w[base]) + amt;
       }else{
-        window.__WALLET__[base]  = Math.max(0, Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0) - amt);
-        window.__WALLET__[quote] = (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) + cost;
+        w[base]  = Math.max(0, num(w[base]) - amt);
+        w[quote] = num(w[quote] ?? w.USDT) + cost;
       }
-      syncSpotBalanceToMenu();
+      writeWallet(w);
 
-      const tr = trades();
-      tr.unshift({
-        id: nowId(),
-        pair,
-        side: s,
-        price: Number(execPrice),
-        amount: Number(amt),
-        total: Number(cost),
-        ts: Date.now(),
-        role: "taker",
-        fee: 0
-      });
-      setTrades(tr);
+      pushTrade({pair, side:s, price:execPrice, amount:amt, total:cost, role:"taker", fee:0});
+      pushHistory({ id: nowId(), pair, side:s, type:"market", price:execPrice, amount:amt, filled:amt }, "filled");
 
-      pushHist({
-        id: nowId(),
-        pair,
-        side: s,
-        type: "market",
-        price: Number(execPrice),
-        amount: Number(amt),
-        filled: Number(amt),
-        status: "filled",
-        fee: 0,
-        ts: Date.now()
-      });
+      // reset pct
+      if(slider) slider.value="0";
 
-      updateAvailableUI();
-      renderTradeHistory();
-      renderOrderHistory();
-      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
+      renderAll();
     });
 
     applyMarketUI();
   }
 
-  // Limit auto-fill when price crosses
-  function tryFillLimits(){
-    const last = readLastPrice();
-    if(!(last>0)) return;
+  // ---------- boot ----------
+  function hookOrdersTabs(){
+    $$(".orders-tab").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        $$(".orders-tab").forEach(x=>x.classList.remove("active"));
+        btn.classList.add("active");
 
-    const pair = getCurrentPair();
-    const { base, quote } = baseQuote(pair);
+        const tab = btn.getAttribute("data-tab");
+        $$('.orders-panel').forEach(p=>p.classList.remove("is-active"));
+        const panel = document.querySelector(`.orders-panel[data-panel="${tab}"]`);
+        if(panel) panel.classList.add("is-active");
 
-    const all = openOrders();
-    if(!all.length) return;
-
-    let changed=false;
-    const keep=[];
-
-    for(const o of all){
-      if((o.pair||"") !== pair){ keep.push(o); continue; }
-      if(String(o.type||"limit").toLowerCase()!=="limit"){ keep.push(o); continue; }
-
-      const s = String(o.side||"buy").toLowerCase();
-      const p = Number(o.price)||0;
-      const a = Number(o.amount)||0;
-
-      const canFill = (s==="buy" && last <= p) || (s==="sell" && last >= p);
-
-      if(!canFill){ keep.push(o); continue; }
-
-      const cost = p * a;
-
-      // execute at limit price
-      if(s==="buy"){
-        window.__WALLET__[quote] = Math.max(0, Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0) - cost);
-        window.__WALLET__[base]  = (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) + a;
-      }else{
-        window.__WALLET__[base]  = Math.max(0, Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0) - a);
-        window.__WALLET__[quote] = (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) + cost;
-      }
-      syncSpotBalanceToMenu();
-
-      const tr = trades();
-      tr.unshift({ id: nowId(), pair, side:s, price:p, amount:a, total:cost, ts:Date.now(), role:"taker", fee:0 });
-      setTrades(tr);
-
-      pushHist({
-        id: o.id || nowId(),
-        pair,
-        side: s,
-        type: "limit",
-        price: p,
-        amount: a,
-        filled: a,
-        status: "filled",
-        fee: 0,
-        ts: Date.now()
+        renderAll();
       });
-
-      changed=true;
-    }
-
-    if(changed){
-      setOpenOrders(keep);
-      renderOpenOrders();
-      renderTradeHistory();
-      renderOrderHistory();
-      updateAvailableUI();
-      document.dispatchEvent(new CustomEvent("spot:ordersChanged"));
-    }
+    });
   }
 
   function boot(){
-    // Ensure storages exist
-    if(!localStorage.getItem(LS_OPEN)) writeJSON(LS_OPEN, []);
-    if(!localStorage.getItem(LS_TRADES)) writeJSON(LS_TRADES, []);
-    if(!localStorage.getItem(LS_HIST)) writeJSON(LS_HIST, []);
-
+    // ensure balances exist
+    readWallet(); // also normalizes BAL_KEY.spot
     hookTradeForm();
-    updateLabels();
-    updateAvailableUI();
-    renderOpenOrders();
-    renderTradeHistory();
-    renderOrderHistory();
+    hookOrdersTabs();
+    renderAll();
 
-    // keep in sync when pair changes (best-effort)
-    let lastPair = null;
-    setInterval(()=>{
-      const cur = getCurrentPair();
-      if(cur !== lastPair){
-        lastPair = cur;
-        updateLabels();
-        updateAvailableUI();
-        renderOpenOrders();
-        renderTradeHistory();
-        renderOrderHistory();
-      }
+    // re-render periodically to attempt limit fills
+    setInterval(()=>{ tryFillLimits(); }, 1000);
+
+    // if pair changes somewhere else in the UI
+    document.addEventListener("spot:pairChanged", ()=>{ renderAll(); });
+    document.addEventListener("spot:lastPrice", (e)=>{
+      const p = num(e?.detail?.price);
+      if(p>0) writeJSON("spot_last_price", p);
       tryFillLimits();
-    }, 400);
+    });
   }
 
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot, {once:true});
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
-})();
-</script>
 
-<script>
-  function logoutUser() {
-  // 1) Сбрасываем авторизацию (это главное в твоей системе)
+})();
+</script>  // 1) Сбрасываем авторизацию (это главное в твоей системе)
   setLoggedIn(false); // обновит UI через applyAuthUI()
 
   // 2) Выйти из спец-режимов (trade/кабинет и т.п.)
-  exitTradeModes?.(); // снимает forex-trade-mode / stocks-trade-mode :contentReference[oaicite:3]{index=3}
-  document.body.classList.remove("cabinet-mode"); // кабинет включается в openCabinetPage :contentReference[oaicite:4]{index=4}
+  exitTradeModes?.(); // снимает forex-trade-mode / stocks-trade-mode 
+  document.body.classList.remove("cabinet-mode"); // кабинет включается в openCabinetPage 
 
   // если ты где-то используешь другие классы (ты писал про stockstrade-mode/forextrade-mode) — убери тоже:
   document.body.classList.remove("stockstrade-mode", "forextrade-mode");
   document.documentElement.classList.remove("stockstrade-mode", "forextrade-mode");
 
   // 3) Закрываем все страницы/секции и показываем главную
-  hideAllPages?.();         // прячет cabinet/deposit/openstockstrade/openforextrade :contentReference[oaicite:5]{index=5}
+  hideAllPages?.();         // прячет cabinet/deposit/openstockstrade/openforextrade 
   showHomeSections?.();     // если у тебя есть (обратная hideHomeSections)
   setFooterVisible?.(true);
 

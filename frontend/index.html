@@ -15893,7 +15893,7 @@ function openStockspPage(){
   const LS_HIST   = "spot_order_history";   // order history (filled/cancelled)
 
   // Reset wallet each refresh (test mode)
-  window.__WALLET__ = { USDT: 1000, BTC: 0 };
+  // window.__WALLET__ = { USDT: 0, BTC: 0 };
 
   const $  = (s, r=document)=> r.querySelector(s);
   const $$ = (s, r=document)=> Array.from((r||document).querySelectorAll(s));
@@ -16562,7 +16562,7 @@ const ACCOUNTS = ["spot","forex","stocks"];
 
 function loadB(){
   try{ const b = JSON.parse(localStorage.getItem(BAL_KEY)||""); if(b) return b; }catch(e){}
-  const init = {spot:1000, forex:0, stocks:0};
+  const init = {spot:0, forex:0, stocks:0};
   localStorage.setItem(BAL_KEY, JSON.stringify(init));
   return init;
 }

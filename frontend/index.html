@@ -7047,101 +7047,6 @@ body.forextrade-mode{
 
 </section>
 
-<section id="forex-trade-page" class="page" style="display:none; padding-top:110px;">
-  <!-- верхняя строка, как у спота -->
-  <div class="pair-topbar">
-    <div class="pair-left">
-      <div class="pair-symbol" id="fx-pair-symbol">EUR/USD</div>
-      <div class="pair-name muted" id="fx-pair-name">Forex</div>
-    </div>
-    <div class="pair-price" id="fx-last-price">1.07540</div>
-
-    <div class="pair-stats">
-      <div class="stat">
-        <div class="label">24h Change</div>
-        <div class="val" id="fx-24h-change">0.00%</div>
-      </div>
-      <div class="stat">
-        <div class="label"></div>
-        <div class="val" id="fx-24h-high">—</div>
-      </div>
-      <div class="stat">
-        <div class="label">24h Low</div>
-        <div class="val" id="fx-24h-low">—</div>
-      </div>
-    
-    
-</div>
-  </div>
-
-  <div class="spot-layout">
-    <!-- слева график (можешь переиспользовать тот же контейнер/стили, что в споте) -->
-    <div class="spot-chart">
-      <div id="fx-chart-host" class="chart-host"></div>
-    </div>
-
-    <!-- справа: (опционально) ордербук как у тебя, если хочешь -->
-    <div class="spot-orderbook">
-      <div class="ob-card">
-        <div class="ob-title">Order Book</div>
-        <div id="fx-orderbook" class="ob-body"></div>
-      </div>
-    </div>
-
-    <!-- справа: торговая панель -->
-    <div class="spot-tradepanel">
-      <div class="trade-card" id="fxTradeCard">
-        <div class="trade-bs-toggle">
-          <button class="bs-btn active" data-side="buy" type="button">Buy</button>
-          <button class="bs-btn" data-side="sell" type="button">Sell</button>
-        </div>
-
-        <div class="trade-types">
-          <button class="type-btn active" data-otype="limit" type="button">Limit</button>
-          <button class="type-btn" data-otype="market" type="button">Market</button>
-        </div>
-
-        <div class="trade-available">
-          <div class="muted">Available</div>
-          <div class="trade-available-right">
-            <div class="account-balance-pill" title="Forex balance"><span class="amt fund-amt" data-acct="forex">0.00</span><span class="unit">USDT</span></div>
-          </div>
-        </div>
-
-        <div class="trade-field price-field">
-          <div class="trade-field-label">Price <span class="muted" id="fxPriceCcy">(USD)</span></div>
-          <div class="trade-field-row">
-            <input id="fxPrice" type="number" step="0.00001" placeholder="0.00">
-            <button id="fxLastBtn" class="last-btn" type="button">Last price</button>
-          </div>
-        </div>
-
-        <div class="trade-field amount-field">
-          <div class="trade-field-label">Amount <span class="muted" id="fxAmountCcy">(EUR)</span></div>
-          <input id="fxAmount" type="number" step="0.00001" placeholder="0.00000">
-        </div>
-
-        <input id="fxPct" type="range" min="0" max="100" step="1" value="0">
-
-        <div class="trade-marks">
-          <button type="button" data-p="0">0%</button>
-          <button type="button" data-p="25">25%</button>
-          <button type="button" data-p="50">50%</button>
-          <button type="button" data-p="75">75%</button>
-          <button type="button" data-p="100">100%</button>
-        </div>
-
-        <div class="trade-field total-field">
-          <div class="trade-field-label">Total <span class="muted" id="fxTotalCcy">(USD)</span></div>
-          <input id="fxTotal" type="number" step="0.01" placeholder="0.00">
-        </div>
-
-        <button id="fxSubmit" class="trade-submit buy" type="button">Buy EUR</button>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ===================== STOCKS PAGE ===================== -->
 <section id="stocks-page" style="display:none; padding-top:120px;">
 
@@ -9180,8 +9085,7 @@ body.forextrade-mode{
         <div class="trade-available">
           <div class="trade-available-label">Available</div>
           <div class="trade-available-val">
-            <span class="avail-amt">0</span>
-            <span class="avail-ccy">USD</span>
+            <div class="account-balance-pill" title="Forex balance"><span class="amt fund-amt" data-acct="forex">0.00</span><span class="unit">USDT</span></div>
             <button class="avail-swap" type="button">⇅</button>
           </div>
         </div>

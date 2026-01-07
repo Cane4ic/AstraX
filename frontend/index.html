@@ -13506,6 +13506,19 @@ function renderPair(pairKey) {
     st.__prevDisplayPrice = px;
   }
 
+// --- cache last price for portfolio valuation + notify trading module ---
+try{
+  if (px != null && Number.isFinite(px) && px > 0){
+    localStorage.setItem("spot_last_price", String(px));
+    const __base = String((pairKey||"").split("/")[0]||"").trim().toUpperCase();
+    if(__base) localStorage.setItem(`spot_last_price_${__base}`, String(px));
+    document.dispatchEvent(new CustomEvent("spot:lastPrice", { detail: { price: px, base: __base, pair: pairKey } }));
+    // update balances display (Total Assets should move with price)
+    if (typeof window.renderB === "function") window.renderB();
+  }
+}catch(e){}
+
+
   const __elCh = document.getElementById("spot-24h-change");
   __elCh.textContent = st.changePct.toFixed(2) + "%";
   __elCh.classList.toggle("up", st.changePct > 0);

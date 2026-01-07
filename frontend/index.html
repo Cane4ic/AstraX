@@ -1660,6 +1660,65 @@ margin-bottom: 100px;
   cursor:pointer;
 }
 
+/* ===== MOBILE AUTH BURGER (Deposit/Assets inside) ===== */
+.burger-btn{ display:none; }
+
+.mobile-auth-menu{
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: none;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+}
+
+.mobile-auth-menu.open{ display:block; }
+
+.mobile-auth-panel{
+  position: absolute;
+  top: 64px;
+  right: 12px;
+  width: min(260px, calc(100vw - 24px));
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(18,18,18,.92);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+}
+
+.mobile-auth-item{
+  width: 100%;
+  height: 42px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  color:#fff;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mobile-auth-item + .mobile-auth-item{ margin-top: 8px; }
+
+.mobile-auth-item:active{ transform: translateY(1px); }
+
+.mobile-auth-item.primary{
+  background: rgba(46, 124, 255, .20);
+  border-color: rgba(46, 124, 255, .35);
+}
+
+
+@media (max-width: 720px){
+  /* Replace topbar actions with burger on phones */
+  #topbar-auth .top-deposit-btn,
+  #topbar-auth #assets-dropdown{ display:none !important; }
+
+  #topbar-guest #btn-top-signin,
+  #topbar-guest #btn-top-get-started{ display:none !important; }
+
+  #topbar-auth .burger-btn,
+  #topbar-guest .burger-btn{ display:flex; }
+}
+
 .top-badge{
   position:absolute;
   top:-6px;
@@ -6244,6 +6303,17 @@ body.forextrade-mode{
 .account-balance-pill .unit{ opacity:.75; font-weight:800; }
 .account-balance-pill .amt{ font-variant-numeric: tabular-nums; }
 
+
+/* === TradingView iframe inside existing Spot chart (keeps original layout) === */
+#tv-chart, #tv-chart iframe{
+  width: 100%;
+  height: 100%;
+}
+#tv-chart iframe{
+  border: 0;
+  display: block;
+}
+
 </style>
 </head>
 <body>
@@ -6301,9 +6371,41 @@ body.forextrade-mode{
       <div class="actions actions-guest" id="topbar-guest">
   <button class="btn btn-outline" id="btn-top-signin">Sign in</button>
   <button class="btn btn-primary" id="btn-top-get-started">Get Started</button>
+
+  <!-- Mobile: burger menu for guest -->
+  <button class="top-icon-btn burger-btn" id="mobile-guest-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-guest-menu">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <div class="mobile-auth-menu" id="mobile-guest-menu" aria-hidden="true">
+    <div class="mobile-auth-panel" role="menu" aria-label="Guest menu">
+      <button class="mobile-auth-item" type="button" data-action="signin">Sign in</button>
+      <button class="mobile-auth-item primary" type="button" data-action="get-started">Get Started</button>
+    </div>
+  </div>
 </div>
 
 <div class="actions actions-auth" id="topbar-auth" style="display:none;">
+  <!-- Mobile: burger menu (shown only on small screens). Deposit/Assets will live inside it. -->
+  <button class="top-icon-btn burger-btn" id="mobile-auth-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-auth-menu">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </button>
+
+  <div class="mobile-auth-menu" id="mobile-auth-menu" aria-hidden="true">
+    <div class="mobile-auth-panel" role="menu">
+      <button class="mobile-auth-item" type="button" data-action="deposit" role="menuitem">Deposit</button>
+      <button class="mobile-auth-item" type="button" data-action="assets" role="menuitem">Assets</button>
+    </div>
+  </div>
+
   <button class="top-deposit-btn" type="button">Deposit</button>
 
   <div class="assets-dropdown" id="assets-dropdown">
@@ -8576,29 +8678,27 @@ body.forextrade-mode{
 <button id="clear-sim-btn" class="draw-btn"
         title="Clear synthetic candles"
         style="margin-top:6px;border-color:#7a2a2a;color:#ff6b6b;">
-  ×SIM
+  
 </button>
 
 
 
   <div class="tool-sep"></div>
-  <button class="tool-btn" data-tool="sim-up" title="Simulate Up">▲</button>
-  <button class="tool-btn" data-tool="sim-down" title="Simulate Down">▼</button>
+  
 </div>
   </div>
 </div>
 
     <div class="chart-stage" id="chart-root">
-  <div id="tv-chart" style="width:100%;height:600px;"></div>
+  <div id="tv-chart" style="width:100%;height:100%;">
+    <iframe class="tv-iframe"
+      src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=15&theme=dark&style=1&locale=en&toolbarbg=rgba(0,0,0,0)&enable_publishing=false&hide_top_toolbar=false&hide_side_toolbar=false&allow_symbol_change=true"
+      frameborder="0" allowfullscreen></iframe>
+  </div>
   
       
 
-  <div class="chart-hud" id="chart-hud">
-    <div class="hud-line"><span>O</span><b id="hud-o">—</b></div>
-    <div class="hud-line"><span>H</span><b id="hud-h">—</b></div>
-    <div class="hud-line"><span>L</span><b id="hud-l">—</b></div>
-    <div class="hud-line"><span>C</span><b id="hud-c">—</b></div>
-  </div>
+
   
 </div>
   </div>
@@ -12416,6 +12516,117 @@ function applyAuthUI(){
     if (auth) auth.style.display = "none";
     if (heroBtn) heroBtn.style.display = "";
   }
+
+  // Always close the mobile burger menu when auth state/UI changes
+  closeMobileAuthMenu();
+}
+
+// ===== Mobile burger menu inside authenticated topbar (phones) =====
+
+// ===== Mobile guest menu (Sign in / Get Started) =====
+function initMobileGuestMenu(){
+  const burger = document.getElementById("mobile-guest-burger");
+  const menu = document.getElementById("mobile-guest-menu");
+  if (!burger || !menu) return;
+
+  function setOpen(open){
+    menu.classList.toggle("open", open);
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+    menu.setAttribute("aria-hidden", open ? "false" : "true");
+  }
+
+  burger.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpen(!menu.classList.contains("open"));
+  });
+
+  menu.addEventListener("click", (e) => {
+    const panel = menu.querySelector(".mobile-auth-panel");
+    if (panel && !panel.contains(e.target)) setOpen(false);
+  });
+
+  menu.querySelectorAll(".mobile-auth-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      setOpen(false);
+
+      if (action === "signin") {
+        document.getElementById("btn-top-signin")?.click();
+        return;
+      }
+      if (action === "get-started") {
+        document.getElementById("btn-top-get-started")?.click();
+        return;
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setOpen(false);
+  });
+
+  window.__closeMobileGuestMenu = () => setOpen(false);
+}
+
+function closeMobileGuestMenu(){
+  if (typeof window.__closeMobileGuestMenu === "function") window.__closeMobileGuestMenu();
+}
+
+function initMobileAuthMenu(){
+  const burger = document.getElementById("mobile-auth-burger");
+  const menu = document.getElementById("mobile-auth-menu");
+  if (!burger || !menu) return;
+
+  function setOpen(open){
+    menu.classList.toggle("open", open);
+    burger.setAttribute("aria-expanded", open ? "true" : "false");
+    menu.setAttribute("aria-hidden", open ? "false" : "true");
+  }
+
+  burger.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpen(!menu.classList.contains("open"));
+  });
+
+  // Click outside the panel closes
+  menu.addEventListener("click", (e) => {
+    const panel = menu.querySelector(".mobile-auth-panel");
+    if (panel && !panel.contains(e.target)) setOpen(false);
+  });
+
+  // Handle menu actions
+  menu.querySelectorAll(".mobile-auth-item").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      setOpen(false);
+
+      if (action === "deposit") {
+        // Reuse existing deposit button behavior
+        document.querySelector("#topbar-auth .top-deposit-btn")?.click();
+        return;
+      }
+
+      if (action === "assets") {
+        // Reuse existing assets dropdown trigger behavior
+        document.getElementById("assets-trigger")?.click();
+        return;
+      }
+    });
+  });
+
+  // Escape to close
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setOpen(false);
+  });
+
+  // Expose close helper
+  window.__closeMobileAuthMenu = () => setOpen(false);
+}
+
+function closeMobileAuthMenu(){
+  if (typeof window.__closeMobileAuthMenu === "function") window.__closeMobileAuthMenu();
 }
 
 function setFooterVisible(visible){
@@ -12432,6 +12643,8 @@ function exitTradeModes(){
 }
 
 window.addEventListener("load", () => {
+  initMobileGuestMenu();
+  initMobileAuthMenu();
   applyAuthUI();
 
   // если залогинен и нет конкретной страницы в hash — сразу в кабинет
@@ -16709,42 +16922,33 @@ document.addEventListener("click", (e) => {
   </div>
 </div>
 
-
-<script src="https://s3.tradingview.com/tv.js"></script>
-
 <script>
 let tvWidget = null;
-function renderTVForSpot(pairKey, tf){
-  const el = document.getElementById("tv-chart");
-  if (!el || !window.TradingView) return;
-  el.innerHTML = "";
-  const symbol = "BINANCE:" + pairKey.replace("/", "");
-  const tfMap = {"1m":"1","5m":"5","15m":"15","1h":"60","4h":"240","1d":"D"};
+
+function showChart(pair, tf){
+  document.getElementById("tv-chart").innerHTML = "";
+
+  const symbol = "BINANCE:" + pair.replace("/", "");
+
+  const tfMap = {
+    "1m":"1",
+    "5m":"5",
+    "15m":"15",
+    "1h":"60",
+    "4h":"240",
+    "1d":"D"
+  };
+
   tvWidget = new TradingView.widget({
     container_id: "tv-chart",
     symbol: symbol,
-    interval: tfMap[tf] || "15",
+    interval: tfMap[tf],
     autosize: true,
-    theme: "dark",
-    locale: "en",
-    allow_symbol_change: false
+    theme: "dark"
   });
 }
 </script>
 
-
-<script>
-function waitForTradingView(cb){
-  let tries = 0;
-  const t = setInterval(() => {
-    if (window.TradingView && TradingView.widget) {
-      clearInterval(t);
-      cb();
-    }
-    if (++tries > 50) clearInterval(t);
-  }, 100);
-}
-</script>
-
+<script src="https://s3.tradingview.com/tv.js"></script>
 </body>
 </html>

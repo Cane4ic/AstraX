@@ -15893,7 +15893,15 @@ function openStockspPage(){
   const LS_HIST   = "spot_order_history";   // order history (filled/cancelled)
 
   // Reset wallet each refresh (test mode)
-  window.__WALLET__ = { USDT: cashSpot(), BTC: 0 };
+  window.__WALLET__ = (function(){
+    try{
+      const b = JSON.parse(localStorage.getItem("demo_balances_v1") || "null") || {};
+      const usdt = Number(b.spot || 0);
+      return { USDT: usdt, BTC: 0 };
+    }catch(e){
+      return { USDT: 0, BTC: 0 };
+    }
+  })();
 
   const $  = (s, r=document)=> r.querySelector(s);
   const $$ = (s, r=document)=> Array.from((r||document).querySelectorAll(s));
@@ -15914,7 +15922,20 @@ function openStockspPage(){
   }
   function writeJSON(key, val){
     try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  
+  // Sync engine USDT balance -> top menu spot balance (demo_balances_v1.spot)
+  function syncSpotBalanceToMenu(){
+    try{
+      const usdt = Number(window.__WALLET__?.USDT ?? 0);
+      const k = "demo_balances_v1";
+      const b = JSON.parse(localStorage.getItem(k) || "null") || {};
+      b.spot = usdt;
+      localStorage.setItem(k, JSON.stringify(b));
+      if (typeof window.renderB === "function") window.renderB();
+    }catch(e){}
   }
+
+}
 
   function getCurrentPair(){
     const v = (typeof window.SPOT_SELECTED === "string" && window.SPOT_SELECTED.trim()) ? window.SPOT_SELECTED.trim() : "";
@@ -15994,15 +16015,6 @@ function openStockspPage(){
       .reduce((s,o)=> s + (Number(o.amount)||0), 0);
   }
 
-  function cashSpot(){
-  try {
-    const b = JSON.parse(localStorage.getItem("demo_balances_v1") || "null") || {};
-    return Number(b.spot || 0);
-  } catch(e){
-    return 0;
-  }
-}
-
   function availableFor(sideNow){
     const pair = getCurrentPair();
     const { base, quote } = baseQuote(pair);
@@ -16012,9 +16024,9 @@ function openStockspPage(){
       const res = reservedBase(orders, base);
       return Math.max(0, (Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0)) - res);
     }else{
-  const res = reservedQuoteUSDT(orders);
-  return Math.max(0, cashSpot() - res);
-}
+      const res = reservedQuoteUSDT(orders);
+      return Math.max(0, (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) - res);
+    }
   }
 
   function updateLabels(){
@@ -16397,6 +16409,7 @@ function openStockspPage(){
         window.__WALLET__[base]  = Math.max(0, Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0) - amt);
         window.__WALLET__[quote] = (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) + cost;
       }
+      syncSpotBalanceToMenu();
 
       const tr = trades();
       tr.unshift({
@@ -16470,6 +16483,7 @@ function openStockspPage(){
         window.__WALLET__[base]  = Math.max(0, Number(window.__WALLET__[base] ?? window.__WALLET__.BTC ?? 0) - a);
         window.__WALLET__[quote] = (Number(window.__WALLET__[quote] ?? window.__WALLET__.USDT ?? 0)) + cost;
       }
+      syncSpotBalanceToMenu();
 
       const tr = trades();
       tr.unshift({ id: nowId(), pair, side:s, price:p, amount:a, total:cost, ts:Date.now(), role:"taker", fee:0 });
@@ -16596,21 +16610,6 @@ function renderB(){
     const v = (a === "overview") ? ov : (b[a] || 0);
     el.textContent = fmt2(v);
   });
-}
-
-// ✅ ВОТ СЮДА (сразу после renderB)
-function cashSpot(){
-  const b = loadB();
-  return Number(b.spot || 0);
-}
-function setCashSpot(v){
-  const b = loadB();
-  b.spot = Math.max(0, Number(v || 0));
-  saveB(b);
-  // sync engine wallet
-  window.__WALLET__ = window.__WALLET__ || {};
-  window.__WALLET__.USDT = b.spot;
-  renderB();
 }
 
 function openTx(from){

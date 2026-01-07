@@ -15895,11 +15895,52 @@ function openStockspPage(){
    - Open Orders / Order History / Trade History are persisted
 */
 (function(){
-  if (window.__SpotTradingRewrittenV1) return;
-  window.__SpotTradingRewrittenV1 = true;
+  if (window.__SpotTradingRewrittenV8) return;
+  window.__SpotTradingRewrittenV8 = true;
 
   const BAL_KEY   = "demo_balances_v1";
-  const WAL_KEY   = "spot_wallet_v1";
+  const HOLD_KEY  = "spot_holdings_v2";
+
+  // ---------- sanity / migration ----------
+  // Previous test versions could leave corrupted numbers in localStorage (e.g. treating 1000 USDT as 1000 BTC).
+  // This auto-clean runs only for obviously broken demo states.
+  function sanitizeSpotStorage(){
+    const toNum = (x)=>{ const n = Number(x); return Number.isFinite(n) ? n : 0; };
+
+    // remove legacy keys from earlier iterations
+    ["spot_wallet_v1","spot_wallet","spot_holdings_v1"].forEach(k=>{
+      try{ localStorage.removeItem(k); }catch(e){}
+    });
+
+    let b;
+    try{ b = JSON.parse(localStorage.getItem(BAL_KEY)||"null"); }catch(e){ b = null; }
+    if(!b || typeof b !== "object") b = {spot:0, forex:0, stocks:0};
+
+    let h;
+    try{ h = JSON.parse(localStorage.getItem(HOLD_KEY)||"null"); }catch(e){ h = null; }
+    if(!h || typeof h !== "object") h = {};
+
+    const spotUSDT = toNum(b.spot);
+    let maxHold = 0;
+    try{
+      Object.keys(h).forEach(k=>{ maxHold = Math.max(maxHold, Math.abs(toNum(h[k]))); });
+    }catch(e){}
+
+    const looksCorrupted =
+      !Number.isFinite(spotUSDT) ||
+      spotUSDT > 1e7 ||      // 10,000,000+ USDT in demo is almost certainly accidental
+      maxHold > 1e4;         // absurd coin quantity
+
+    if(looksCorrupted){
+      const resetB = {spot: 1000, forex: 0, stocks: 0};
+      // writeJSON is declared later, but function declarations are hoisted.
+      writeJSON(BAL_KEY, resetB);
+      writeJSON(HOLD_KEY, {});
+    }
+  }
+  sanitizeSpotStorage();
+
+  const LEGACY_WAL_KEY = "spot_wallet_v1";
   const LS_OPEN   = "spot_orders";          // open orders
   const LS_TRADES = "spot_trades";          // fills (market + limit fills)
   const LS_HIST   = "spot_order_history";   // order history (filled/cancelled)
@@ -15975,23 +16016,50 @@ function openStockspPage(){
     if (typeof window.renderB === "function") window.renderB();
   }
 
-  // ---------- spot wallet (assets for selling) ----------
-  function readWallet(){
-    const b = readBalances();
-    const w = readJSON(WAL_KEY, null) || {};
-    // USDT in wallet mirrors spot balance
-    const out = { ...w, USDT: num(b.spot) };
-    // normalize numeric fields
-    Object.keys(out).forEach(k=> out[k] = num(out[k]));
-    writeJSON(WAL_KEY, out);
+  // ---------- spot holdings (assets for selling) ----------
+  // We keep Spot USDT in BAL_KEY.spot (single source of truth).
+  // Coin holdings (BTC/ETH/...) are stored separately in HOLD_KEY.
+  function sanitizeHoldings(obj){
+    const out = {};
+    if(!obj || typeof obj!=="object") return out;
+    for(const [k,v] of Object.entries(obj)){
+      const sym = String(k||"").trim().toUpperCase();
+      if(!sym || sym==="USDT") continue;
+      const n = num(v);
+      // basic sanity: ignore absurd values from old buggy versions
+      if(!isFinite(n) || n<0) continue;
+      if(n>1e6) continue;
+      out[sym] = n;
+    }
     return out;
   }
-  function writeWallet(next){
-    const w = { ...(next||{}) };
-    Object.keys(w).forEach(k=> w[k] = num(w[k]));
-    // keep USDT mirrored
-    writeSpotUSDT(w.USDT);
-    writeJSON(WAL_KEY, w);
+
+  function readHoldings(){
+    // v8: DO NOT migrate from any legacy keys (they may contain corrupted USDT-as-coin values).
+    // Only trust the current holdings schema.
+    const current = readJSON(HOLD_KEY, null);
+    if(current && typeof current==="object"){
+      const out = sanitizeHoldings(current);
+
+      // If there is no trade history yet, holdings should be empty.
+      // This prevents showing "fake BTC" that came from previously bugged versions.
+      const th = readJSON(LS_TRADES, []);
+      const hasTrades = Array.isArray(th) && th.length>0;
+      if(!hasTrades && Object.keys(out).length){
+        writeJSON(HOLD_KEY, {});
+        return {};
+      }
+
+      writeJSON(HOLD_KEY, out);
+      return out;
+    }
+    writeJSON(HOLD_KEY, {});
+    return {};
+  }
+
+  function writeHoldings(next){
+    const out = sanitizeHoldings(next);
+    writeJSON(HOLD_KEY, out);
   }
 
   // ---------- orders / trades ----------
@@ -16043,15 +16111,17 @@ function openStockspPage(){
   function availableFor(s){
     const pair = getCurrentPair();
     const { base, quote } = baseQuote(pair);
-    const w = readWallet();
+    const h = readHoldings();
+
+    const b = readBalances();
 
     if(s==="sell"){
-      const baseFree = Math.max(0, num(w[base]) - reservedBase(pair));
+      const baseFree = Math.max(0, num(h[base]) - reservedBase(pair));
       return baseFree;
     }
 
     // buy
-    const usdtFree = Math.max(0, num(w[quote] ?? w.USDT) - reservedQuoteUSDT(pair));
+    const usdtFree = Math.max(0, num(b.spot) - reservedQuoteUSDT(pair));
     return usdtFree;
   }
 
@@ -16260,7 +16330,9 @@ function openStockspPage(){
     const keep=[];
     let changed=false;
 
-    let w = readWallet();
+    const b = readBalances();
+
+    let h = readHoldings();
 
     for(const o of all){
       if((o.pair||"") !== pair){ keep.push(o); continue; }
@@ -16282,12 +16354,12 @@ function openStockspPage(){
         const availUSDT = Math.max(0, num(w[quote] ?? w.USDT));
         if(cost > availUSDT + 1e-9){ keep.push(o); continue; } // not enough, skip
         w[quote] = availUSDT - cost;
-        w[base]  = num(w[base]) + execAmt;
+        h[base]  = num(h[base]) + execAmt;
       }else{
         const availBase = Math.max(0, num(w[base]));
         if(execAmt > availBase + 1e-12){ keep.push(o); continue; }
         w[base]  = availBase - execAmt;
-        w[quote] = num(w[quote] ?? w.USDT) + cost;
+        b.spot = num(b.spot) + cost;
       }
 
       // record
@@ -16298,7 +16370,8 @@ function openStockspPage(){
     }
 
     if(changed){
-      writeWallet(w);
+      writeSpotUSDT(b.spot);
+      writeHoldings(h);
       setOpenOrders(keep);
       renderAll();
     }
@@ -16418,14 +16491,34 @@ function openStockspPage(){
       const execPrice = (t==="market") ? readLastPrice() : num(priceInput?.value);
       if(!(execPrice>0)) return alert("Fill price");
 
-      const amt = num(amountInput.value);
-      if(!(amt>0)) return alert("Fill amount");
-
+      // INPUTS:
+      // - For BUY: user typically specifies TOTAL in quote (USDT). If total is empty, we accept AMOUNT in base (BTC).
+      // - For SELL: user specifies AMOUNT in base (BTC).
       const avail = availableFor(s);
-      const cost = execPrice * amt;
 
-      if(s==="buy" && cost > avail + 1e-9) return alert("Not enough " + quote);
-      if(s==="sell" && amt  > avail + 1e-12) return alert("Not enough " + base);
+      let amt = 0;   // base amount (BTC)
+      let cost = 0;  // quote total (USDT)
+
+      if(s==="buy"){
+        const totalQ = num(totalInput?.value);
+        const amtB   = num(amountInput?.value);
+
+        if(totalQ>0){
+          cost = totalQ;
+          amt  = cost / execPrice;
+        }else{
+          amt  = amtB;
+          if(!(amt>0)) return alert("Fill amount");
+          cost = execPrice * amt;
+        }
+        if(!(cost>0) || !(amt>0)) return alert("Fill amount");
+        if(cost > avail + 1e-9) return alert("Not enough " + quote);
+      }else{
+        amt = num(amountInput?.value);
+        if(!(amt>0)) return alert("Fill amount");
+        if(amt  > avail + 1e-12) return alert("Not enough " + base);
+        cost = execPrice * amt;
+      }
 
       // LIMIT => store open order (reserved via availableFor)
       if(t==="limit"){
@@ -16447,15 +16540,18 @@ function openStockspPage(){
       }
 
       // MARKET instant fill
-      const w = readWallet();
+      const h = readHoldings();
+
+    const b = readBalances();
       if(s==="buy"){
-        w[quote] = Math.max(0, num(w[quote] ?? w.USDT) - cost);
-        w[base]  = num(w[base]) + amt;
+        b.spot = Math.max(0, num(b.spot) - cost);
+        h[base]  = num(h[base]) + amt;
       }else{
-        w[base]  = Math.max(0, num(w[base]) - amt);
-        w[quote] = num(w[quote] ?? w.USDT) + cost;
+        h[base]  = Math.max(0, num(h[base]) - amt);
+        b.spot = num(b.spot) + cost;
       }
-      writeWallet(w);
+      writeSpotUSDT(b.spot);
+      writeHoldings(h);
 
       pushTrade({pair, side:s, price:execPrice, amount:amt, total:cost, role:"taker", fee:0});
       pushHistory({ id: nowId(), pair, side:s, type:"market", price:execPrice, amount:amt, filled:amt }, "filled");
@@ -16488,7 +16584,8 @@ function openStockspPage(){
 
   function boot(){
     // ensure balances exist
-    readWallet(); // also normalizes BAL_KEY.spot
+    readBalances();
+    readHoldings();
     hookTradeForm();
     hookOrdersTabs();
     renderAll();

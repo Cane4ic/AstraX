@@ -16766,10 +16766,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
   renderB();
 
   // Открытие — ТОЛЬКО по data-transfer-open
-  document.querySelectorAll("[data-transfer-open]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      openTx(btn.getAttribute("data-from") || "spot");
-    });
+  document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-transfer-open]");
+  if(!btn) return;
+  e.preventDefault();
+  openTx(btn.getAttribute("data-from") || "spot");
+});
   });
 
   // Закрытие

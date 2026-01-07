@@ -15893,7 +15893,7 @@ function openStockspPage(){
   const LS_HIST   = "spot_order_history";   // order history (filled/cancelled)
 
   // Reset wallet each refresh (test mode)
-  // window.__WALLET__ = { USDT: 0, BTC: 0 };
+  window.__WALLET__ = { USDT: cashSpot(), BTC: 0 };
 
   const $  = (s, r=document)=> r.querySelector(s);
   const $$ = (s, r=document)=> Array.from((r||document).querySelectorAll(s));
@@ -16607,6 +16607,9 @@ function setCashSpot(v){
   const b = loadB();
   b.spot = Math.max(0, Number(v || 0));
   saveB(b);
+  // sync engine wallet
+  window.__WALLET__ = window.__WALLET__ || {};
+  window.__WALLET__.USDT = b.spot;
   renderB();
 }
 

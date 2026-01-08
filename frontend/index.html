@@ -6978,6 +6978,121 @@ body.pair-dd-open{
   }
 }
 
+@media (max-width: 900px){
+  /* ForexTrade: страница должна быть обычным потоком, а не fixed */
+  #openforextradepage{
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+
+    min-height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    /* чтобы не залезало под fixed topbar */
+    padding-top: var(--topbar-h) !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 900px){
+  /* StocksTrade: разрешаем скролл */
+  html.stockstrade-mode, body.stockstrade-mode{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* чтобы контент начинался ниже topbar */
+  #openstockstradepage{
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-top: var(--topbar-h) !important;
+  }
+}
+
+/* STOCKSTRADE: убрать двойной отступ (topbar sticky уже занимает место) */
+body.stocks-trade-mode #openstockstradepage{
+  padding-top: 0 !important;
+}
+
+/* как на spot: небольшой внутренний отступ уже внутри layout */
+body.stocks-trade-mode #openstockstradepage .spot-layout{
+  padding-top: 12px !important;
+}
+
+@media (max-width: 720px){
+
+  /* 1) Не фиксируем страницу по высоте */
+  html, body{
+    height: auto !important;
+  }
+
+  /* 2) Включаем скролл страницы (отключаем “fixed page” режим) */
+  body.stockstrade-mode{
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 3) Не обрезаем контент страницы */
+  #openstockstradepage{
+    overflow: visible !important;   /* вместо hidden */
+  }
+
+  /* 4) Ордера не должны быть 360px и hidden */
+  body.stockstrade-mode #openstockstradepage .spot-orders{
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 720px){
+  html, body{
+    height: auto !important;
+  }
+  body.stockstrade-mode{
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  #openstockstradepage{
+    overflow: visible !important;
+  }
+}
+
+/* MOBILE: stockstrade должен скроллиться как SPOT */
+@media (max-width: 720px){
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+  }
+
+  body.stockstrade-mode{
+    overflow-y: auto !important;   /* перебиваем overflow:hidden */
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* отключаем “sticky trade + inner scroll orders” на телефоне */
+  #openstockstradepage .spot-trade{
+    position: static !important;
+    top: auto !important;
+  }
+  #openstockstradepage .spot-orders{
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  #openstockstradepage .spot-layout{
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
 
 </style>
 </head>

@@ -1686,6 +1686,38 @@ margin-bottom: 100px;
   box-shadow: 0 20px 60px rgba(0,0,0,.55);
 }
 
+/* Logged-in mobile menu layout (7 blocks like mock) */
+#mobile-auth-menu.open{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.mobile-auth-panel--logged{
+  position: relative;
+  top: auto;
+  right: auto;
+  width: min(360px, calc(100vw - 40px));
+  padding: 18px;
+  border-radius: 18px;
+}
+
+.mobile-auth-panel--logged .mobile-auth-item{
+  height: 52px;
+  border-radius: 14px;
+  font-size: 15px;
+}
+
+.mobile-auth-panel--logged .mobile-auth-item + .mobile-auth-item{
+  margin-top: 12px;
+}
+
+.mobile-auth-item--danger{
+  border-color: rgba(255, 59, 48, .35);
+  background: rgba(255, 59, 48, .12);
+}
+
+
 .mobile-auth-item{
   width: 100%;
   height: 42px;
@@ -6389,24 +6421,29 @@ body.forextrade-mode{
   </div>
 </div>
 
-<div class="actions actions-auth" id="topbar-auth" style="display:none;">
-  <!-- Mobile: burger menu (shown only on small screens). Deposit/Assets will live inside it. -->
-  <button class="top-icon-btn burger-btn" id="mobile-auth-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-auth-menu">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
+      <div class="actions actions-auth" id="topbar-auth" style="display:none;">
+        <!-- Mobile: burger menu (phones). -->
+        <button class="top-icon-btn burger-btn" id="mobile-auth-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-auth-menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
 
-  <div class="mobile-auth-menu" id="mobile-auth-menu" aria-hidden="true">
-    <div class="mobile-auth-panel" role="menu">
-      <button class="mobile-auth-item" type="button" data-action="deposit" role="menuitem">Deposit</button>
-      <button class="mobile-auth-item" type="button" data-action="assets" role="menuitem">Assets</button>
-    </div>
-  </div>
+        <div class="mobile-auth-menu" id="mobile-auth-menu" aria-hidden="true">
+          <div class="mobile-auth-panel mobile-auth-panel--logged" role="menu" aria-label="Account menu">
+            <button class="mobile-auth-item" type="button" data-action="assets" role="menuitem">Assets</button>
+            <button class="mobile-auth-item" type="button" data-action="deposit" role="menuitem">Deposits</button>
+            <button class="mobile-auth-item" type="button" data-action="markets" role="menuitem">Markets</button>
+            <button class="mobile-auth-item" type="button" data-action="spot" role="menuitem">Spot</button>
+            <button class="mobile-auth-item" type="button" data-action="stocks" role="menuitem">Stocks</button>
+            <button class="mobile-auth-item" type="button" data-action="forex" role="menuitem">Forex</button>
+            <button class="mobile-auth-item mobile-auth-item--danger" type="button" data-action="logout" role="menuitem">Log Out</button>
+          </div>
+        </div>
 
-  <button class="top-deposit-btn" type="button">Deposit</button>
+        <button class="top-deposit-btn" type="button">Deposit</button>
 
   <div class="assets-dropdown" id="assets-dropdown">
   <button class="top-link assets-trigger" type="button" id="assets-trigger">
@@ -6449,6 +6486,7 @@ body.forextrade-mode{
 
   
 
+
   <div class="user-dropdown">
   <button class="top-icon-btn user-trigger" type="button" aria-label="User menu">
     <!-- иконка пользователя -->
@@ -6475,6 +6513,7 @@ body.forextrade-mode{
 </div>
 </div>
 
+      </div>
     </div>
   </header>
 
@@ -12611,6 +12650,31 @@ function initMobileAuthMenu(){
       if (action === "assets") {
         // Reuse existing assets dropdown trigger behavior
         document.getElementById("assets-trigger")?.click();
+        return;
+      }
+
+      if (action === "markets") {
+        if (typeof openCryptoPage === "function") openCryptoPage();
+        return;
+      }
+
+      if (action === "spot") {
+        if (typeof openSpotPage === "function") openSpotPage();
+        return;
+      }
+
+      if (action === "stocks") {
+        if (typeof openstockstradepage === "function") openstockstradepage();
+        return;
+      }
+
+      if (action === "forex") {
+        if (typeof openforextradepage === "function") openforextradepage();
+        return;
+      }
+
+      if (action === "logout") {
+        if (typeof logoutUser === "function") logoutUser();
         return;
       }
     });

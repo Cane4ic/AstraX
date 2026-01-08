@@ -3641,6 +3641,49 @@ body.futures-mode .spot-layout{
 }
 .spot-pair.open .pair-dd{ display:block; }
 
+
+/* ===== MOBILE: keep pair dropdown inside viewport ===== */
+@media (max-width: 720px){
+  .pair-dd{
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    top: calc(var(--topbar-h, 64px) + 68px) !important; /* under topbar + pairbar */
+    max-height: 70vh !important;
+    overflow: hidden !important;
+    z-index: 60000 !important;
+  }
+  .pair-dd-list{
+    max-height: calc(70vh - 56px) !important; /* head ~56px */
+    overflow: auto !important;
+  }
+  /* prevent horizontal scroll when dropdown open */
+  body.pair-dd-open{
+    overflow-x: hidden !important;
+  }
+}
+/* ===== MOBILE FIX: keep pair dropdown inside viewport ===== */
+@media (max-width: 720px){
+  html, body{ overflow-x: hidden; }
+  /* dropdown becomes a centered sheet */
+  .pair-dd{
+    position: fixed !important;
+    top: calc(var(--topbar-h, 70px) + 12px) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    border-radius: 14px !important;
+    z-index: 999999 !important;
+  }
+  .pair-dd-list{
+    max-height: min(70vh, 520px) !important;
+  }
+}
+
+
+
 .pair-dd-head{
   padding:10px;
   border-bottom:1px solid rgba(255,255,255,0.08);
@@ -6783,6 +6826,97 @@ body.forextrade-mode{
     overflow: visible !important;
   }
 }
+
+
+/* ===============================
+   FIX: Pair dropdown on phones (Spot/Stocks/Forex)
+   - keep inside viewport
+   - add max-height + scroll
+   - slightly transparent so page doesn't look "gone"
+   =============================== */
+/* @media (max-width: 720px){
+  .pair-dd{
+    position: fixed !important;
+    top: calc(var(--topbar-h) + 12px) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+
+    max-height: calc(100vh - var(--topbar-h) - 24px) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+
+    background: rgba(11, 15, 24, 0.92) !important;
+    backdrop-filter: blur(12px);
+    z-index: 70000 !important;
+  }
+} */
+
+/* ===============================
+   REVERT: Cabinet mobile layout back to vertical scroll blocks
+   =============================== */
+@media (max-width: 900px){
+  body.cabinet-mode{
+    overflow: auto !important;
+  }
+  body.cabinet-mode .cabinet-layout{
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  body.cabinet-mode .cabinet-sidebar{
+    position: static !important;
+    top: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 12px !important;
+  }
+  body.cabinet-mode #overview-bar{
+    position: static !important;
+    top: auto !important;
+  }
+  body.cabinet-mode #cabinet-content{
+    height: auto !important;
+    overflow: visible !important;
+    padding: 16px 12px 24px !important;
+  }
+}
+
+
+/* Mobile: prevent horizontal scroll when pair dropdown is open */
+body.pair-dd-open{
+  overflow-x: hidden !important;
+}
+@media (max-width: 720px){
+  body.pair-dd-open{
+    touch-action: manipulation;
+  }
+  body.spot-mode .pair-dd{
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (max-width: 720px){
+  .pair-dd{
+    position: fixed !important;
+    top: calc(var(--topbar-h) + 12px) !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+
+    max-height: calc(100vh - var(--topbar-h) - 24px) !important;
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+
+    background: rgba(11, 15, 24, 0.92) !important;
+    backdrop-filter: blur(12px);
+    z-index: 70000 !important;
+
+    transform: none !important; /* важно, если где-то есть translate/scale */
+  }
+}
+
 
 </style>
 </head>
@@ -13993,6 +14127,7 @@ function renderPairList(filter=""){
   renderPair(window.SPOT_SELECTED);
   rebuildChartForSelectedPair(__lastChartTF); // <-- ДОБАВЬ
   pairWrap.classList.remove("open");
+  __applyMobilePairDropdown(false);
 });
 
     listEl.appendChild(row);
@@ -14797,10 +14932,67 @@ function startKlineWS(symbol, interval){
 
 
 
+
+function __applyMobilePairDropdown(open){
+  if (!dd) return;
+  const isMobile = window.matchMedia && window.matchMedia("(max-width: 720px)").matches;
+  if (!isMobile){
+    // reset any mobile inline overrides
+    dd.style.position = "";
+    dd.style.left = "";
+    dd.style.right = "";
+    dd.style.top = "";
+    dd.style.bottom = "";
+    dd.style.width = "";
+    dd.style.maxHeight = "";
+    dd.style.overflowY = "";
+    document.body.classList.remove("pair-dd-open");
+    return;
+  }
+
+  if (!open){
+    dd.style.position = "";
+    dd.style.left = "";
+    dd.style.right = "";
+    dd.style.top = "";
+    dd.style.bottom = "";
+    dd.style.width = "";
+    dd.style.maxHeight = "";
+    dd.style.overflowY = "";
+    document.body.classList.remove("pair-dd-open");
+    return;
+  }
+
+  // Open on mobile: force dropdown to stay inside viewport (like a sheet)
+  const rect = pairBtn?.getBoundingClientRect?.();
+  const pad = 12;
+  const desiredTop = (rect ? rect.bottom : (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--topbar-h")) || 56)) + 8;
+  const maxH = Math.floor(window.innerHeight * 0.72);
+
+  dd.style.position = "fixed";
+  dd.style.left = pad + "px";
+  dd.style.right = pad + "px";
+  dd.style.width = "auto";
+  dd.style.maxHeight = maxH + "px";
+  dd.style.overflowY = "auto";
+
+  // Clamp top so the panel never goes off-screen
+  const top = Math.min(desiredTop, window.innerHeight - maxH - pad);
+  dd.style.top = Math.max(pad, top) + "px";
+  dd.style.bottom = "auto";
+
+  document.body.classList.add("pair-dd-open");
+}
+
+window.addEventListener("resize", () => {
+  if (pairWrap?.classList.contains("open")) __applyMobilePairDropdown(true);
+});
+
 // открыть / закрыть dropdown
 if (pairBtn && pairWrap && searchEl && listEl) pairBtn.addEventListener("click", (e) => {
   e.stopPropagation();
   pairWrap.classList.toggle("open");
+  __applyMobilePairDropdown(pairWrap.classList.contains("open"));
   if (pairWrap.classList.contains("open")) {
     searchEl.value = "";
     renderPairList("");
@@ -14816,7 +15008,8 @@ renderPairList("");
 });
 
 document.addEventListener("click", () => {
-  if (pairWrap) pairWrap.classList.remove("open");
+  if (pairWrap) { pairWrap.classList.remove("open");
+  __applyMobilePairDropdown(false); __applyMobilePairDropdown(false); }
 });
 searchEl.addEventListener("input", () => renderPairList(searchEl.value));
 
@@ -15467,6 +15660,7 @@ function closeFxDd(){
 }
   function closeDD(){
     pairWrap.classList.remove("open");
+  __applyMobilePairDropdown(false);
   }
   function toggleDD(){
     pairWrap.classList.contains("open") ? closeDD() : openDD();

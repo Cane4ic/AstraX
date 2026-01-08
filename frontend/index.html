@@ -6523,8 +6523,6 @@ body.forextrade-mode{
   <div class="user-menu">
   <div class="user-card">
     <a class="user-item" href="#profile">Profile</a>
-    <a class="user-item" href="#identification">Identification</a>
-    <a class="user-item" href="#security">Security</a>
 
     <div class="user-divider user-mobile-nav-divider"></div>
 
@@ -6543,9 +6541,9 @@ body.forextrade-mode{
     <div class="user-divider"></div>
 
     <!-- LOG OUT -->
-    <button class="user-item user-logout" type="button" onclick="logoutUser()">
-      Log Out
-    </button>
+    <div class="user-menu-item logout" id="profile-logout">
+    Log Out
+</div>
   </div>
 </div>
 </div>
@@ -17111,5 +17109,21 @@ function showChart(pair, tf){
 </script>
 
 <script src="https://s3.tradingview.com/tv.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const logoutBtn = document.getElementById('profile-logout');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (typeof logoutUser === 'function') {
+                logoutUser();
+            } else {
+                console.error('logoutUser() not found');
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>

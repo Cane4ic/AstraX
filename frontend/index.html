@@ -7361,6 +7361,92 @@ body.forextrade-mode #openforextradepage{
   display: block !important;
 }
 
+/* =========================================================
+   CABINET MOBILE: horizontal scroll tabs + content under
+   Put at the VERY END of CSS
+   ========================================================= */
+@media (max-width: 900px){
+
+  /* 1) Сама страница кабинет — обычный вертикальный скролл */
+  body.cabinet-mode{
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 2) Убираем “десктопные” большие паддинги у контейнера (делаем шире) */
+  body.cabinet-mode .cabinet-layout{
+    padding: 0 !important;              /* было 24px 32px :contentReference[oaicite:1]{index=1} */
+    gap: 0 !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 3) Верхняя панель с меню — sticky под topbar */
+  body.cabinet-mode .cabinet-sidebar{
+    position: sticky !important;
+    top: var(--topbar-h, 64px) !important;
+    z-index: 2000 !important;
+
+    padding: 10px 8px !important;
+    background: rgba(0,0,0,0.55) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* 4) Меню делаем горизонтальным скроллом */
+  body.cabinet-mode .cabinet-nav{
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 6px 4px !important;
+    white-space: nowrap !important;
+  }
+
+  /* убираем разделители в горизонтальном режиме */
+  body.cabinet-mode .cabinet-nav .divider{
+    display: none !important;
+  }
+
+  /* 5) Ссылки-табики: фикс ширины по контенту */
+  body.cabinet-mode .cabinet-nav a{
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+
+    margin: 0 !important;               /* вместо margin-bottom */
+    padding: 12px 14px !important;      /* компактнее */
+    border-left: none !important;       /* убираем левую полосу */
+    border-bottom: 2px solid transparent !important;
+
+    border-radius: 999px !important;
+    background: rgba(255,255,255,0.04) !important;
+  }
+
+  body.cabinet-mode .cabinet-nav a.active{
+    background: rgba(255,255,255,0.08) !important;
+    border-bottom-color: #2b7aff !important;
+  }
+
+  /* 6) Контент строго под табами + шире к краям */
+  body.cabinet-mode #cabinet-content{
+    padding: 14px 8px 26px !important;  /* было 16px 12px 24px :contentReference[oaicite:2]{index=2} */
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* если внутри есть ограничение ширины — снимаем */
+  body.cabinet-mode .overview-inner{
+    max-width: none !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
 
 </style>
 </head>

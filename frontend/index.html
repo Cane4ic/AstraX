@@ -1818,6 +1818,33 @@ margin-bottom: 100px;
 }
 
 
+
+/* Ensure <button class="user-item"> looks like links (no default button bg/border) */
+.user-menu button.user-item{
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  padding: 12px 12px;
+}
+.user-menu button.user-item:focus{
+  outline: none;
+}
+
+/* Mobile-only section inside profile menu */
+.user-mobile-nav{ display:none; }
+
+.user-mobile-nav-divider{ display:none; }
+@media (max-width:720px){ .user-mobile-nav-divider{ display:block; } }
+
+@media (max-width:720px){
+  .user-mobile-nav{ display:block; }
+}
+@media (min-width:721px){
+  .user-mobile-nav{ display:none; }
+}
 .assets-trigger{
   background:transparent;
   border:none;
@@ -6499,12 +6526,19 @@ body.forextrade-mode{
     <a class="user-item" href="#identification">Identification</a>
     <a class="user-item" href="#security">Security</a>
 
-    <div class="user-menu-item" onclick="openAssets()">Assets</div>
-<div class="user-menu-item" onclick="openDeposits()">Deposits</div>
-<div class="user-menu-item" onclick="openCryptoPage()">Markets</div>
-<div class="user-menu-item" onclick="openSpotPage()">Spot</div>
-<div class="user-menu-item" onclick="openstockstradepage()">Stocks</div>
-<div class="user-menu-item" onclick="openforextradepage()">Forex</div>
+    <div class="user-divider user-mobile-nav-divider"></div>
+
+    <!-- Mobile quick nav (moved from burger) -->
+    
+    <div class="user-mobile-nav">
+<button class="user-item" type="button" id="user-nav-assets">Assets</button>
+    <button class="user-item" type="button" id="user-nav-deposits">Deposits</button>
+    <button class="user-item" type="button" id="user-nav-markets">Markets</button>
+    <button class="user-item" type="button" id="user-nav-spot">Spot</button>
+    <button class="user-item" type="button" id="user-nav-stocks">Stocks</button>
+    <button class="user-item" type="button" id="user-nav-forex">Forex</button>
+    </div>
+
 
     <div class="user-divider"></div>
 

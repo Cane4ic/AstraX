@@ -6846,7 +6846,49 @@ body.forextrade-mode{
   }
 }
 
+/* FIX: вернуть вертикальный скролл на StocksTrade */
+html.stocks-trade-mode,
+body.stocks-trade-mode,
+html.stockstrade-mode,
+body.stockstrade-mode{
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+}
 
+/* не обрезать саму страницу */
+#openstockstradepage{
+  overflow: visible !important; /* или overflow-y:auto */
+}
+
+/* FIX: forextrade — убрать пустоту под topbar (как на spot) */
+@media (max-width: 900px){
+  #openforextradepage{
+    padding-top: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
+
+/* FIX: stockstrade — не используем отрицательный margin */
+@media (max-width: 900px){
+  #openstockstradepage{ margin-top: 0 !important; }
+}
+
+/* FIX: stockstrade — вернуть скролл на мобиле */
+@media (max-width: 900px){
+  body.stockstrade-mode{
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* на всякий случай: чтобы внутренние блоки не забирали scroll */
+  #openstockstradepage .spot-orders{
+    overflow: visible !important;
+    min-height: auto !important;
+  }
+}
 /* ===============================
    FIX: Pair dropdown on phones (Spot/Stocks/Forex)
    - keep inside viewport

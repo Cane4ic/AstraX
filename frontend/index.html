@@ -1694,22 +1694,25 @@ margin-bottom: 100px;
 }
 
 .mobile-auth-panel--logged{
-  position: relative;
-  top: auto;
+  position: fixed;
+  top: 72px;              /* opens downward under top bar */
+  left: 50%;
   right: auto;
-  width: min(360px, calc(100vw - 40px));
-  padding: 18px;
-  border-radius: 18px;
+  transform: translateX(-50%);
+  width: min(320px, calc(100vw - 24px));
+  padding: 12px;
+  border-radius: 16px;
 }
 
+/* Logged-in mobile menu items: smaller like mock */
 .mobile-auth-panel--logged .mobile-auth-item{
-  height: 52px;
-  border-radius: 14px;
-  font-size: 15px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 14px;
 }
 
 .mobile-auth-panel--logged .mobile-auth-item + .mobile-auth-item{
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .mobile-auth-item--danger{

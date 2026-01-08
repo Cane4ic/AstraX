@@ -7094,6 +7094,274 @@ body.stocks-trade-mode #openstockstradepage .spot-layout{
   }
 }
 
+/* ===============================
+   MOBILE OVERRIDE — FORCE PAGE SCROLL
+   stockstrade / forextrade
+   =============================== */
+@media (max-width: 720px){
+
+  /* 1) Страница ВСЕГДА может скроллиться */
+  html, body{
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 2) Перебиваем запрет скролла режимов */
+  body.stockstrade-mode,
+  body.stocks-trade-mode,
+  body.forextrade-mode{
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 3) Страницы НЕ фиксированные */
+  #openstockstradepage,
+  #openforextradepage{
+    position: relative !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    padding-top: 0 !important; /* topbar sticky — padding не нужен */
+  }
+
+  /* 4) Отключаем desktop-логику (sticky + inner scroll) */
+  #openstockstradepage .spot-layout,
+  #openforextradepage .spot-layout{
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  #openstockstradepage .spot-trade,
+  #openforextradepage .spot-trade{
+    position: static !important;
+    top: auto !important;
+  }
+
+  #openstockstradepage .spot-orders,
+  #openforextradepage .spot-orders{
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* =========================================================
+   UNIFIED MOBILE LAYOUT (SPOT / STOCKS / FOREX)
+   - one scroll (page scroll)
+   - fixed topbar for all
+   - content starts under topbar
+   ========================================================= */
+@media (max-width: 720px){
+
+  /* 0) Всегда убираем горизонтальный скролл, возвращаем вертикальный */
+  html, body{
+    height: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 1) Любые “режимы без скролла” выключаем */
+  body.stockstrade-mode,
+  body.stocks-trade-mode,
+  body.forextrade-mode,
+  body.forex-trade-mode,
+  body.spot-mode,
+  body.futures-mode{
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+
+  /* 2) Topbar делаем одинаковым везде: fixed */
+  header.topbar-wrapper{
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 20000 !important;
+  }
+
+  /* 3) Все три страницы: обычный поток, НЕ fixed, и с отступом под topbar */
+  #openspotpage,
+  #openstockstradepage,
+  #openforextradepage,
+  #spot-page{
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+
+    display: block !important;
+    min-height: 100vh !important;
+
+    overflow: visible !important;
+    padding-top: var(--topbar-h) !important;
+    margin-top: 0 !important; /* убьёт #openstockstradepage{margin-top:-52px} */
+  }
+
+  /* 4) На мобиле НЕ используем “экранные” высоты/сетки — пусть течёт вниз */
+  .spot-layout,
+  #openstockstradepage .spot-layout,
+  #openforextradepage .spot-layout{
+    display: block !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+
+    /* как на spot — небольшой внутренний отступ */
+    padding-top: 12px !important;
+    margin-top: 0 !important;
+  }
+
+  /* 5) Запрещаем sticky/inner-scroll решения на мобиле (они ломают общий скролл) */
+  #openstockstradepage .spot-trade,
+  #openforextradepage .spot-trade{
+    position: static !important;
+    top: auto !important;
+  }
+  #openstockstradepage .spot-orders,
+  #openforextradepage .spot-orders{
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    min-height: 0 !important;
+  }
+
+  /* 6) На всякий случай: чтобы никакие родители не создавали боковой скролл */
+  #openspotpage, #openstockstradepage, #openforextradepage,
+  #openspotpage .spot-pair, #openstockstradepage .spot-pair, #openforextradepage .spot-pair{
+    overflow-x: hidden !important;
+  }
+}
+
+/* =========================================================
+   SAFE MOBILE UNIFY (does NOT touch display)
+   ========================================================= */
+@media (max-width: 720px){
+
+  /* общий: не даём горизонтального скролла */
+  html, body{
+    overflow-x: hidden !important;
+  }
+
+  /* -----------------------------
+     STOCKSTRADE (как spot по верху)
+     У тебя есть:
+     - margin-top:-52px  (ручной костыль) :contentReference[oaicite:3]{index=3}
+     - padding-top: var(--topbar-h) (даёт лишнее место со sticky topbar) :contentReference[oaicite:4]{index=4}
+     ----------------------------- */
+  #openstockstradepage{
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    overflow: visible !important;   /* чтобы страница могла скроллиться */
+  }
+
+  /* -----------------------------
+     FOREXTRADE
+     У тебя:
+     - header.topbar-wrapper fixed в forex-trade-mode :contentReference[oaicite:5]{index=5}
+     - сама секция fixed/top:12px :contentReference[oaicite:6]{index=6}
+     => делаем top:0 и компенсируем padding-top высотой topbar
+     ----------------------------- */
+  body.forex-trade-mode #openforextradepage{
+    top: 0 !important;                          /* вместо top:12px */
+    padding-top: var(--topbar-h) !important;    /* чтобы не залезало под fixed topbar */
+    overflow: hidden !important;                /* сохраняем твою “терминальную” модель */
+  }
+
+  /* ВАЖНО: не трогаем display/position у секций в целом, чтобы табы работали */
+}
+
+/* =========================================================
+   RECOVERY + UNIFY: visibility + topbar (safe, no layout break)
+   Put this at the VERY END of CSS
+   ========================================================= */
+
+/* 1) Topbar по умолчанию НЕ fixed (иначе главная/stock залезают под него) */
+header.topbar-wrapper{
+  position: sticky !important;
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 20000 !important;
+}
+
+/* 2) FIXED topbar только в forex-trade-mode (как у тебя и задумано) */
+body.forex-trade-mode header.topbar-wrapper{
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 20000 !important;
+}
+
+/* 3) Жёстко возвращаем логику табов: видна только активная страница */
+#openspotpage,
+#openstockstradepage,
+#openforextradepage{
+  display: none !important;
+}
+
+/* активная страница по классу на body (покрываю оба варианта имён) */
+body.spot-mode #openspotpage{ display:block !important; }
+
+body.stockstrade-mode #openstockstradepage,
+body.stocks-trade-mode #openstockstradepage{ display:block !important; }
+
+body.forex-trade-mode #openforextradepage,
+body.forextrade-mode #openforextradepage{ display:block !important; }
+
+/* 4) Stocks: убираем ручной сдвиг вверх, из-за него на ПК лезет под topbar */
+#openstockstradepage{
+  margin-top: 0 !important; /* убивает margin-top:-52px */
+}
+
+/* 5) Forex: твоя секция fixed и была top:12px -> поднимаем к top:0 и даём отступ под fixed topbar */
+body.forex-trade-mode #openforextradepage{
+  top: 0 !important;                       /* вместо top:12px */
+  padding-top: var(--topbar-h) !important; /* чтобы контент не залезал под fixed topbar */
+}
+
+/* 6) На мобиле: запрещаем горизонтальный скролл, но не трогаем display/layout */
+@media (max-width: 720px){
+  html, body{ overflow-x: hidden !important; }
+}
+
+/* =========================================================
+   PAGE VISIBILITY GATE (fix: spot visible everywhere)
+   Put at the VERY END of CSS
+   ========================================================= */
+
+/* По умолчанию трейдинг-страницы скрыты (JS может ставить display:block,
+   но этот гейт не даст им светиться вне режима) */
+#spot-page,
+#openstockstradepage,
+#openforextradepage{
+  display: none !important;
+}
+
+/* Включаем только активную по классу на body */
+body.spot-mode #spot-page{
+  display: block !important;
+}
+
+body.stocks-trade-mode #openstockstradepage,
+body.stockstrade-mode #openstockstradepage{
+  display: block !important;
+}
+
+body.forex-trade-mode #openforextradepage,
+body.forextrade-mode #openforextradepage{
+  display: block !important;
+}
+
+
 </style>
 </head>
 <body>

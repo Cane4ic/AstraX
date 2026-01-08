@@ -30,7 +30,10 @@
 
   position: sticky;   /* ← держим бар сверху */
   top: 0;
-  z-index: 1000;      /* поверх контента */
+  /* Важно: на мобильных внутри топбара открывается бургер-меню (fixed overlay).
+     Если у внутренних экранов/панелей есть свой высокий z-index, меню может оказаться "под" ними.
+     Поэтому держим топбар (и все его оверлеи) выше остальных слоёв. */
+  z-index: 50000;     /* выше контента/панелей */
 }
 
     .topbar {
@@ -2327,7 +2330,7 @@ body.cabinet-mode{
 body.cabinet-mode .topbar-wrapper{
   position: fixed;
   top: 0; left: 0; right: 0;
-  z-index: 1000;
+  z-index: 50000; /* чтобы мобильный бургер-оверлей был поверх кабинета */
 }
 
 body.cabinet-mode{
@@ -6408,13 +6411,7 @@ body.forextrade-mode{
   <button class="btn btn-primary" id="btn-top-get-started">Get Started</button>
 
   <!-- Mobile: burger menu for guest -->
-  <button class="top-icon-btn burger-btn" id="mobile-guest-burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobile-guest-menu">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M4 7H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M4 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-  </button>
+  
 
   <div class="mobile-auth-menu" id="mobile-guest-menu" aria-hidden="true">
     <div class="mobile-auth-panel" role="menu" aria-label="Guest menu">
@@ -6504,6 +6501,13 @@ body.forextrade-mode{
     <a class="user-item" href="#profile">Profile</a>
     <a class="user-item" href="#identification">Identification</a>
     <a class="user-item" href="#security">Security</a>
+    <a class="user-item" href="#cabinet">Assets</a>
+    <a class="user-item" href="#deposit">Deposit</a>
+    <a class="user-item" href="#crypto">Markets</a>
+    <a class="user-item" href="#spot">Spot</a>
+    <a class="user-item" href="#stocks-trade">Stocks</a>
+    <a class="user-item" href="#openforextradepage">Forex</a>
+    
 
     <div class="user-divider"></div>
 

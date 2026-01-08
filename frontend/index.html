@@ -1683,6 +1683,21 @@ margin-bottom: 100px;
   display: block;
 }
 
+@media (max-width: 720px){
+  /* Anchor dropdown under the burger button, but never overflow the viewport */
+  #topbar-guest, #topbar-auth{
+    position: relative;
+  }
+
+  .mobile-auth-menu{
+    left: auto !important;
+    right: 0 !important;
+    width: 240px !important;
+    max-width: calc(100vw - 24px) !important; /* 12px padding on each side */
+  }
+}
+
+
 .mobile-auth-menu.open{
   opacity: 1;
   transform: translateY(0);
@@ -1735,17 +1750,21 @@ margin-bottom: 100px;
 
 
 @media (max-width: 720px){
-  /* Replace topbar actions with burger on phones */
+  /* Phone layout */
   #topbar-auth,
   #topbar-guest{ position: relative; }
+
+  /* Logged-in: actions moved into profile menu */
   #topbar-auth .top-deposit-btn,
   #topbar-auth #assets-dropdown{ display:none !important; }
-
-  #topbar-guest #btn-top-signin,
-  #topbar-guest #btn-top-get-started{ display:none !important; }
-
   #topbar-auth .burger-btn{ display:none !important; }
-  #topbar-guest .burger-btn{ display:flex; }
+
+  /* Guest: show Sign in / Get Started (no burger) */
+  #topbar-guest #btn-top-signin,
+  #topbar-guest #btn-top-get-started{ display:inline-flex !important; }
+
+  #topbar-guest .burger-btn,
+  #mobile-guest-menu{ display:none !important; }
 }
 
 .top-badge{
@@ -6376,6 +6395,84 @@ body.forextrade-mode{
 #tv-chart iframe{
   border: 0;
   display: block;
+}
+
+
+
+/* ===============================
+   MOBILE CABINET LAYOUT FIX (phone)
+   Sidebar -> top horizontal bar, content full width
+   =============================== */
+@media (max-width: 900px) {
+  body.cabinet-mode .cabinet-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    height: calc(100vh - var(--topbar-h)) !important;
+    gap: 0 !important;
+  }
+
+  body.cabinet-mode .cabinet-sidebar {
+    position: sticky !important;
+    top: var(--topbar-h) !important;
+    z-index: 1000 !important;
+
+    width: 100% !important;
+    height: auto !important;
+    padding: 8px 0 !important;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+    background: #000 !important;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.cabinet-mode .cabinet-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 6px !important;
+    padding: 0 12px !important;
+    background: transparent !important;
+  }
+
+  body.cabinet-mode .cabinet-nav a {
+    flex: 0 0 auto !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+
+    border-left: none !important;
+    border-radius: 10px !important;
+    white-space: nowrap !important;
+    margin-bottom: 0 !important;
+  }
+
+  body.cabinet-mode .cabinet-nav a.active {
+    background: rgba(43,122,255,0.18) !important;
+    border-left: none !important;
+  }
+
+  body.cabinet-mode .cabinet-nav .divider {
+    display: none !important;
+  }
+
+  body.cabinet-mode #cabinet-content {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    height: auto !important;
+
+    padding: 16px 12px 24px !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+  }
+
+  /* overview bar in grid-area layout can cause clipping on mobile;
+     make it flow naturally above content */
+  body.cabinet-mode #overview-bar {
+    position: relative !important;
+    top: auto !important;
+  }
 }
 
 </style>

@@ -6823,7 +6823,26 @@ body.forextrade-mode{
   #openspotpage, #openstockstradepage, #openforextradepage,
   #openspotpage .spot-layout, #openstockstradepage .spot-layout, #openforextradepage .spot-layout,
   #openspotpage .spot-pair, #openstockstradepage .spot-pair, #openforextradepage .spot-pair{
-    overflow: visible !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+  }
+}
+
+@media (max-width: 720px){
+  /* 1) Всегда запрещаем горизонтальный скролл */
+  html, body{
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+
+  /* 2) На pages-контейнерах НЕ делаем overflow-y: visible */
+  #openspotpage, #openstockstradepage, #openforextradepage,
+  #openspotpage .spot-layout, #openstockstradepage .spot-layout, #openforextradepage .spot-layout,
+  #openspotpage .spot-pair, #openstockstradepage .spot-pair, #openforextradepage .spot-pair{
+    overflow-x: hidden !important;
+    overflow-y: auto !important;     /* важно: auto, не visible */
+    -webkit-overflow-scrolling: touch;
   }
 }
 
